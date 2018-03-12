@@ -1,0 +1,17 @@
+{
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.wordWrapColumn": 132,
+  "editor.wordWrap": "wordWrapColumn",
+  "editor.rulers": [120],
+  "files.trimTrailingWhitespace": true,
+  "files.associations": {
+    "*.monk": "html"
+  },
+  "typescript.tsdk": "./node_modules/typescript/lib",
+  "search.exclude": {
+    "tsproject/compiled": true,
+    "node_modules": true
+  },
+  "typescript.locale": "en"
+}

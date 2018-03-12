@@ -1,0 +1,41 @@
+{
+  "name": "sqlite-with-transactions",
+  "version": "0.1.0",
+  "description": "A wrapper library based on \"sqlite\" (which is based on \"sqlite3\") that adds a pool of connections for non-blocking transactions",
+  "main": "sqlite-with-transactions.min.js",
+  "types": "sqlite-with-transactions.d.ts",
+  "dependencies": {
+    "sqlite": "*"
+  },
+  "devDependencies": {
+    "rollup": "0.56.5",
+    "typescript": "2.7.2",
+    "uglify-es": "3.3.9",
+    "npm-run-all": "4.1.2",
+    "rimraf": "2.6.2"
+  },
+  "scripts": {
+    "_clear": "rimraf tsproject/compiled/*.js tsproject/compiled/*.d.ts",
+    "_tsc": "tsc --project tsproject",
+    "_make-bundle": "node tsproject/make-bundle",
+    "build": "run-s _clear _tsc _make-bundle",
+    "watch": "tsc --project tsproject --watch"
+  },
+  "engines": {
+    "node": ">=8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paleo/sqlite-with-transactions.git"
+  },
+  "author": {
+    "name": "Paleo"
+  },
+  "license": "CC0-1.0",
+  "keywords": [
+    "SQLite",
+    "pool",
+    "connection",
+    "transaction"
+  ]
+}
