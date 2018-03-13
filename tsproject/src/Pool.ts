@@ -1,25 +1,25 @@
-import { Database } from "sqlite"
-import { PoolOptions } from "./common-definitions"
+import { PoolOptions } from "./transactions-definitions";
+import { BasicDatabaseConnection } from "./driver-definitions";
 
 export interface Pool {
-  readonly singleUse: Database
-  grab(): Promise<Database>
-  release(db: Database)
+  readonly singleUse: BasicDatabaseConnection
+  grab(): Promise<BasicDatabaseConnection>
+  release(db: BasicDatabaseConnection)
   close(): Promise<void>
 }
 
 interface PoolItem {
-  db: Database
+  db: BasicDatabaseConnection
   releaseTime: number
 }
 
-export async function createPool(openSqliteConnection: () => Promise<Database>, options: PoolOptions): Promise<Pool> {
+export async function createPool(newCn: () => Promise<BasicDatabaseConnection>, options: PoolOptions): Promise<Pool> {
   if (!options.logError)
     options.logError = console.log
   if (!options.connectionTtl)
     options.connectionTtl = 60
   let closed = false
-  let singleUse = await openSqliteConnection()
+  let singleUse = await newCn()
   let available = [] as PoolItem[]
   let cleaning: any | null = null
 
@@ -35,9 +35,9 @@ export async function createPool(openSqliteConnection: () => Promise<Database>, 
       let pi = available.pop()
       if (pi)
         return pi.db
-      return openSqliteConnection()
+      return newCn()
     },
-    release: (db: Database) => {
+    release: (db: BasicDatabaseConnection) => {
       available.push({ db, releaseTime: Date.now() })
       if (closed)
         cleanOldConnections(true)

@@ -1,11 +1,13 @@
-import { Database } from "sqlite"
-import { PoolOptions, Connection } from "./common-definitions"
-import { doCreateConnection } from "./Connection"
 import { createPool } from "./Pool"
+import { BasicDatabaseConnection } from "./driver-definitions"
+import { PoolOptions, DatabaseConnection } from "./transactions-definitions"
+import { toDatabaseConnection } from "./DatabaseConnection"
 
-export async function sqliteConnection(openSqliteConnection: () => Promise<Database>, poolOptions: PoolOptions = {})
-  : Promise<Connection> {
-  return await doCreateConnection(await createPool(openSqliteConnection, poolOptions)) as Connection
+export async function createConnection(newCn: () => Promise<BasicDatabaseConnection>, poolOptions: PoolOptions = {})
+  : Promise<DatabaseConnection> {
+  let pool = await createPool(newCn, poolOptions)
+  return toDatabaseConnection(pool.singleUse, pool)
 }
 
-export { Connection, InTransactionConnection, PoolOptions } from "./common-definitions"
+export { BasicDatabaseConnection, BasicPreparedStatement, BasicExecResult } from "./driver-definitions"
+export { DatabaseConnection, ExecResult, PoolOptions, PreparedStatement } from "./transactions-definitions"
