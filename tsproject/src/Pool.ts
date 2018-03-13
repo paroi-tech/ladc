@@ -1,4 +1,4 @@
-import { PoolOptions } from "./transactions-definitions";
+import { PoolOptions } from "./common-definitions";
 import { BasicDatabaseConnection } from "./driver-definitions";
 
 export interface Pool {

@@ -10,7 +10,7 @@ export interface SqliteConnectionOptions {
   initCallback?(db: any): void | Promise<void>
 }
 
-export function newConnectionProvider(options: SqliteConnectionOptions): () => Promise<BasicDatabaseConnection> {
+export function basicConnectionProvider(options: SqliteConnectionOptions): () => Promise<BasicDatabaseConnection> {
   if (options.verbose)
     sqlite3.verbose()
   return async () => {

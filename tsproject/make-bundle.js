@@ -7,7 +7,7 @@ const uglifyEs = require("uglify-es")
 const readFile = promisify(fs.readFile)
 const writeFile = promisify(fs.writeFile)
 
-const packageName = "sqlite-with-transactions"
+const packageName = "rdbc"
 const srcPath = path.join(__dirname, "src")
 const compiledPath = path.join(__dirname, "compiled")
 const distNpmPath = path.join(__dirname, "..")
@@ -27,6 +27,7 @@ async function build() {
 
   await writeFile(path.join(distNpmPath, `${packageName}.min.js`), minified.code)
   copyFile(path.join(srcPath, "common-definitions.d.ts"), path.join(distNpmPath, "common-definitions.d.ts"))
+  copyFile(path.join(srcPath, "driver-definitions.d.ts"), path.join(distNpmPath, "driver-definitions.d.ts"))
   copyFile(path.join(compiledPath, "index.d.ts"), path.join(distNpmPath, `${packageName}.d.ts`))
 }
 

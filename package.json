@@ -1,11 +1,11 @@
 {
-  "name": "sqlite-with-transactions",
+  "name": "rdbc",
   "version": "0.1.0",
-  "description": "A wrapper library based on \"sqlite\" (which is based on \"sqlite3\") that adds a pool of connections for non-blocking transactions",
-  "main": "sqlite-with-transactions.min.js",
-  "types": "sqlite-with-transactions.d.ts",
+  "description": "Relational Database Connector",
+  "main": "rdbc.min.js",
+  "types": "rdbc.d.ts",
   "dependencies": {
-    "sqlite": "*"
+    "sqlite3": "*"
   },
   "devDependencies": {
     "rollup": "0.56.5",
@@ -26,7 +26,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/paleo/sqlite-with-transactions.git"
+    "url": "git+https://github.com/paleo/rdbc.git"
   },
   "author": {
     "name": "Paleo"

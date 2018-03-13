@@ -1,5 +1,5 @@
 import { Pool } from "./Pool"
-import { DatabaseConnection, PreparedStatement } from "./transactions-definitions";
+import { DatabaseConnection, PreparedStatement } from "./common-definitions";
 import { BasicDatabaseConnection, BasicPreparedStatement } from "./driver-definitions";
 import { DbcOptions } from ".";
 

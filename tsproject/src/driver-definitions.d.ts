@@ -1,8 +1,8 @@
 
 export interface BasicDatabaseConnection {
   exec(sql: string, params?: any[]): Promise<BasicExecResult>
-  all<ROW extends Array<any> = any>(sql: string, params?: any[]): Promise<ROW[]>
   prepare<ROW extends Array<any> = any>(sql: string, params?: any[]): Promise<BasicPreparedStatement<ROW>>
+  all<ROW extends Array<any> = any>(sql: string, params?: any[]): Promise<ROW[]>
   execScript(sql: string): Promise<void>
   close(): Promise<void>
 }

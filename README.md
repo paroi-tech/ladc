@@ -1,23 +1,19 @@
-# sqlite-with-transactions
+# rdbc
 
-A wrapper library based on \"sqlite\" (which is based on \"sqlite3\") that adds a pool of connections for non-blocking transactions
+Relational Database Connector.
+
+This is a layer upon connectors like \"sqlite3\", that adds:
+
+1. A common way to access to relational databases (like JDBC for Java or PDO for PHP);
+1. A pool of connections in order to allow transactions;
+1. A way to improve your connector with SQL query builders.
 
 ## Context
 
-1. The package [sqlite3](https://github.com/mapbox/node-sqlite3/) provides a connector to SQLite;
-2. The package [sqlite](https://github.com/kriasoft/node-sqlite) is a wrapper to promisify the package _sqlite3_;
-3. This package **sqlite-with-transactions** is a wrapper that adds transactions over the package _sqlite_.
-
-Notice: A package [sqlite3-transactions](https://github.com/Strix-CZ/sqlite3-transactions) exists but it locks the whole database during each transaction. Here we prefer to use a non-blocking solution with a pool of connections.
-
-## Principle
-
-The package _sqlite-with-transactions_ implements a pool of connections. Each transaction has its own connection.
-
-## Install
+## Install for SQLite (driver [sqlite3](https://github.com/mapbox/node-sqlite3))
 
 ```
-npm install sqlite sqlite-with-transactions
+npm install rdbc rdbc-sqlite3
 ```
 
 ## Usage
@@ -25,15 +21,21 @@ npm install sqlite sqlite-with-transactions
 How to create a connection:
 
 ```
-import { open } from "sqlite"
-import { sqliteConnection } from "./sqlite-with-transactions"
+import { createConnection } from "rdbc"
+import { basicConnectionProvider } from "rdbc-sqlite"
 
-async function makeMyConnection() {
-  let cn = await sqliteConnection(async () => {
-    let db = await open("/path/to/my-db.sqlite")
-    await db.run("PRAGMA foreign_keys = ON")
-    return db
-  })
+let cn
+async function getMyConnection() {
+  if (!cn) {
+    cn = await createConnection(
+      basicConnectionProvider({ fileName: `${__dirname}/mydb.sqlite` }),
+      {
+        initDatabaseConnection: async cn => {
+          await db.run("PRAGMA foreign_keys = ON")
+        }
+      }
+    )
+  }
   return cn
 }
 ```
@@ -42,37 +44,59 @@ Then, use the connection:
 
 ```
 async function useMyConnection() {
-  let cn = await makeMyConnection()
+  let cn = await getMyConnection()
   let transCn = await cn.beginTransaction()
   try {
-    await transCn.run("... insert 1 ...")
-    await transCn.run("... insert 2 ...")
-    await transCn.commit()
+    let newId = (await transCn.exec("... insert 1 ...")).insertedId
+    await transCn.exec("... insert 2 ...")
+    await transCn.commit() // A commit releases the underlying connection
   } finally {
     if (transCn.inTransaction)
-      await transCn.rollback()
+      await transCn.rollback() // A rollback releases the underlying connection
   }
-  cn.close()
+  cn.close() // Close the root connection and the connection pool
 }
 ```
 
-## Notes
+## The API
 
-The wrapper adds two useful methods:
+The methods of a `DatabaseConnection`:
 
-* `cn.singleRow(sql)` fetches with `cn.all(sql)` and returns the single row;
-* `cn.singleValue(sql)` fetches with `cn.all(sql)` and returns the single value of the single row.
+* `exec(sql, params)` returns a promise of an `ExecResult`;
+* `prepare(sql, params)` returns a promise of an `PreparedStatement`;
+* `all(sql, params)` returns a promise of an array of rows;
+* `singleRow(sql, params)` fetches with `cn.all(sql)` and returns the single row;
+* `singleValue(sql, params)` fetches with `cn.all(sql)` and returns the single value of the single row;
+* `execScript(sql)` execute a multilines script;
+* `close()` close the connection (for the root connection) or release it the pool.
 
-The method `cn.beginTransaction()` returns an object of type `InTransactionConnection`. An `InTransactionConnection` implements all the connection methods and adds the following members:
+The properties of a `ExecResult`:
 
+* `insertedId` is a readonly property with the inserted identifier;
+* `affectedRows` is a readonly property with the number of affected rows.
+
+The methods of a `PreparedStatement`:
+
+* `exec(params)` returns a promise of an `ExecResult`;
+* `all(params)` returns a promise of an array of rows;
+* `singleRow(params)` fetches with `cn.all(sql)` and returns the single row;
+* `singleValue(params)` fetches with `cn.all(sql)` and returns the single value of the single row;
+* `fetch()` fetches the next row or returns `undefined` if the resultset is finished;
+* `bind(nb, value)` binds a value to the specified parameter number;
+* `unbindAll()` cancels all the bound values;
+* `finalize()` closes the cursor (optional).
+
+## The API related to transactions
+
+The following members are provided for managing transactions:
+
+* `transCn.beginTransaction()` starts the transaction and returns the connection allocated to the transaction
+* `transCn.inTransaction` is a readonly boolean
 * `transCn.rollback()`
 * `transCn.commit()`
-* `transCn.inTransaction` is a boolean
 
-It isn't required to `close` an `InTransactionConnection`. A `submit` or a `rollback` will release the underlying connection.
+It isn't required to `close` a non-root connection used for a transaction, because a `submit` or a `rollback` will release the underlying connection.
 
-When an `InTransactionConnection` is closed, the transaction is rollbacked. Notice: The underlying connection of an `InTransactionConnection` is never closed but released to the pool.
-
-The case of a transaction in a transaction: when the method `beginTransaction()` is called on a connection of type `InTransactionConnection`, the default behaviour is to return the same instance and not to open another connection.
+When a transaction connection is closed, the transaction is rollbacked. Then the underlying connection is released to the pool.
 
 To stop the connection pool, close the root connection.
