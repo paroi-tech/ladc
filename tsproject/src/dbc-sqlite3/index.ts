@@ -1,5 +1,6 @@
 import { BasicDatabaseConnection, BasicExecResult, BasicPreparedStatement } from "../driver-definitions"
-import { open, Database, Statement } from "sqlite"
+import { createConnection, Database, Statement, RunResult } from "./promisifySqlite3";
+// import { open, Database, Statement } from "sqlite"
 
 export interface SqliteConnectionOptions {
   fileName: string
@@ -9,7 +10,7 @@ export interface SqliteConnectionOptions {
 
 export function newConnectionProvider(options: SqliteConnectionOptions): () => Promise<BasicDatabaseConnection> {
   return async () => {
-    let db = await open(options.fileName, { mode: options.mode, verbose: options.verbose })
+    let db = await createConnection(options)
     return toBasicDatabaseConnection(db)
   }
 }
@@ -17,9 +18,9 @@ export function newConnectionProvider(options: SqliteConnectionOptions): () => P
 function toBasicDatabaseConnection(db: Database): BasicDatabaseConnection {
   let cursor: InMemoryCursor | undefined
   return {
-    exec: async (sql: string, params?: any[]) => toBasicExecResult(await db.run(sql, ...params)),
-    all: (sql: string, params?: any[]) => db.all(sql, ...params),
-    prepare: async (sql: string, params?: any[]) => toBasicPreparedStatement(await db.prepare(sql, ...params)),
+    exec: async (sql: string, params?: any[]) => toBasicExecResult(await db.run(sql, params)),
+    all: (sql: string, params?: any[]) => db.all(sql, params),
+    prepare: async (sql: string, params?: any[]) => toBasicPreparedStatement(await db.prepare(sql, params)),
     execScript: async (sql: string) => {
       await db.exec(sql)
     },
@@ -30,7 +31,7 @@ function toBasicDatabaseConnection(db: Database): BasicDatabaseConnection {
   }
 }
 
-function toBasicExecResult(st: Statement): BasicExecResult {
+function toBasicExecResult(st: RunResult): BasicExecResult {
   return {
     affectedRows: st.changes,
     insertedId: st.lastID
@@ -45,16 +46,16 @@ function toBasicPreparedStatement(st: Statement): BasicPreparedStatement {
     exec: async (params?: any[]) => {
       curParams = params
       manualBound = false
-      return toBasicExecResult(await st.run(...params))
+      return toBasicExecResult(await st.run(params))
     },
     all: (params?: any[]) => {
       curParams = params
       manualBound = false
-      return st.all(...params)
+      return st.all(params)
     },
     fetch: async () => {
       if (!cursor)
-        cursor = makeInMemoryCursor(await st.all(...(curParams || [])))
+        cursor = makeInMemoryCursor(await st.all(curParams))
       return cursor.fetch()
     },
     bind: async (nb: number, value: any) => {
