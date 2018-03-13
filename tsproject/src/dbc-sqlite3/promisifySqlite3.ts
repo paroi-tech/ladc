@@ -20,11 +20,9 @@ export interface RunResult {
   readonly changes: number
 }
 
-export function createConnection(options: SqliteConnectionOptions): Promise<Database> {
-  if (options.verbose)
-    sqlite3.verbose()
+export async function createConnection(options: SqliteConnectionOptions): Promise<Database> {
   let db
-  return new Promise((resolve, reject) => {
+  await new Promise((resolve, reject) => {
     if (options.mode !== undefined) {
       db = new sqlite3.Database(options.fileName, options.mode, err => {
         if (err) {
@@ -42,9 +40,10 @@ export function createConnection(options: SqliteConnectionOptions): Promise<Data
         }
       })
     }
-  }).then(() => {
-    return promisifyDatabase(db)
   })
+  if (options.initCallback)
+    await options.initCallback(db)
+  return promisifyDatabase(db)
 }
 
 function promisifyDatabase(db): Database {

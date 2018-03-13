@@ -13,7 +13,7 @@ interface PoolItem {
   releaseTime: number
 }
 
-export async function createPool(newCn: () => Promise<BasicDatabaseConnection>, options: PoolOptions): Promise<Pool> {
+export async function createPool(newCn: () => Promise<BasicDatabaseConnection>, options: PoolOptions = {}): Promise<Pool> {
   if (!options.logError)
     options.logError = console.log
   if (!options.connectionTtl)

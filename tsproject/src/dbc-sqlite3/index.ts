@@ -1,14 +1,18 @@
 import { BasicDatabaseConnection, BasicExecResult, BasicPreparedStatement } from "../driver-definitions"
 import { createConnection, Database, Statement, RunResult } from "./promisifySqlite3";
+import sqlite3 from "sqlite3"
 // import { open, Database, Statement } from "sqlite"
 
 export interface SqliteConnectionOptions {
   fileName: string
   mode?: number
   verbose?: boolean
+  initCallback?(db: any): void | Promise<void>
 }
 
 export function newConnectionProvider(options: SqliteConnectionOptions): () => Promise<BasicDatabaseConnection> {
+  if (options.verbose)
+    sqlite3.verbose()
   return async () => {
     let db = await createConnection(options)
     return toBasicDatabaseConnection(db)
