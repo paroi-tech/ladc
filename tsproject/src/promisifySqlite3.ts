@@ -1,17 +1,18 @@
 import sqlite3 from "sqlite3"
 import { Sqlite3ConnectionOptions } from "./exported-definitions"
+import { SqlParameters } from "mycn";
 
 export interface Database {
-  run(sql: string, params?: any[]): Promise<RunResult>
-  all(sql: string, params?: any[]): Promise<any[]>
+  run(sql: string, params?: SqlParameters): Promise<RunResult>
+  all(sql: string, params?: SqlParameters): Promise<any[]>
   exec(sql: string): Promise<void>
-  prepare(sql: string, params?: any[]): Promise<Statement>
+  prepare(sql: string, params?: SqlParameters): Promise<Statement>
   close(): Promise<void>
 }
 
 export interface Statement {
-  run(params?: any[]): Promise<RunResult>
-  all(params?: any[]): Promise<any[]>
+  run(params?: SqlParameters): Promise<RunResult>
+  all(params?: SqlParameters): Promise<any[]>
   finalize(): Promise<void>
 }
 

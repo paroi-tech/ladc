@@ -1,12 +1,13 @@
 import { BasicDatabaseConnection, BasicExecResult, BasicPreparedStatement } from "mycn"
 import { RunResult, Database, Statement } from "./promisifySqlite3"
+import { SqlParameters } from "mycn/exported-definitions";
 
 export function toBasicDatabaseConnection(db: Database): BasicDatabaseConnection {
   let cursor: InMemoryCursor | undefined
   return {
-    exec: async (sql: string, params?: any[]) => toBasicExecResult(await db.run(sql, params)),
-    all: (sql: string, params?: any[]) => db.all(sql, params),
-    prepare: async (sql: string, params?: any[]) => toBasicPreparedStatement(await db.prepare(sql, params)),
+    exec: async (sql: string, params?: SqlParameters) => toBasicExecResult(await db.run(sql, params)),
+    all: (sql: string, params?: SqlParameters) => db.all(sql, params),
+    prepare: async (sql: string, params?: SqlParameters) => toBasicPreparedStatement(await db.prepare(sql, params)),
     execScript: async (sql: string) => {
       await db.exec(sql)
     },
@@ -26,15 +27,15 @@ function toBasicExecResult(st: RunResult): BasicExecResult {
 
 function toBasicPreparedStatement(st: Statement): BasicPreparedStatement {
   let manualBound = false
-  let curParams: any[] | undefined
+  let curParams: SqlParameters | undefined
   let cursor: InMemoryCursor | undefined
   return {
-    exec: async (params?: any[]) => {
+    exec: async (params?: SqlParameters) => {
       curParams = params
       manualBound = false
       return toBasicExecResult(await st.run(params))
     },
-    all: (params?: any[]) => {
+    all: (params?: SqlParameters) => {
       curParams = params
       manualBound = false
       return st.all(params)
@@ -44,13 +45,16 @@ function toBasicPreparedStatement(st: Statement): BasicPreparedStatement {
         cursor = makeInMemoryCursor(await st.all(curParams))
       return cursor.fetch()
     },
-    bind: async (nb: number, value: any) => {
+    bind: async (key: number | string, value: any) => {
       if (!manualBound) {
         manualBound = true
-        curParams = []
+        curParams = typeof key === "number" ? [] : {}
       } else if (!curParams)
-        curParams = []
-      curParams[nb - 1] = value
+        curParams = typeof key === "number" ? [] : {}
+      if (typeof key === "number")
+        curParams[key - 1] = value
+      else
+        curParams[key] = value
     },
     unbindAll: async () => {
       manualBound = false

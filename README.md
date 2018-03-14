@@ -13,16 +13,16 @@ npm install mycn mycn-sqlite3
 How to create a connection:
 
 ```
-import { createConnection } from "mycn"
+import { createDatabaseConnection } from "mycn"
 import { sqlite3ConnectionProvider } from "mycn-sqlite3"
 
 let cn
 async function getConnection() {
   if (!cn) {
-    cn = await createConnection(
+    cn = await createDatabaseConnection(
       sqlite3ConnectionProvider({ fileName: `${__dirname}/mydb.sqlite` }),
       {
-        initDatabaseConnection: async cn => {
+        init: async cn => {
           await db.run("PRAGMA foreign_keys = ON")
         }
       }
