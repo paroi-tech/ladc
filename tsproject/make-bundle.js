@@ -7,7 +7,7 @@ const uglifyEs = require("uglify-es")
 const readFile = promisify(fs.readFile)
 const writeFile = promisify(fs.writeFile)
 
-const packageName = "rdbc"
+const packageName = "mycn"
 const srcPath = path.join(__dirname, "src")
 const compiledPath = path.join(__dirname, "compiled")
 const distNpmPath = path.join(__dirname, "..")

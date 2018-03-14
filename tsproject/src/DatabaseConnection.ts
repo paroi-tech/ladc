@@ -1,7 +1,6 @@
 import { Pool } from "./Pool"
-import { DatabaseConnection, PreparedStatement } from "./common-definitions";
+import { DatabaseConnection, PreparedStatement, DbcOptions } from "./common-definitions";
 import { BasicDatabaseConnection, BasicPreparedStatement } from "./driver-definitions";
-import { DbcOptions } from ".";
 
 export async function toDatabaseConnection(dbcOptions: DbcOptions, cn: BasicDatabaseConnection, pool: Pool, inTrans = false): Promise<DatabaseConnection> {
   let closed = false

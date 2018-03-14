@@ -1,12 +1,9 @@
 {
-  "name": "rdbc",
+  "name": "mycn",
   "version": "0.1.0",
-  "description": "Relational Database Connector",
-  "main": "rdbc.min.js",
-  "types": "rdbc.d.ts",
-  "dependencies": {
-    "sqlite3": "*"
-  },
+  "description": "My Database Connector, a layer upon connectors to relational databases",
+  "main": "mycn.min.js",
+  "types": "mycn.d.ts",
   "devDependencies": {
     "rollup": "0.56.5",
     "typescript": "2.7.2",
@@ -26,16 +23,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/paleo/rdbc.git"
+    "url": "git+https://github.com/paleo/mycn.git"
   },
   "author": {
     "name": "Paleo"
   },
   "license": "CC0-1.0",
   "keywords": [
-    "SQLite",
-    "pool",
     "connection",
+    "relational",
+    "database",
+    "jdbc",
+    "pdo",
+    "pool",
     "transaction"
   ]
 }

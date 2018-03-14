@@ -1,11 +1,11 @@
-# rdbc
+# mycn
 
-Relational Database Connector.
+My Database Connector.
 
-This is a layer upon connectors like \"sqlite3\", that adds:
+This is a layer upon connectors to relational databases like \"sqlite3\", that adds:
 
-1. A common way to access to relational databases (like JDBC for Java or PDO for PHP);
-1. A pool of connections in order to allow transactions;
+1. A common way to access to relational databases (like _JDBC_ for Java or _PDO_ for PHP);
+1. A pool of connections in order to allow transactions in an asynchronous context;
 1. A way to improve your connector with SQL query builders.
 
 ## Context
@@ -13,7 +13,7 @@ This is a layer upon connectors like \"sqlite3\", that adds:
 ## Install for SQLite (driver [sqlite3](https://github.com/mapbox/node-sqlite3))
 
 ```
-npm install rdbc rdbc-sqlite3
+npm install mycn mycn-sqlite3
 ```
 
 ## Usage
@@ -21,14 +21,14 @@ npm install rdbc rdbc-sqlite3
 How to create a connection:
 
 ```
-import { createConnection } from "rdbc"
-import { basicConnectionProvider } from "rdbc-sqlite"
+import { createConnection } from "mycn"
+import { sqliteConnectionProvider } from "mycn-sqlite3"
 
 let cn
-async function getMyConnection() {
+async function getConnection() {
   if (!cn) {
     cn = await createConnection(
-      basicConnectionProvider({ fileName: `${__dirname}/mydb.sqlite` }),
+      sqliteConnectionProvider({ fileName: `${__dirname}/mydb.sqlite` }),
       {
         initDatabaseConnection: async cn => {
           await db.run("PRAGMA foreign_keys = ON")
@@ -44,7 +44,7 @@ Then, use the connection:
 
 ```
 async function useMyConnection() {
-  let cn = await getMyConnection()
+  let cn = await getConnection()
   let transCn = await cn.beginTransaction()
   try {
     let newId = (await transCn.exec("... insert 1 ...")).insertedId
@@ -90,12 +90,12 @@ The methods of a `PreparedStatement`:
 
 The following members are provided for managing transactions:
 
-* `transCn.beginTransaction()` starts the transaction and returns the connection allocated to the transaction
+* `cn.beginTransaction()` starts the transaction and returns the connection allocated to the transaction
 * `transCn.inTransaction` is a readonly boolean
 * `transCn.rollback()`
 * `transCn.commit()`
 
-It isn't required to `close` a non-root connection used for a transaction, because a `submit` or a `rollback` will release the underlying connection.
+It isn't required to `close` a connection allocated to a transaction, because a `submit` or a `rollback` will release the underlying connection.
 
 When a transaction connection is closed, the transaction is rollbacked. Then the underlying connection is released to the pool.
 
