@@ -1,7 +1,7 @@
 import { BasicDatabaseConnection, BasicExecResult, BasicPreparedStatement } from "./driver-definitions";
 
-export interface DbcOptions {
-  initDatabaseConnection?(cn: DatabaseConnection): void | Promise<void>
+export interface MycnOptions {
+  init?(cn: DatabaseConnection): void | Promise<void>
   modifyDatabaseConnection?(cn: DatabaseConnection): DatabaseConnection | Promise<DatabaseConnection>
   modifyPreparedStatement?(ps: PreparedStatement): PreparedStatement | Promise<PreparedStatement>
   poolOptions?: PoolOptions
@@ -15,12 +15,18 @@ export interface PoolOptions {
   logError?(reason: any): void
 }
 
-export interface DatabaseConnection extends BasicDatabaseConnection {
-  exec(sql: string, params?: any[]): Promise<ExecResult>
-  prepare<ROW extends Array<any> = any>(sql: string, params?: any[]): Promise<PreparedStatement<ROW>>
+type SqlParameters = any[] | { [key: string]: any }
 
-  singleRow<ROW extends Array<any> = any>(sql: string, params?: any[]): Promise<ROW | undefined>
-  singleValue<VAL = any>(sql: string, params?: any[]): Promise<VAL | undefined | null>
+export interface DatabaseConnection extends BasicDatabaseConnection {
+  exec(sql: string, params?: SqlParameters): Promise<ExecResult>
+  prepare<ROW extends Array<any> = any>(sql: string, params?: SqlParameters): Promise<PreparedStatement<ROW>>
+
+  all<ROW extends Array<any> = any>(sql: string, params?: SqlParameters): Promise<ROW[]>
+  singleRow<ROW extends Array<any> = any>(sql: string, params?: SqlParameters): Promise<ROW | undefined>
+  singleValue<VAL = any>(sql: string, params?: SqlParameters): Promise<VAL | undefined | null>
+
+  execScript(sql: string): Promise<void>
+  close(): Promise<void>
 
   readonly inTransaction: boolean
   beginTransaction(): Promise<DatabaseConnection>
@@ -32,8 +38,14 @@ export interface ExecResult extends BasicExecResult {
 }
 
 export interface PreparedStatement<PS extends Array<any> = any> extends BasicPreparedStatement<PS> {
-  exec(params?: any[]): Promise<ExecResult>
+  exec(params?: SqlParameters): Promise<ExecResult>
 
-  singleRow<ROW = PS>(params?: any[]): Promise<ROW | undefined>
-  singleValue<VAL>(params?: any[]): Promise<VAL | undefined | null>
+  all<ROW = PS>(params?: SqlParameters): Promise<ROW[]>
+  singleRow<ROW = PS>(params?: SqlParameters): Promise<ROW | undefined>
+  singleValue<VAL>(params?: SqlParameters): Promise<VAL | undefined | null>
+
+  fetch<ROW = PS>(): Promise<ROW | undefined>
+  bind(key: number | string, value: any): Promise<void>
+  unbindAll(): Promise<void>
+  finalize(): Promise<void>
 }

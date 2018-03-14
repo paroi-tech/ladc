@@ -1,17 +1,17 @@
 import { Pool } from "./Pool"
-import { DatabaseConnection, PreparedStatement, DbcOptions } from "./exported-definitions";
+import { DatabaseConnection, PreparedStatement, MycnOptions, SqlParameters } from "./exported-definitions";
 import { BasicDatabaseConnection, BasicPreparedStatement } from "./driver-definitions";
 
-export async function toDatabaseConnection(dbcOptions: DbcOptions, cn: BasicDatabaseConnection, pool: Pool, inTrans = false): Promise<DatabaseConnection> {
+export async function toDatabaseConnection(dbcOptions: MycnOptions, cn: BasicDatabaseConnection, pool: Pool, inTrans = false): Promise<DatabaseConnection> {
   let closed = false
   let endedTrans = false
   let thisObj: DatabaseConnection = {
-    exec: (sql: string, params?: any[]) => cn.exec(sql, params),
-    all: (sql: string, params?: any[]) => cn.all(sql, params),
-    prepare: async (sql: string, params?: any[]) => await toPreparedStatement(dbcOptions, await cn.prepare(sql, params)),
+    exec: (sql: string, params?: SqlParameters) => cn.exec(sql, params),
+    all: (sql: string, params?: SqlParameters) => cn.all(sql, params),
+    prepare: async (sql: string, params?: SqlParameters) => await toPreparedStatement(dbcOptions, await cn.prepare(sql, params)),
     execScript: (sql: string) => cn.execScript(sql),
-    singleRow: async (sql: string, params?: any[]) => toSingleRow(await cn.all(sql, params)),
-    singleValue: async (sql: string, params?: any[]) => toSingleValue(await cn.all(sql, params)),
+    singleRow: async (sql: string, params?: SqlParameters) => toSingleRow(await cn.all(sql, params)),
+    singleValue: async (sql: string, params?: SqlParameters) => toSingleValue(await cn.all(sql, params)),
     get inTransaction() {
       return inTrans
     },
@@ -39,8 +39,8 @@ export async function toDatabaseConnection(dbcOptions: DbcOptions, cn: BasicData
         await pool.close()
     }
   }
-  if (dbcOptions.initDatabaseConnection)
-    await dbcOptions.initDatabaseConnection(thisObj)
+  if (dbcOptions.init)
+    await dbcOptions.init(thisObj)
   if (dbcOptions.modifyDatabaseConnection)
     thisObj = await dbcOptions.modifyDatabaseConnection(thisObj)
   return thisObj
@@ -58,16 +58,16 @@ export async function toDatabaseConnection(dbcOptions: DbcOptions, cn: BasicData
   }
 }
 
-async function toPreparedStatement(dbcOptions: DbcOptions, ps: BasicPreparedStatement): Promise<PreparedStatement> {
+async function toPreparedStatement(dbcOptions: MycnOptions, ps: BasicPreparedStatement): Promise<PreparedStatement> {
   let thisObj = {
-    exec: (params?: any[]) => ps.exec(params),
-    all: (params?: any[]) => ps.all(params),
+    exec: (params?: SqlParameters) => ps.exec(params),
+    all: (params?: SqlParameters) => ps.all(params),
     fetch: () => ps.fetch(),
-    bind: (nb: number, value: any) => ps.bind(nb, value),
+    bind: (key: number | string, value: any) => ps.bind(key, value),
     unbindAll: () => ps.unbindAll(),
     finalize: () => ps.finalize(),
-    singleRow: async (params?: any[]) => toSingleRow(await ps.all(params)),
-    singleValue: async (params?: any[]) => toSingleValue(await ps.all(params))
+    singleRow: async (params?: SqlParameters) => toSingleRow(await ps.all(params)),
+    singleValue: async (params?: SqlParameters) => toSingleValue(await ps.all(params))
   }
   if (dbcOptions.modifyPreparedStatement)
     thisObj = await dbcOptions.modifyPreparedStatement(thisObj)

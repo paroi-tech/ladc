@@ -28,7 +28,7 @@ async function getConnection() {
     cn = await createDatabaseConnection(
       sqlite3ConnectionProvider({ fileName: `${__dirname}/mydb.sqlite` }),
       {
-        initDatabaseConnection: async cn => {
+        init: async cn => {
           await cn.exec("PRAGMA foreign_keys = ON")
         }
       }
