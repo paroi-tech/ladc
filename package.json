@@ -1,6 +1,6 @@
 {
   "name": "mycn",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "My Database Connector, a layer upon connectors to relational databases",
   "main": "mycn.min.js",
   "types": "mycn.d.ts",

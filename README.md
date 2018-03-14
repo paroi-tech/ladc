@@ -8,8 +8,6 @@ This is a layer upon connectors to relational databases like \"sqlite3\", that a
 1. A pool of connections in order to allow transactions in an asynchronous context;
 1. A way to improve your connector with SQL query builders.
 
-## Context
-
 ## Install for SQLite (driver [sqlite3](https://github.com/mapbox/node-sqlite3))
 
 ```
@@ -21,17 +19,17 @@ npm install mycn mycn-sqlite3
 How to create a connection:
 
 ```
-import { createConnection } from "mycn"
-import { sqliteConnectionProvider } from "mycn-sqlite3"
+import { createDatabaseConnection } from "mycn"
+import { sqlite3ConnectionProvider } from "mycn-sqlite3"
 
 let cn
 async function getConnection() {
   if (!cn) {
-    cn = await createConnection(
-      sqliteConnectionProvider({ fileName: `${__dirname}/mydb.sqlite` }),
+    cn = await createDatabaseConnection(
+      sqlite3ConnectionProvider({ fileName: `${__dirname}/mydb.sqlite` }),
       {
         initDatabaseConnection: async cn => {
-          await db.run("PRAGMA foreign_keys = ON")
+          await cn.exec("PRAGMA foreign_keys = ON")
         }
       }
     )
