@@ -34,22 +34,30 @@ async function makeDefinitionsCode() {
     "// -- Usage definitions --",
     removeLocalImports((await readFile(path.join(srcPath, "exported-definitions.d.ts"), "utf-8")).trim()),
     "// -- Entry point definition --",
-    keeyOnlyExportDeclare(await readFile(path.join(compiledPath, "index.d.ts"), "utf-8")),
+    cleanEntryPointDefs(await readFile(path.join(compiledPath, "index.d.ts"), "utf-8")),
   ]
   return defs.join("\n\n")
 }
 
 function removeLocalImports(code) {
-  let regex = /^\s*import .* from "\.\/.*"\s*$/
+  let importLocal = /^\s*import .* from "\.\/.*"\s*;?\s*$/
   return code.split("\n").filter(line => {
-    return !regex.test(line)
+    return !importLocal.test(line)
   }).join("\n").trim()
 }
 
-function keeyOnlyExportDeclare(code) {
-  return code.split("\n").filter(line => {
+function cleanEntryPointDefs(code) {
+  let importExternal = /^\s*import .* from "[^\.].*"\s*;?\s*$/
+  let lines = code.split("\n").filter(line => {
+    if (importExternal.test(line))
+      return true
     return line.trim().startsWith("export declare ")
-  }).join("\n")
+  })
+  return removeSemicolons(lines.join("\n"))
+}
+
+function removeSemicolons(code) {
+  return code.replace(/;/g, "")
 }
 
 build().then(() => {
