@@ -26,11 +26,7 @@ async function build() {
     throw minified.error
 
   await writeFile(path.join(distNpmPath, `${packageName}.min.js`), minified.code)
-
   await writeFile(path.join(distNpmPath, `${packageName}.d.ts`), await makeDefinitionsCode())
-  // copyFile(path.join(srcPath, "exported-definitions.d.ts"), path.join(distNpmPath, "exported-definitions.d.ts"))
-  // copyFile(path.join(srcPath, "driver-definitions.d.ts"), path.join(distNpmPath, "driver-definitions.d.ts"))
-  // copyFile(path.join(compiledPath, "index.d.ts"), path.join(distNpmPath, `${packageName}.d.ts`))
 }
 
 async function makeDefinitionsCode() {
@@ -45,7 +41,6 @@ async function makeDefinitionsCode() {
   return defs.join("\n\n")
 }
 
-// import { SqlParameters, ResultRow } from "./exported-definitions"
 function removeLocalImports(code) {
   let regex = /^\s*import .* from "\.\/.*"\s*$/
   return code.split("\n").filter(line => {
