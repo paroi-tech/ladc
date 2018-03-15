@@ -1,4 +1,4 @@
 node_modules
-tsproject/compiled
-/*.d.ts
+/tsproject/compiled
+/mycn.d.ts
 /mycn.min.js
