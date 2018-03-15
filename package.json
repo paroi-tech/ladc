@@ -1,6 +1,6 @@
 {
   "name": "mycn",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "description": "My Connector, a layer above relational database connectors",
   "main": "mycn.min.js",
   "types": "mycn.d.ts",
@@ -12,7 +12,7 @@
     "rimraf": "2.6.2"
   },
   "scripts": {
-    "_clear": "rimraf tsproject/compiled/*.js tsproject/compiled/*.d.ts",
+    "_clear": "rimraf tsproject/compiled/*",
     "_tsc": "tsc --project tsproject",
     "_make-bundle": "node tsproject/make-bundle",
     "build": "run-s _clear _tsc _make-bundle",

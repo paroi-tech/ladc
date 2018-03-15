@@ -1,4 +1,7 @@
+import { BasicDatabaseConnection } from "./driver-definitions"
+
 export interface MycnOptions {
+  provider: () => Promise<BasicDatabaseConnection>
   init?(cn: DatabaseConnection): void | Promise<void>
   modifyDatabaseConnection?(cn: DatabaseConnection): DatabaseConnection | Promise<DatabaseConnection>
   modifyPreparedStatement?(ps: PreparedStatement): PreparedStatement | Promise<PreparedStatement>

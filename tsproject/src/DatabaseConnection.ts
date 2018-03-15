@@ -2,37 +2,41 @@ import { Pool } from "./Pool"
 import { DatabaseConnection, PreparedStatement, MycnOptions, SqlParameters } from "./exported-definitions";
 import { BasicDatabaseConnection, BasicPreparedStatement } from "./driver-definitions";
 
-export async function toDatabaseConnection(dbcOptions: MycnOptions, cn: BasicDatabaseConnection, pool: Pool, inTrans = false): Promise<DatabaseConnection> {
-  let closed = false
+export async function toDatabaseConnection(dbcOptions: MycnOptions, cn: BasicDatabaseConnection | undefined, pool: Pool<BasicDatabaseConnection>, inTrans = false): Promise<DatabaseConnection> {
   let endedTrans = false
+  let prepareCb = cnMethodCallback("prepare")
   let thisObj: DatabaseConnection = {
-    exec: (sql: string, params?: SqlParameters) => cn.exec(sql, params),
-    all: (sql: string, params?: SqlParameters) => cn.all(sql, params),
-    prepare: async (sql: string, params?: SqlParameters) => await toPreparedStatement(dbcOptions, await cn.prepare(sql, params)),
-    execScript: (sql: string) => cn.execScript(sql),
-    singleRow: async (sql: string, params?: SqlParameters) => toSingleRow(await cn.all(sql, params)),
-    singleValue: async (sql: string, params?: SqlParameters) => toSingleValue(await cn.all(sql, params)),
+    exec: cnMethodCallback("exec"),
+    all: cnMethodCallback("all"),
+    prepare: async (sql: string, params?: SqlParameters) => await toPreparedStatement(dbcOptions, await prepareCb(sql, params)),
+    execScript: (sql: string) => {
+      if (!cn)
+        throw new Error(`Invalid call to 'execScript', the connection is closed`)
+      return cn.execScript(sql)
+    },
+    singleRow: async (sql: string, params?: SqlParameters) => toSingleRow(await thisObj.all(sql, params)),
+    singleValue: async (sql: string, params?: SqlParameters) => toSingleValue(await thisObj.all(sql, params)),
     get inTransaction() {
       return inTrans
     },
     commit: () => endOfTransaction("commit"),
     rollback: () => endOfTransaction("rollback"),
     beginTransaction: async (force = false) => {
-      if (closed)
+      if (!cn)
         throw new Error(`Invalid call to 'beginTransaction', the connection is closed`)
       if (inTrans)
         throw new Error("Cannot open a transaction in a transaction")
       let newCn = await pool.grab()
       await newCn.exec("begin")
-      return await toDatabaseConnection(dbcOptions, cn, pool, true)
+      return await toDatabaseConnection(dbcOptions, newCn, pool, true)
     },
     close: async () => {
-      if (closed)
+      if (!cn)
         throw new Error(`Invalid call to 'close', the connection is already closed`)
       let promise: Promise<void> | undefined
       if (inTrans)
         promise = thisObj.rollback()
-      closed = true
+      cn = undefined
       if (promise)
         await promise
       if (!endedTrans && pool.singleUse === cn)
@@ -46,7 +50,7 @@ export async function toDatabaseConnection(dbcOptions: MycnOptions, cn: BasicDat
   return thisObj
 
   async function endOfTransaction(method) {
-    if (closed)
+    if (!cn)
       throw new Error(`Invalid call to '${method}', the connection is closed`)
     if (!inTrans || cn === pool.singleUse)
       throw new Error(`Cannot '${method}', not in a transaction`)
@@ -55,6 +59,14 @@ export async function toDatabaseConnection(dbcOptions: MycnOptions, cn: BasicDat
     await cn.exec(method)
     pool.release(cn)
     cn = pool.singleUse
+  }
+
+  function cnMethodCallback(method: string) {
+    return (sql: string, params?: SqlParameters) => {
+      if (!cn)
+        throw new Error(`Invalid call to '${method}', the connection is closed`)
+      return cn[method](sql, params)
+    }
   }
 }
 
@@ -78,7 +90,7 @@ function toSingleRow(rows: any[]) {
   if (rows.length !== 1) {
     if (rows.length === 0)
       return
-    throw new Error(`Cannot fetch one value, row count: ${rows.length}`)
+    throw new Error(`Cannot fetch one row, row count: ${rows.length}`)
   }
   return rows[0]
 }

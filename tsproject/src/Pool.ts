@@ -1,26 +1,29 @@
 import { PoolOptions } from "./exported-definitions"
-import { BasicDatabaseConnection } from "./driver-definitions"
 
-export interface Pool {
-  readonly singleUse: BasicDatabaseConnection
-  grab(): Promise<BasicDatabaseConnection>
-  release(db: BasicDatabaseConnection)
+export interface Closable {
   close(): Promise<void>
 }
 
-interface PoolItem {
-  db: BasicDatabaseConnection
+export interface Pool<C extends Closable> {
+  readonly singleUse: C
+  grab(): Promise<C>
+  release(db: C)
+  close(): Promise<void>
+}
+
+interface PoolItem<C extends Closable> {
+  db: C
   releaseTime: number
 }
 
-export async function createPool(newCn: () => Promise<BasicDatabaseConnection>, options: PoolOptions = {}): Promise<Pool> {
+export async function createPool<C extends Closable>(provider: () => Promise<C>, options: PoolOptions = {}): Promise<Pool<C>> {
   if (!options.logError)
     options.logError = console.log
   if (!options.connectionTtl)
     options.connectionTtl = 60
   let closed = false
-  let singleUse = await newCn()
-  let available = [] as PoolItem[]
+  let singleUse = await provider()
+  let available = [] as PoolItem<C>[]
   let cleaning: any | null = null
 
   return {
@@ -35,9 +38,9 @@ export async function createPool(newCn: () => Promise<BasicDatabaseConnection>, 
       let pi = available.pop()
       if (pi)
         return pi.db
-      return newCn()
+      return provider()
     },
-    release: (db: BasicDatabaseConnection) => {
+    release: (db: C) => {
       available.push({ db, releaseTime: Date.now() })
       if (closed)
         cleanOldConnections(true)

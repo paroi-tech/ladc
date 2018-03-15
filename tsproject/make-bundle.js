@@ -32,30 +32,22 @@ async function build() {
 async function makeDefinitionsCode() {
   let defs = [
     "// -- Usage definitions --",
-    removeLocalImports((await readFile(path.join(srcPath, "exported-definitions.d.ts"), "utf-8")).trim()),
+    removeLocalImportsExports((await readFile(path.join(srcPath, "exported-definitions.d.ts"), "utf-8")).trim()),
     "// -- Driver definitions --",
-    removeLocalImports((await readFile(path.join(srcPath, "driver-definitions.d.ts"), "utf-8")).trim()),
+    removeLocalImportsExports((await readFile(path.join(srcPath, "driver-definitions.d.ts"), "utf-8")).trim()),
     "// -- Entry point definition --",
-    cleanEntryPointDefs(await readFile(path.join(compiledPath, "index.d.ts"), "utf-8")),
+    removeSemicolons(
+      removeLocalImportsExports((await readFile(path.join(compiledPath, "index.d.ts"), "utf-8")).trim()),
+    )
   ]
   return defs.join("\n\n")
 }
 
-function removeLocalImports(code) {
-  let importLocal = /^\s*import .* from "\.\/.*"\s*;?\s*$/
+function removeLocalImportsExports(code) {
+  let localImportExport = /^\s*(import|export) .* from "\.\/.*"\s*;?\s*$/
   return code.split("\n").filter(line => {
-    return !importLocal.test(line)
+    return !localImportExport.test(line)
   }).join("\n").trim()
-}
-
-function cleanEntryPointDefs(code) {
-  let importExternal = /^\s*import .* from "[^\.].*"\s*;?\s*$/
-  let lines = code.split("\n").filter(line => {
-    if (importExternal.test(line))
-      return true
-    return line.trim().startsWith("export declare ")
-  })
-  return removeSemicolons(lines.join("\n"))
 }
 
 function removeSemicolons(code) {
