@@ -17,8 +17,8 @@ export type SqlParameters = any[] | { [key: string]: any }
 export type ResultRow = {}
 
 export interface DatabaseConnection {
-  exec(sql: string, params?: SqlParameters): Promise<ExecResult>
   prepare<ROW extends ResultRow = any>(sql: string, params?: SqlParameters): Promise<PreparedStatement<ROW>>
+  exec(sql: string, params?: SqlParameters): Promise<ExecResult>
 
   all<ROW extends ResultRow = any>(sql: string, params?: SqlParameters): Promise<ROW[]>
   singleRow<ROW extends ResultRow = any>(sql: string, params?: SqlParameters): Promise<ROW | undefined>

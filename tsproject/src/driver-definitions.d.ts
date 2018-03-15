@@ -1,8 +1,8 @@
 import { SqlParameters, ResultRow } from "./exported-definitions"
 
 export interface BasicDatabaseConnection {
-  exec(sql: string, params?: SqlParameters): Promise<BasicExecResult>
   prepare<ROW extends ResultRow = any>(sql: string, params?: SqlParameters): Promise<BasicPreparedStatement<ROW>>
+  exec(sql: string, params?: SqlParameters): Promise<BasicExecResult>
   all<ROW extends ResultRow = any>(sql: string, params?: SqlParameters): Promise<ROW[]>
   execScript(sql: string): Promise<void>
   close(): Promise<void>
