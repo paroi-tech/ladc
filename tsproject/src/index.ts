@@ -10,4 +10,4 @@ export async function createDatabaseConnection(cnProvider: () => Promise<BasicDa
 }
 
 export { BasicDatabaseConnection, BasicPreparedStatement, BasicExecResult } from "./driver-definitions"
-export { DatabaseConnection, ExecResult, PoolOptions, PreparedStatement, MycnOptions, SqlParameters } from "./exported-definitions"
+export { MycnOptions, PoolOptions, DatabaseConnection, ExecResult, PreparedStatement, SqlParameters, ResultRow } from "./exported-definitions"

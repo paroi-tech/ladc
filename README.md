@@ -1,8 +1,8 @@
 # mycn
 
-My Database Connector.
+My Connector.
 
-This is a layer upon connectors to relational databases like \"sqlite3\", that adds:
+This is a layer above relational database connectors, like \"sqlite3\", that adds:
 
 1. A common way to access to relational databases (like _JDBC_ for Java or _PDO_ for PHP);
 1. A pool of connections in order to allow transactions in an asynchronous context;
@@ -88,7 +88,7 @@ The methods of a `PreparedStatement`:
 
 The following members are provided for managing transactions:
 
-* `cn.beginTransaction()` starts the transaction and returns the connection allocated to the transaction
+* `beginTransaction()` starts the transaction and returns a connection `transCn` allocated to the transaction
 * `transCn.inTransaction` is a readonly boolean
 * `transCn.rollback()`
 * `transCn.commit()`

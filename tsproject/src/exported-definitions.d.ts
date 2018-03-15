@@ -1,5 +1,3 @@
-import { BasicDatabaseConnection, BasicExecResult, BasicPreparedStatement } from "./driver-definitions";
-
 export interface MycnOptions {
   init?(cn: DatabaseConnection): void | Promise<void>
   modifyDatabaseConnection?(cn: DatabaseConnection): DatabaseConnection | Promise<DatabaseConnection>
@@ -15,14 +13,15 @@ export interface PoolOptions {
   logError?(reason: any): void
 }
 
-type SqlParameters = any[] | { [key: string]: any }
+export type SqlParameters = any[] | { [key: string]: any }
+export type ResultRow = {}
 
-export interface DatabaseConnection extends BasicDatabaseConnection {
+export interface DatabaseConnection {
   exec(sql: string, params?: SqlParameters): Promise<ExecResult>
-  prepare<ROW extends Array<any> = any>(sql: string, params?: SqlParameters): Promise<PreparedStatement<ROW>>
+  prepare<ROW extends ResultRow = any>(sql: string, params?: SqlParameters): Promise<PreparedStatement<ROW>>
 
-  all<ROW extends Array<any> = any>(sql: string, params?: SqlParameters): Promise<ROW[]>
-  singleRow<ROW extends Array<any> = any>(sql: string, params?: SqlParameters): Promise<ROW | undefined>
+  all<ROW extends ResultRow = any>(sql: string, params?: SqlParameters): Promise<ROW[]>
+  singleRow<ROW extends ResultRow = any>(sql: string, params?: SqlParameters): Promise<ROW | undefined>
   singleValue<VAL = any>(sql: string, params?: SqlParameters): Promise<VAL | undefined | null>
 
   execScript(sql: string): Promise<void>
@@ -34,10 +33,12 @@ export interface DatabaseConnection extends BasicDatabaseConnection {
   rollback(): Promise<void>
 }
 
-export interface ExecResult extends BasicExecResult {
+export interface ExecResult {
+  readonly insertedId: number
+  readonly affectedRows: number
 }
 
-export interface PreparedStatement<PS extends Array<any> = any> extends BasicPreparedStatement<PS> {
+export interface PreparedStatement<PS extends ResultRow = any> {
   exec(params?: SqlParameters): Promise<ExecResult>
 
   all<ROW = PS>(params?: SqlParameters): Promise<ROW[]>

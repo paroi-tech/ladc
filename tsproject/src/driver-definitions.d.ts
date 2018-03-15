@@ -1,9 +1,9 @@
-import { SqlParameters } from "./exported-definitions";
+import { SqlParameters, ResultRow } from "./exported-definitions"
 
 export interface BasicDatabaseConnection {
   exec(sql: string, params?: SqlParameters): Promise<BasicExecResult>
-  prepare<ROW extends Array<any> = any>(sql: string, params?: SqlParameters): Promise<BasicPreparedStatement<ROW>>
-  all<ROW extends Array<any> = any>(sql: string, params?: SqlParameters): Promise<ROW[]>
+  prepare<ROW extends ResultRow = any>(sql: string, params?: SqlParameters): Promise<BasicPreparedStatement<ROW>>
+  all<ROW extends ResultRow = any>(sql: string, params?: SqlParameters): Promise<ROW[]>
   execScript(sql: string): Promise<void>
   close(): Promise<void>
 }
@@ -13,7 +13,7 @@ export interface BasicExecResult {
   readonly affectedRows: number
 }
 
-export interface BasicPreparedStatement<PS extends Array<any> = any> {
+export interface BasicPreparedStatement<PS extends ResultRow = any> {
   exec(params?: SqlParameters): Promise<BasicExecResult>
   all<ROW = PS>(params?: SqlParameters): Promise<ROW[]>
   fetch<ROW = PS>(): Promise<ROW | undefined>
