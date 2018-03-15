@@ -25,14 +25,12 @@ import { sqlite3ConnectionProvider } from "mycn-sqlite3"
 let cn
 async function getConnection() {
   if (!cn) {
-    cn = await createDatabaseConnection(
-      sqlite3ConnectionProvider({ fileName: `${__dirname}/mydb.sqlite` }),
-      {
-        init: async cn => {
-          await cn.exec("PRAGMA foreign_keys = ON")
-        }
+    cn = await createDatabaseConnection({
+      provider: sqlite3ConnectionProvider({ fileName: `${__dirname}/mydb.sqlite` }),
+      init: async cn => {
+        await db.run("PRAGMA foreign_keys = ON")
       }
-    )
+    })
   }
   return cn
 }
