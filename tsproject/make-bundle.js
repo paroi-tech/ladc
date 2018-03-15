@@ -54,11 +54,6 @@ function keeyOnlyExportDeclare(code) {
   }).join("\n")
 }
 
-async function copyFile(sourcePath, targetPath) {
-  let source = (await readFile(sourcePath, "utf-8")).trim()
-  await writeFile(targetPath, source)
-}
-
 build().then(() => {
   console.log("done")
 }, err => console.log(err.message, err.stack))
