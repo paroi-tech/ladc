@@ -1,6 +1,6 @@
 import sqlite3 from "sqlite3"
 import { Sqlite3ConnectionOptions } from "./exported-definitions"
-import { SqlParameters } from "mycn";
+import { SqlParameters } from "mycn"
 
 export interface Database {
   run(sql: string, params?: SqlParameters): Promise<RunResult>
@@ -42,8 +42,8 @@ export async function createSqlite3Connection(options: Sqlite3ConnectionOptions)
       })
     }
   })
-  if (options.initCallback)
-    await options.initCallback(db)
+  if (options.init)
+    await options.init(db)
   return promisifyDatabase(db)
 }
 

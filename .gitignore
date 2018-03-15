@@ -1,2 +1,4 @@
 node_modules
-tsproject/compiled
+/tsproject/compiled
+/mycn-sqlite3.d.ts
+/mycn-sqlite3.min.js

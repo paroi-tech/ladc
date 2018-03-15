@@ -1,6 +1,6 @@
 import { BasicDatabaseConnection, BasicExecResult, BasicPreparedStatement } from "mycn"
 import { RunResult, Database, Statement } from "./promisifySqlite3"
-import { SqlParameters } from "mycn/exported-definitions";
+import { SqlParameters } from "mycn"
 
 export function toBasicDatabaseConnection(db: Database): BasicDatabaseConnection {
   let cursor: InMemoryCursor | undefined

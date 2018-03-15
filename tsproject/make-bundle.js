@@ -26,13 +26,30 @@ async function build() {
     throw minified.error
 
   await writeFile(path.join(distNpmPath, `${packageName}.min.js`), minified.code)
-  copyFile(path.join(srcPath, "exported-definitions.d.ts"), path.join(distNpmPath, "exported-definitions.d.ts"))
-  copyFile(path.join(compiledPath, "index.d.ts"), path.join(distNpmPath, `${packageName}.d.ts`))
+  await writeFile(path.join(distNpmPath, `${packageName}.d.ts`), await makeDefinitionsCode())
 }
 
-async function copyFile(sourcePath, targetPath) {
-  let source = (await readFile(sourcePath, "utf-8")).trim()
-  await writeFile(targetPath, source)
+async function makeDefinitionsCode() {
+  let defs = [
+    "// -- Usage definitions --",
+    removeLocalImports((await readFile(path.join(srcPath, "exported-definitions.d.ts"), "utf-8")).trim()),
+    "// -- Entry point definition --",
+    keeyOnlyExportDeclare(await readFile(path.join(compiledPath, "index.d.ts"), "utf-8")),
+  ]
+  return defs.join("\n\n")
+}
+
+function removeLocalImports(code) {
+  let regex = /^\s*import .* from "\.\/.*"\s*$/
+  return code.split("\n").filter(line => {
+    return !regex.test(line)
+  }).join("\n").trim()
+}
+
+function keeyOnlyExportDeclare(code) {
+  return code.split("\n").filter(line => {
+    return line.trim().startsWith("export declare ")
+  }).join("\n")
 }
 
 build().then(() => {
