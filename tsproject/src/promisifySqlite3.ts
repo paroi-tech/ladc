@@ -86,7 +86,7 @@ function promisifyDatabase(db): Database {
           if (err)
             reject(err)
           else
-            resolve() // Here, 'this' is the 'RunResult'
+            resolve()
         })
       }).then(() => promisifyStatement(st))
     },

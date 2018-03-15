@@ -31,14 +31,18 @@ function toBasicPreparedStatement(st: Statement): BasicPreparedStatement {
   let cursor: InMemoryCursor | undefined
   return {
     exec: async (params?: SqlParameters) => {
-      curParams = params
-      manualBound = false
-      return toBasicExecResult(await st.run(params))
+      if (params) {
+        manualBound = false
+        curParams = params
+      }
+      return toBasicExecResult(await st.run(curParams))
     },
     all: (params?: SqlParameters) => {
-      curParams = params
-      manualBound = false
-      return st.all(params)
+      if (params) {
+        manualBound = false
+        curParams = params
+      }
+      return st.all(curParams)
     },
     fetch: async () => {
       if (!cursor)
