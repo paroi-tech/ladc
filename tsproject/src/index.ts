@@ -13,4 +13,4 @@ export function sqlite3ConnectionProvider(options: Sqlite3ConnectionOptions): ()
   }
 }
 
-export { Sqlite3ConnectionOptions } from "./exported-definitions"
+export * from "./exported-definitions"
