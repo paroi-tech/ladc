@@ -9,7 +9,10 @@ export interface BasicDatabaseConnection {
 }
 
 export interface BasicExecResult {
-  getInsertedId(seqName?: string): number | undefined
+  /**
+   * This method returns `undefined` if there is no value.
+   */
+  getInsertedId<T = any>(seqName?: string): T | undefined
   readonly affectedRows: number
 }
 

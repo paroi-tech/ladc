@@ -1,14 +1,18 @@
 import { Pool } from "./Pool"
-import { DatabaseConnection, PreparedStatement, MycnOptions, SqlParameters } from "./exported-definitions";
-import { BasicDatabaseConnection, BasicPreparedStatement } from "./driver-definitions";
+import { DatabaseConnection, PreparedStatement, MycnOptions, SqlParameters, ExecResult } from "./exported-definitions";
+import { BasicDatabaseConnection, BasicPreparedStatement, BasicExecResult } from "./driver-definitions";
 
-export async function toDatabaseConnection(dbcOptions: MycnOptions, cn: BasicDatabaseConnection | undefined, pool: Pool<BasicDatabaseConnection>, inTrans = false): Promise<DatabaseConnection> {
+export async function toDatabaseConnection(options: MycnOptions, cn: BasicDatabaseConnection | undefined, pool: Pool<BasicDatabaseConnection>, inTrans = false): Promise<DatabaseConnection> {
   let endedTrans = false
-  let prepareCb = cnMethodCallback("prepare")
+  let prepareCb = cnBasicCallback("prepare")
   let thisObj: DatabaseConnection = {
-    exec: cnMethodCallback("exec"),
-    all: cnMethodCallback("all"),
-    prepare: async (sql: string, params?: SqlParameters) => await toPreparedStatement(dbcOptions, await prepareCb(sql, params)),
+    exec: async (sql: string, params?: SqlParameters) => {
+      if (!cn)
+        throw new Error(`Invalid call to 'exec', the connection is closed`)
+      return toExecResult(options, await cn.exec(sql, params))
+    },
+    all: cnBasicCallback("all"),
+    prepare: async (sql: string, params?: SqlParameters) => await toPreparedStatement(options, await prepareCb(sql, params)),
     execScript: (sql: string) => {
       if (!cn)
         throw new Error(`Invalid call to 'execScript', the connection is closed`)
@@ -28,7 +32,7 @@ export async function toDatabaseConnection(dbcOptions: MycnOptions, cn: BasicDat
         throw new Error("Cannot open a transaction in a transaction")
       let newCn = await pool.grab()
       await newCn.exec("begin")
-      return await toDatabaseConnection(dbcOptions, newCn, pool, true)
+      return await toDatabaseConnection(options, newCn, pool, true)
     },
     close: async () => {
       if (!cn)
@@ -43,10 +47,10 @@ export async function toDatabaseConnection(dbcOptions: MycnOptions, cn: BasicDat
         await pool.close()
     }
   }
-  if (dbcOptions.init)
-    await dbcOptions.init(thisObj)
-  if (dbcOptions.modifyDatabaseConnection)
-    thisObj = await dbcOptions.modifyDatabaseConnection(thisObj)
+  if (options.init)
+    await options.init(thisObj)
+  if (options.modifyDatabaseConnection)
+    thisObj = await options.modifyDatabaseConnection(thisObj)
   return thisObj
 
   async function endOfTransaction(method) {
@@ -61,7 +65,7 @@ export async function toDatabaseConnection(dbcOptions: MycnOptions, cn: BasicDat
     cn = pool.singleUse
   }
 
-  function cnMethodCallback(method: string) {
+  function cnBasicCallback(method: string) {
     return (sql: string, params?: SqlParameters) => {
       if (!cn)
         throw new Error(`Invalid call to '${method}', the connection is closed`)
@@ -70,9 +74,9 @@ export async function toDatabaseConnection(dbcOptions: MycnOptions, cn: BasicDat
   }
 }
 
-async function toPreparedStatement(dbcOptions: MycnOptions, ps: BasicPreparedStatement): Promise<PreparedStatement> {
+async function toPreparedStatement(options: MycnOptions, ps: BasicPreparedStatement): Promise<PreparedStatement> {
   let thisObj = {
-    exec: (params?: SqlParameters) => ps.exec(params),
+    exec: async (params?: SqlParameters) => toExecResult(options, await ps.exec(params)),
     all: (params?: SqlParameters) => ps.all(params),
     fetch: () => ps.fetch(),
     bind: (key: number | string, value: any) => ps.bind(key, value),
@@ -81,9 +85,21 @@ async function toPreparedStatement(dbcOptions: MycnOptions, ps: BasicPreparedSta
     singleRow: async (params?: SqlParameters) => toSingleRow(await thisObj.all(params)),
     singleValue: async (params?: SqlParameters) => toSingleValue(await thisObj.singleRow(params))
   }
-  if (dbcOptions.modifyPreparedStatement)
-    thisObj = await dbcOptions.modifyPreparedStatement(thisObj)
+  if (options.modifyPreparedStatement)
+    thisObj = await options.modifyPreparedStatement(thisObj)
   return thisObj
+}
+
+function toExecResult(options: MycnOptions, result: BasicExecResult): ExecResult {
+  return {
+    affectedRows: result.affectedRows,
+    getInsertedId: (seqName?: string) => {
+      let id = result.getInsertedId(seqName)
+      if (id === undefined && !options.insertedIdCanBeUndefined)
+        throw new Error(`Missing inserted ID`)
+      return id
+    }
+  }
 }
 
 function toSingleRow(rows: any[]) {
