@@ -14,9 +14,15 @@ This is a layer above relational database connectors, like \"sqlite3\", that add
 npm install mycn mycn-sqlite3
 ```
 
+## Install for PostgreSQL (driver [pg](https://github.com/brianc/node-postgres))
+
+```
+npm install mycn mycn-pg
+```
+
 ## Usage
 
-How to create a connection:
+How to create a connection (here with SQLite):
 
 ```
 import { createDatabaseConnection } from "mycn"
@@ -67,7 +73,7 @@ The methods of a `DatabaseConnection`:
 
 The members of a `ExecResult`:
 
-* `getInsertedId(seqName?)` returns the inserted identifier;
+* `getInsertedId(seqName?)` returns the inserted identifier as `string`;
 * `affectedRows` is a readonly property with the number of affected rows.
 
 The methods of a `PreparedStatement`:
