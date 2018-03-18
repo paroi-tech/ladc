@@ -1,13 +1,12 @@
-import { BasicDatabaseConnection, BasicExecResult, BasicPreparedStatement } from "mycn"
+import { BasicDatabaseConnection, BasicExecResult, BasicPreparedStatement, SqlParameters } from "mycn"
 import { RunResult, Database, Statement } from "./promisifySqlite3"
-import { SqlParameters } from "mycn"
 
 export function toBasicDatabaseConnection(db: Database): BasicDatabaseConnection {
   let cursor: InMemoryCursor | undefined
   return {
+    prepare: async (sql: string, params?: SqlParameters) => toBasicPreparedStatement(await db.prepare(sql, params)),
     exec: async (sql: string, params?: SqlParameters) => toBasicExecResult(await db.run(sql, params)),
     all: (sql: string, params?: SqlParameters) => db.all(sql, params),
-    prepare: async (sql: string, params?: SqlParameters) => toBasicPreparedStatement(await db.prepare(sql, params)),
     execScript: async (sql: string) => {
       await db.exec(sql)
     },
@@ -21,7 +20,7 @@ export function toBasicDatabaseConnection(db: Database): BasicDatabaseConnection
 function toBasicExecResult(st: RunResult): BasicExecResult {
   return {
     affectedRows: st.changes,
-    insertedId: st.lastID
+    getInsertedId: () => st.lastID
   }
 }
 
