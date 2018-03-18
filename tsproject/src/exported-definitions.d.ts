@@ -7,6 +7,10 @@ export interface MycnOptions {
   modifyPreparedStatement?(ps: PreparedStatement): PreparedStatement | Promise<PreparedStatement>
   poolOptions?: PoolOptions
   insertedIdCanBeUndefined?: boolean
+  /**
+   * If the option is `false` or `undefined`, then the method `ExecResult.getInsertedId()` returns a string.
+   */
+  insertedIdCanBeAny?: boolean
 }
 
 export interface PoolOptions {
@@ -39,11 +43,13 @@ export interface DatabaseConnection {
 
 export interface ExecResult {
   /**
+   * This method always returns a `string` unless the option `insertedIdCanBeAny` is used.
+   *
    * This method doesn't return `undefined`. An exception is thrown when there is no value, unless the option `insertedIdCanBeUndefined` is set to `true`.
    *
    * @param seqName For PostgreSQL, give here the column name of the autoincremented primary key
    */
-  getInsertedId<T>(seqName?: string): T
+  getInsertedId<T = string>(seqName?: string): T
   readonly affectedRows: number
 }
 

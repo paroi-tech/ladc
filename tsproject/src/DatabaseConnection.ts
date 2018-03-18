@@ -97,7 +97,16 @@ function toExecResult(options: MycnOptions, result: BasicExecResult): ExecResult
       let id = result.getInsertedId(seqName)
       if (id === undefined && !options.insertedIdCanBeUndefined)
         throw new Error(`Missing inserted ID`)
-      return id
+      if (options.insertedIdCanBeAny)
+        return id
+      switch (typeof id) {
+        case "string":
+          return id
+        case "number":
+          return id.toString()
+        default:
+          throw new Error(`Unexpected type of inserted id: ${typeof id}`)
+      }
     }
   }
 }
