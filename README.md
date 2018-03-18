@@ -101,3 +101,60 @@ It isn't required to `close` a connection allocated to a transaction, because a 
 When a transaction connection is closed, the transaction is rollbacked. Then the underlying connection is released to the pool.
 
 To stop the connection pool, close the root connection.
+
+## How to integrate a query builder
+
+The connector `mycn` allows to modify the connection object with the option `modifyDatabaseConnection` in `createDatabaseConnection`. Here is an example that adds methods for [SQL Bricks.js](https://github.com/CSNW/sql-bricks) to a connector to SQLite:
+
+```
+import { createDatabaseConnection } from "mycn"
+import { sqlite3ConnectionProvider } from "mycn-sqlite3"
+
+let cn = await createDatabaseConnection({
+  provider: sqlite3ConnectionProvider({ fileName: `${__dirname}/mydb.sqlite` }),
+  init: async cn => {
+    await cn.exec("PRAGMA foreign_keys = ON")
+  },
+  modifyDatabaseConnection: cn => {
+    cn.prepareSqlBricks = sqlBricks => {
+      let params = sqlBricks.toParams({ placeholder: '?%d' })
+      return cn.prepare(params.text, params.values)
+    }
+    cn.execSqlBricks = sqlBricks => {
+      let params = sqlBricks.toParams({ placeholder: '?%d' })
+      return cn.exec(params.text, params.values)
+    }
+    cn.allSqlBricks = sqlBricks => {
+      let params = sqlBricks.toParams({ placeholder: '?%d' })
+      return cn.all(params.text, params.values)
+    }
+    cn.singleRowSqlBricks = sqlBricks => {
+      let params = sqlBricks.toParams({ placeholder: '?%d' })
+      return cn.singleRow(params.text, params.values)
+    }
+    cn.singleValueSqlBricks = sqlBricks => {
+      let params = sqlBricks.toParams({ placeholder: '?%d' })
+      return cn.singleValue(params.text, params.values)
+    }
+    return cn
+  },
+  poolOptions: {
+    logError: console.log
+  }
+})
+```
+
+The TypeScript developers have then to add these methods in the type `DatabaseConnection`:
+
+```
+import { DatabaseConnection } from "mycn"
+declare module "mycn" {
+  export interface DatabaseConnection {
+    prepareSqlBricks<ROW extends ResultRow = any>(sqlBricks): Promise<PreparedStatement<ROW>>
+    execSqlBricks(sqlBricks): Promise<ExecResult>
+    allSqlBricks<ROW extends ResultRow = any>(sqlBricks): Promise<ROW[]>
+    singleRowSqlBricks<ROW extends ResultRow = any>(sqlBricks): Promise<ROW | undefined>
+    singleValueSqlBricks<VAL = any>(sqlBricks): Promise<VAL | undefined | null>
+  }
+}
+```
