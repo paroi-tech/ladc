@@ -1,0 +1,4 @@
+node_modules
+/tsproject/compiled
+/mycn-pg.d.ts
+/mycn-pg.min.js

@@ -1,0 +1,20 @@
+{
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.wordWrapColumn": 132,
+  "editor.wordWrap": "wordWrapColumn",
+  "editor.rulers": [120],
+  "files.trimTrailingWhitespace": true,
+  "files.associations": {
+    "*.monk": "html"
+  },
+  "typescript.tsdk": "./node_modules/typescript/lib",
+  "search.exclude": {
+    "node_modules": true,
+    "package-lock.json": true,
+    "tsproject/compiled": true,
+    "mycn-pg.min.js": true,
+    "mycn-pg.d.ts": true
+  },
+  "typescript.locale": "en"
+}

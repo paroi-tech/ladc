@@ -1,0 +1,41 @@
+{
+  "name": "mycn-pg",
+  "version": "0.1.0",
+  "description": "The connector for \"mycn\" to the driver \"pg\"",
+  "main": "mycn-pg.min.js",
+  "types": "mycn-pg.d.ts",
+  "dependencies": {
+    "mycn": "^0.9.10",
+    "pg": "^7.4.1"
+  },
+  "devDependencies": {
+    "@types/pg": "7.4.5",
+    "rollup": "0.56.5",
+    "typescript": "2.7.2",
+    "uglify-es": "3.3.9",
+    "npm-run-all": "4.1.2",
+    "rimraf": "2.6.2"
+  },
+  "scripts": {
+    "_clear": "rimraf tsproject/compiled/*",
+    "_tsc": "tsc --project tsproject",
+    "_make-bundle": "node tsproject/make-bundle",
+    "build": "run-s _clear _tsc _make-bundle",
+    "watch": "tsc --project tsproject --watch"
+  },
+  "engines": {
+    "node": ">=8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paleo/mycn-pg.git"
+  },
+  "author": {
+    "name": "Paleo"
+  },
+  "license": "CC0-1.0",
+  "keywords": [
+    "PostgreSQL",
+    "connection"
+  ]
+}
