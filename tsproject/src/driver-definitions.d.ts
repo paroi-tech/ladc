@@ -9,7 +9,7 @@ export interface BasicDatabaseConnection {
 }
 
 export interface BasicExecResult {
-  readonly insertedId: number
+  getInsertedId(seqName?: string): number | undefined
   readonly affectedRows: number
 }
 

@@ -37,7 +37,7 @@ export interface DatabaseConnection {
 }
 
 export interface ExecResult {
-  readonly insertedId: number
+  getInsertedId(seqName?: string): number | undefined
   readonly affectedRows: number
 }
 

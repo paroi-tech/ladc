@@ -43,7 +43,7 @@ async function useMyConnection() {
   let cn = await getConnection()
   let transCn = await cn.beginTransaction()
   try {
-    let newId = (await transCn.exec("... insert 1 ...")).insertedId
+    let newId = (await transCn.exec("... insert 1 ...")).getInsertedId()
     await transCn.exec("... insert 2 ...")
     await transCn.commit() // A commit releases the underlying connection
   } finally {
@@ -65,9 +65,9 @@ The methods of a `DatabaseConnection`:
 * `execScript(sql)` execute a multilines script;
 * `close()` close the connection (for the root connection) or release it in the pool.
 
-The properties of a `ExecResult`:
+The members of a `ExecResult`:
 
-* `insertedId` is a readonly property with the inserted identifier;
+* `getInsertedId(seqName?)` returns the inserted identifier;
 * `affectedRows` is a readonly property with the number of affected rows.
 
 The methods of a `PreparedStatement`:

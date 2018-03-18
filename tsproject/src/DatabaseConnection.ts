@@ -15,7 +15,7 @@ export async function toDatabaseConnection(dbcOptions: MycnOptions, cn: BasicDat
       return cn.execScript(sql)
     },
     singleRow: async (sql: string, params?: SqlParameters) => toSingleRow(await thisObj.all(sql, params)),
-    singleValue: async (sql: string, params?: SqlParameters) => toSingleValue(await thisObj.all(sql, params)),
+    singleValue: async (sql: string, params?: SqlParameters) => toSingleValue(await thisObj.singleRow(sql, params)),
     get inTransaction() {
       return inTrans
     },
@@ -78,8 +78,8 @@ async function toPreparedStatement(dbcOptions: MycnOptions, ps: BasicPreparedSta
     bind: (key: number | string, value: any) => ps.bind(key, value),
     unbindAll: () => ps.unbindAll(),
     finalize: () => ps.finalize(),
-    singleRow: async (params?: SqlParameters) => toSingleRow(await ps.all(params)),
-    singleValue: async (params?: SqlParameters) => toSingleValue(await ps.all(params))
+    singleRow: async (params?: SqlParameters) => toSingleRow(await thisObj.all(params)),
+    singleValue: async (params?: SqlParameters) => toSingleValue(await thisObj.singleRow(params))
   }
   if (dbcOptions.modifyPreparedStatement)
     thisObj = await dbcOptions.modifyPreparedStatement(thisObj)
@@ -95,8 +95,7 @@ function toSingleRow(rows: any[]) {
   return rows[0]
 }
 
-function toSingleValue(rows: any[]) {
-  let row = toSingleRow(rows)
+function toSingleValue(row: any) {
   if (row === undefined)
     return
   let columns = Object.keys(row)
