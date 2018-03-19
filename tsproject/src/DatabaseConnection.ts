@@ -97,17 +97,39 @@ function toExecResult(options: MycnOptions, result: BasicExecResult): ExecResult
       let id = result.getInsertedId(seqName)
       if (id === undefined && !options.insertedIdCanBeUndefined)
         throw new Error(`Missing inserted ID`)
-      if (options.insertedIdCanBeAny)
+      if (!options.insertedIdType || options.insertedIdType === typeof id)
         return id
-      switch (typeof id) {
+      switch (options.insertedIdType) {
         case "string":
-          return id
+          return insertedStringVal(id)
         case "number":
-          return id.toString()
+          return insertedNumberVal(id)
         default:
-          throw new Error(`Unexpected type of inserted id: ${typeof id}`)
+          throw new Error(`Wrong option 'insertedIdType': ${options.insertedIdType}`)
       }
     }
+  }
+}
+
+function insertedStringVal(val: any): string {
+  switch (typeof val) {
+    case "string":
+      return val
+    case "number":
+      return val.toString()
+    default:
+      throw new Error(`Unexpected inserted ID type: ${typeof val}`)
+  }
+}
+
+function insertedNumberVal(val: any): number {
+  switch (typeof val) {
+    case "string":
+      return parseInt(val, 10)
+    case "number":
+      return val
+    default:
+      throw new Error(`Unexpected inserted ID type: ${typeof val}`)
   }
 }
 
