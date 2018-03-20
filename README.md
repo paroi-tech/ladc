@@ -63,8 +63,8 @@ async function useMyConnection() {
 
 The methods of a `DatabaseConnection`:
 
-* `exec(sql, params)` returns a promise of an `ExecResult`;
 * `prepare(sql, params)` returns a promise of an `PreparedStatement`;
+* `exec(sql, params)` returns a promise of an `ExecResult`;
 * `all(sql, params)` returns a promise of an array of rows;
 * `singleRow(sql, params)` fetches with `cn.all(sql)` and returns the single row;
 * `singleValue(sql, params)` fetches with `cn.all(sql)` and returns the single value of the single row;
@@ -73,7 +73,7 @@ The methods of a `DatabaseConnection`:
 
 The members of a `ExecResult`:
 
-* `getInsertedId(seqName?)` returns the inserted identifier as `string`;
+* `getInsertedId(seqName?)` returns the inserted identifier;
 * `affectedRows` is a readonly property with the number of affected rows.
 
 The methods of a `PreparedStatement`:
@@ -149,9 +149,9 @@ The TypeScript developers have then to add these methods in the type `DatabaseCo
 ```
 import { DatabaseConnection } from "mycn"
 declare module "mycn" {
-  export interface DatabaseConnection {
+  export interface DatabaseConnection<INSERT_ID extends string | number = any> {
     prepareSqlBricks<ROW extends ResultRow = any>(sqlBricks): Promise<PreparedStatement<ROW>>
-    execSqlBricks(sqlBricks): Promise<ExecResult>
+    execSqlBricks(sqlBricks): Promise<ExecResult<INSERT_ID>>
     allSqlBricks<ROW extends ResultRow = any>(sqlBricks): Promise<ROW[]>
     singleRowSqlBricks<ROW extends ResultRow = any>(sqlBricks): Promise<ROW | undefined>
     singleValueSqlBricks<VAL = any>(sqlBricks): Promise<VAL | undefined | null>
