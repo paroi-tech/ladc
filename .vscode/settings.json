@@ -10,12 +10,11 @@
   },
   "typescript.tsdk": "./node_modules/typescript/lib",
   "search.exclude": {
-    "tsproject/compiled": true,
+    "build/compiled": true,
     "node_modules": true,
     "package-lock.json": true,
-    "./mycn.d.ts": true,
-    "./mycn.min.js": true,
-    "./exported-definitions.d.ts": true
+    "mycn.d.ts": true,
+    "mycn.min.js": true
   },
   "typescript.locale": "en"
 }
