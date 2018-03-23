@@ -8,7 +8,7 @@ const readFile = promisify(fs.readFile)
 const writeFile = promisify(fs.writeFile)
 
 const packageName = "mycn-pg"
-const srcPath = path.join(__dirname, "src")
+const srcPath = path.join(__dirname, "..", "src")
 const compiledPath = path.join(__dirname, "compiled")
 const distNpmPath = path.join(__dirname, "..")
 
