@@ -16,11 +16,11 @@
     "rimraf": "2.6.2"
   },
   "scripts": {
-    "_clear": "rimraf tsproject/compiled/*",
-    "_tsc": "tsc --project tsproject",
-    "_make-bundle": "node tsproject/make-bundle",
+    "_clear": "rimraf build/compiled/*",
+    "_tsc": "tsc",
+    "_make-bundle": "node build/make-bundle",
     "build": "run-s _clear _tsc _make-bundle",
-    "watch": "tsc --project tsproject --watch"
+    "watch": "tsc --watch"
   },
   "engines": {
     "node": ">=8"

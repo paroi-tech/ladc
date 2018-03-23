@@ -5,10 +5,10 @@
     "strict": true,
     "noImplicitAny": false,
     "noImplicitThis": false,
-    "outDir": "compiled",
+    "outDir": "build/compiled",
     "declaration": true
   },
   "include": [
-    "src/*.ts"
+    "src"
   ]
 }
