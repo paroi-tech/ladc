@@ -91,46 +91,38 @@ async function toPreparedStatement(options: MycnOptions, ps: BasicPreparedStatem
 }
 
 function toExecResult(options: MycnOptions, result: BasicExecResult): ExecResult {
-  return {
+  let thisObj = {
     affectedRows: result.affectedRows,
     getInsertedId: (seqName?: string) => {
       let id = result.getInsertedId(seqName)
       if (id === undefined && !options.insertedIdCanBeUndefined)
         throw new Error(`Missing inserted ID`)
-      if (!options.insertedIdType || options.insertedIdType === typeof id)
-        return id
-      switch (options.insertedIdType) {
+      return id
+    },
+    getInsertedIdString: (seqName?: string): string => {
+      let val = thisObj.getInsertedId(seqName)
+      switch (typeof val) {
         case "string":
-          return insertedStringVal(id)
+          return val
         case "number":
-          return insertedNumberVal(id)
+          return val.toString()
         default:
-          throw new Error(`Wrong option 'insertedIdType': ${options.insertedIdType}`)
+          throw new Error(`Unexpected inserted ID type: ${typeof val}`)
+      }
+    },
+    getInsertedIdNumber: (seqName?: string): number => {
+      let val = thisObj.getInsertedId(seqName)
+      switch (typeof val) {
+        case "string":
+          return parseInt(val, 10)
+        case "number":
+          return val
+        default:
+          throw new Error(`Unexpected inserted ID type: ${typeof val}`)
       }
     }
   }
-}
-
-function insertedStringVal(val: any): string {
-  switch (typeof val) {
-    case "string":
-      return val
-    case "number":
-      return val.toString()
-    default:
-      throw new Error(`Unexpected inserted ID type: ${typeof val}`)
-  }
-}
-
-function insertedNumberVal(val: any): number {
-  switch (typeof val) {
-    case "string":
-      return parseInt(val, 10)
-    case "number":
-      return val
-    default:
-      throw new Error(`Unexpected inserted ID type: ${typeof val}`)
-  }
+  return thisObj
 }
 
 function toSingleRow(rows: any[]) {

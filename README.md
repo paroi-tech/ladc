@@ -149,9 +149,9 @@ The TypeScript developers have then to add these methods in the type `DatabaseCo
 ```
 import { DatabaseConnection } from "mycn"
 declare module "mycn" {
-  export interface DatabaseConnection<INSERT_ID extends string | number = any> {
+  export interface DatabaseConnection {
     prepareSqlBricks<ROW extends ResultRow = any>(sqlBricks): Promise<PreparedStatement<ROW>>
-    execSqlBricks(sqlBricks): Promise<ExecResult<INSERT_ID>>
+    execSqlBricks(sqlBricks): Promise<ExecResult>
     allSqlBricks<ROW extends ResultRow = any>(sqlBricks): Promise<ROW[]>
     singleRowSqlBricks<ROW extends ResultRow = any>(sqlBricks): Promise<ROW | undefined>
     singleValueSqlBricks<VAL = any>(sqlBricks): Promise<VAL | undefined | null>

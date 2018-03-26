@@ -25,10 +25,6 @@ export interface MycnOptions {
    * If the option is `false` or `undefined`, then the method `ExecResult.getInsertedId()` throws an `Error` when the inserted ID is `undefined`.
    */
   insertedIdCanBeUndefined?: boolean
-  /**
-   * If the option is defined, then the method `ExecResult.getInsertedId()` always returns this type.
-   */
-  insertedIdType?: "string" | "number"
 }
 
 export interface PoolOptions {
@@ -42,9 +38,9 @@ export interface PoolOptions {
 export type SqlParameters = any[] | { [key: string]: any }
 export type ResultRow = {}
 
-export interface DatabaseConnection<INSERT_ID extends string | number = any> {
-  prepare<ROW extends ResultRow = any>(sql: string, params?: SqlParameters): Promise<PreparedStatement<ROW, INSERT_ID>>
-  exec(sql: string, params?: SqlParameters): Promise<ExecResult<INSERT_ID>>
+export interface DatabaseConnection {
+  prepare<ROW extends ResultRow = any>(sql: string, params?: SqlParameters): Promise<PreparedStatement<ROW>>
+  exec(sql: string, params?: SqlParameters): Promise<ExecResult>
 
   all<ROW extends ResultRow = any>(sql: string, params?: SqlParameters): Promise<ROW[]>
   singleRow<ROW extends ResultRow = any>(sql: string, params?: SqlParameters): Promise<ROW | undefined>
@@ -59,20 +55,30 @@ export interface DatabaseConnection<INSERT_ID extends string | number = any> {
   rollback(): Promise<void>
 }
 
-export interface ExecResult<INSERT_ID extends string | number = any> {
+export interface ExecResult {
   /**
-   * The returned type of this method can be configured with the option `insertedIdType`.
-   *
-   * This method doesn't return `undefined`. An exception is thrown when there is no value, unless the option `insertedIdCanBeUndefined` is set to `true`.
+   * When the ID is `undefined`, an exception is thrown, unless the option `insertedIdCanBeUndefined` is set to `true`.
    *
    * @param seqName For PostgreSQL, give here the column name of the autoincremented primary key
    */
-  getInsertedId(seqName?: string): INSERT_ID
+  getInsertedId(seqName?: string): any
+  /**
+   * When the ID is `undefined`, an exception is thrown, unless the option `insertedIdCanBeUndefined` is set to `true`.
+   *
+   * @param seqName For PostgreSQL, give here the column name of the autoincremented primary key
+   */
+  getInsertedIdString(seqName?: string): string
+  /**
+   * When the ID is `undefined`, an exception is thrown, unless the option `insertedIdCanBeUndefined` is set to `true`.
+   *
+   * @param seqName For PostgreSQL, give here the column name of the autoincremented primary key
+   */
+  getInsertedIdNumber(seqName?: string): number
   readonly affectedRows: number
 }
 
-export interface PreparedStatement<PS extends ResultRow = any, INSERT_ID extends string | number = any> {
-  exec(params?: SqlParameters): Promise<ExecResult<INSERT_ID>>
+export interface PreparedStatement<PS extends ResultRow = any> {
+  exec(params?: SqlParameters): Promise<ExecResult>
 
   all<ROW = PS>(params?: SqlParameters): Promise<ROW[]>
   singleRow<ROW = PS>(params?: SqlParameters): Promise<ROW | undefined>
