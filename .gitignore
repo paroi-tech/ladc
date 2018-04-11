@@ -1,0 +1,4 @@
+node_modules
+/build/compiled
+/mycn-with-sql-bricks.d.ts
+/mycn-with-sql-bricks.min.js

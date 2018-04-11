@@ -1,0 +1,45 @@
+{
+  "name": "mycn-with-sql-bricks",
+  "version": "0.9.0",
+  "description": "This package helps to use \"mycn\" with the query builder \"SQL Bricks\".",
+  "main": "mycn-with-sql-bricks.min.js",
+  "types": "mycn-with-sql-bricks.d.ts",
+  "dependencies": {
+    "mycn": ">=0.9.13",
+    "sql-bricks": "*"
+  },
+  "devDependencies": {
+    "@types/pg": "7.4.5",
+    "rollup": "0.57.1",
+    "typescript": "2.8.1",
+    "uglify-es": "3.3.9",
+    "npm-run-all": "4.1.2",
+    "rimraf": "2.6.2"
+  },
+  "scripts": {
+    "_clear": "rimraf build/compiled/*",
+    "_tsc": "tsc",
+    "_make-bundle": "node build/make-bundle",
+    "build": "run-s _clear _tsc _make-bundle",
+    "watch": "tsc --watch"
+  },
+  "engines": {
+    "node": ">=8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paleo/mycn-with-sql-bricks.git"
+  },
+  "author": {
+    "name": "Paleo"
+  },
+  "license": "CC0-1.0",
+  "keywords": [
+    "mycn",
+    "sqlbricks",
+    "sql",
+    "bricks",
+    "query",
+    "builder"
+  ]
+}
