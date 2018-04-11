@@ -6,11 +6,11 @@ This package helps to use [mycn](https://github.com/paleo/mycn) with the query b
 
 This package adds the following methods to the MyCn connector:
 
-* `prepareSqlBricks(sqlBricks)`: converts the `sqlBricks` object to a SQL query, then call the MyCn `prepare` (async);
-* `execSqlBricks(sqlBricks)`: converts the `sqlBricks` object to a SQL query, then call the MyCn `exec` (async);
-* `allSqlBricks(sqlBricks)`: converts the `sqlBricks` object to a SQL query, then call the MyCn `all` (async);
-* `singleRowSqlBricks(sqlBricks)`: converts the `sqlBricks` object to a SQL query, then call the MyCn `singleRow` (async);
-* `singleValueSqlBricks(sqlBricks)`: converts the `sqlBricks` object to a SQL query, then call the MyCn `singleValue` (async).
+* `prepareSqlBricks(sqlBricks)`: converts the `sqlBricks` object to a SQL query, then call the MyCn `prepare` method (async);
+* `execSqlBricks(sqlBricks)`: converts the `sqlBricks` object to a SQL query, then call the MyCn `exec` method (async);
+* `allSqlBricks(sqlBricks)`: converts the `sqlBricks` object to a SQL query, then call the MyCn `all` method (async);
+* `singleRowSqlBricks(sqlBricks)`: converts the `sqlBricks` object to a SQL query, then call the MyCn `singleRow` method (async);
+* `singleValueSqlBricks(sqlBricks)`: converts the `sqlBricks` object to a SQL query, then call the MyCn `singleValue` method (async).
 
 ## Usage
 
