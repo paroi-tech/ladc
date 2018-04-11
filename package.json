@@ -1,6 +1,6 @@
 {
   "name": "mycn",
-  "version": "0.9.13",
+  "version": "0.9.14",
   "description": "My Connector, a layer above relational database connectors",
   "main": "mycn.min.js",
   "types": "mycn.d.ts",
@@ -31,13 +31,15 @@
   "license": "CC0-1.0",
   "keywords": [
     "connection",
+    "connector",
     "relational",
     "database",
-    "jdbc",
-    "pdo",
     "pool",
     "transaction",
-    "SQLite",
-    "PostgreSQL"
+    "sql",
+    "sqlite",
+    "postgresql",
+    "jdbc",
+    "pdo"
   ]
 }
