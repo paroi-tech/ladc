@@ -4,7 +4,7 @@ This package helps to use [mycn](https://github.com/paleo/mycn) with the query b
 
 ## Additional API
 
-This package adds the following methods to the MyCn connector:
+This package adds the following methods to the MyCn objects `DatabaseConnection`:
 
 * `prepareSqlBricks(sqlBricks)`: converts the `sqlBricks` object to a SQL query, then call the MyCn `prepare` method (async);
 * `execSqlBricks(sqlBricks)`: converts the `sqlBricks` object to a SQL query, then call the MyCn `exec` method (async);
