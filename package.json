@@ -1,12 +1,12 @@
 {
   "name": "mycn",
-  "version": "0.9.14",
-  "description": "My Connector, a layer above relational database connectors",
+  "version": "0.9.15",
+  "description": "A layer above SQL database connectors for Node.js, inspired from PDO and JDBC",
   "main": "mycn.min.js",
   "types": "mycn.d.ts",
   "devDependencies": {
-    "rollup": "0.56.5",
-    "typescript": "2.7.2",
+    "rollup": "0.58.1",
+    "typescript": "2.8.3",
     "uglify-es": "3.3.9",
     "npm-run-all": "4.1.2",
     "rimraf": "2.6.2"
