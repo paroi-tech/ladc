@@ -2,11 +2,11 @@
 
 My Connector.
 
-This is a layer above relational database connectors, like \"sqlite3\", that adds:
+This is a layer above relational database (SQL) connectors for Node.js, inspired from PDO and JDBC:
 
-1. A common way to access to relational databases (like _JDBC_ for Java or _PDO_ for PHP);
+1. A common way to access to relational databases;
 1. A pool of connections in order to allow transactions in an asynchronous context;
-1. A way to improve your connector with SQL query builders.
+1. A way to augment your connector with your SQL query builder.
 
 ## Install for SQLite (driver [sqlite3](https://github.com/mapbox/node-sqlite3))
 
