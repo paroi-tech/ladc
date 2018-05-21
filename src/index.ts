@@ -1,11 +1,15 @@
 import { createPool } from "./Pool"
-import { BasicDatabaseConnection } from "./driver-definitions"
-import { PoolOptions, DatabaseConnection, PreparedStatement, MycnOptions } from "./exported-definitions"
-import { toDatabaseConnection } from "./DatabaseConnection"
+import { DatabaseConnection, MycnOptions } from "./exported-definitions"
+import { makeDbConnection } from "./makeDbConnection"
 
 export async function createDatabaseConnection(options: MycnOptions): Promise<DatabaseConnection> {
-  let pool = await createPool(options.provider, options.poolOptions)
-  return await toDatabaseConnection(options, pool.singleUse, pool)
+  let provider = async () => {
+    let cn = await options.provider()
+    if (options.init)
+      await options.init(cn)
+    return cn
+  }
+  return await makeDbConnection(options, await createPool(provider, options.poolOptions))
 }
 
 export * from "./driver-definitions"

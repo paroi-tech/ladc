@@ -8,11 +8,11 @@ export interface MycnOptions {
   /**
    * This callback will be executed for each new `DatabaseConnection` when it has a new underlying connection created by the pool. It is a right place to update the underlying connection with `PRAGMA` orders.
    */
-  init?(cn: DatabaseConnection): void | Promise<void>
+  init?(cn: BasicDatabaseConnection): void | Promise<void>
   /**
    * This callback will be executed for each new `DatabaseConnection` object. It returns the same or another object that will be used as the `DatabaseConnection`.
    */
-  modifyDatabaseConnection?(cn: DatabaseConnection): DatabaseConnection | Promise<DatabaseConnection>
+  modifyConnection?<T extends DatabaseConnection | TransactionConnection>(cn: T): T | Promise<T>
   /**
    * This callback will be executed for each new `PreparedStatement` object. It returns the same or another object that will be used as the `PreparedStatement`.
    */
@@ -27,18 +27,28 @@ export interface MycnOptions {
   insertedIdCanBeUndefined?: boolean
 }
 
+export interface PoolMonitoring {
+  event: "open" | "close" | "grab" | "release"
+  cn: any
+  id?: number
+}
+
 export interface PoolOptions {
   /**
    * In seconds. Default value is: 60.
    */
   connectionTtl?: number
+  /**
+   * By default, unhandled errors will be logged with `console.log`.
+   */
   logError?(reason: any): void
+  logMonitoring?(monitoring: PoolMonitoring): void
 }
 
 export type SqlParameters = any[] | { [key: string]: any }
 export type ResultRow = {}
 
-export interface DatabaseConnection {
+export interface ConnectionMethods {
   prepare<ROW extends ResultRow = any>(sql: string, params?: SqlParameters): Promise<PreparedStatement<ROW>>
   exec(sql: string, params?: SqlParameters): Promise<ExecResult>
 
@@ -47,10 +57,15 @@ export interface DatabaseConnection {
   singleValue<VAL = any>(sql: string, params?: SqlParameters): Promise<VAL | undefined | null>
 
   execScript(sql: string): Promise<void>
-  close(): Promise<void>
+}
 
+export interface DatabaseConnection extends ConnectionMethods {
+  beginTransaction(): Promise<TransactionConnection>
+  close(): Promise<void>
+}
+
+export interface TransactionConnection extends ConnectionMethods {
   readonly inTransaction: boolean
-  beginTransaction(): Promise<DatabaseConnection>
   commit(): Promise<void>
   rollback(): Promise<void>
 }
