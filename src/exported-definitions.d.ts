@@ -1,6 +1,6 @@
-import { DatabaseConnection, ResultRow, PreparedStatement, ExecResult } from "mycn"
+import { DatabaseConnection, ResultRow, PreparedStatement, ExecResult, TransactionConnection } from "mycn"
 
-export interface DatabaseConnectionWithSqlBricks extends DatabaseConnection {
+export interface WithSqlBricksMethods {
   prepareSqlBricks<ROW extends ResultRow = any>(sqlBricks): Promise<PreparedStatement<ROW>>
   execSqlBricks(sqlBricks): Promise<ExecResult>
   allSqlBricks<ROW extends ResultRow = any>(sqlBricks): Promise<ROW[]>
@@ -8,9 +8,16 @@ export interface DatabaseConnectionWithSqlBricks extends DatabaseConnection {
   singleValueSqlBricks<VAL = any>(sqlBricks): Promise<VAL | undefined | null>
 }
 
+export interface DatabaseConnectionWithSqlBricks extends DatabaseConnection, WithSqlBricksMethods {
+}
+
+export interface TransactionConnectionWithSqlBricks extends TransactionConnection, WithSqlBricksMethods {
+}
+
 export interface WithSqlBricksOptions {
   toParamsOptions?: {
     [key: string]: any
     placeholder?: string
   }
+  trace?(action: string, sqlBricks: any): void
 }
