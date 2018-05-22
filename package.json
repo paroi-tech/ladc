@@ -1,6 +1,6 @@
 {
   "name": "mycn-with-sql-bricks",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "This package helps to use \"mycn\" with the query builder \"SQL Bricks\".",
   "main": "mycn-with-sql-bricks.min.js",
   "types": "mycn-with-sql-bricks.d.ts",

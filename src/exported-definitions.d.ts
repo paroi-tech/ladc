@@ -9,6 +9,7 @@ export interface WithSqlBricksMethods {
 }
 
 export interface DatabaseConnectionWithSqlBricks extends DatabaseConnection, WithSqlBricksMethods {
+  beginTransaction(): Promise<TransactionConnectionWithSqlBricks>
 }
 
 export interface TransactionConnectionWithSqlBricks extends TransactionConnection, WithSqlBricksMethods {
