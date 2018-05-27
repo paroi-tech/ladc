@@ -1,6 +1,6 @@
 {
   "name": "mycn-sqlite3",
-  "version": "0.1.8",
+  "version": "0.2.0",
   "description": "The connector for \"mycn\" to the driver \"sqlite3\"",
   "main": "mycn-sqlite3.min.js",
   "types": "mycn-sqlite3.d.ts",
