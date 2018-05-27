@@ -2,7 +2,6 @@ import { BasicDatabaseConnection, BasicExecResult, BasicPreparedStatement, SqlPa
 import { RunResult, Database, Statement } from "./promisifySqlite3"
 
 export function toBasicDatabaseConnection(db: Database): BasicDatabaseConnection {
-  let cursor: InMemoryCursor | undefined
   return {
     prepare: async (sql: string, params?: SqlParameters) => toBasicPreparedStatement(await db.prepare(sql, params)),
     exec: async (sql: string, params?: SqlParameters) => toBasicExecResult(await db.run(sql, params)),
@@ -11,7 +10,6 @@ export function toBasicDatabaseConnection(db: Database): BasicDatabaseConnection
       await db.exec(sql)
     },
     close: async () => {
-      cursor = undefined
       await db.close()
     }
   }
@@ -27,7 +25,7 @@ function toBasicExecResult(st: RunResult): BasicExecResult {
 function toBasicPreparedStatement(st: Statement): BasicPreparedStatement {
   let manualBound = false
   let curParams: SqlParameters | undefined
-  let cursor: InMemoryCursor | undefined
+  // let cursor: InMemoryCursor | undefined
   return {
     exec: async (params?: SqlParameters) => {
       if (params) {
@@ -43,10 +41,11 @@ function toBasicPreparedStatement(st: Statement): BasicPreparedStatement {
       }
       return st.all(curParams)
     },
-    fetch: async () => {
-      if (!cursor)
-        cursor = makeInMemoryCursor(await st.all(curParams))
-      return cursor.fetch()
+    fetch: () => {
+      return st.get() as Promise<any>
+      // if (!cursor)
+      //   cursor = makeInMemoryCursor(await st.all(curParams))
+      // return cursor.fetch()
     },
     bind: async (key: number | string, value: any) => {
       if (!manualBound) {
@@ -63,17 +62,17 @@ function toBasicPreparedStatement(st: Statement): BasicPreparedStatement {
       manualBound = false
       curParams = undefined
     },
-    finalize: () => st.finalize()
+    close: () => st.finalize()
   }
 }
 
-interface InMemoryCursor {
-  fetch(): any | undefined
-}
+// interface InMemoryCursor {
+//   fetch(): any | undefined
+// }
 
-function makeInMemoryCursor(rows: any[]): InMemoryCursor {
-  let currentIndex = -1
-  return {
-    fetch: () => rows[++currentIndex]
-  }
-}
+// function makeInMemoryCursor(rows: any[]): InMemoryCursor {
+//   let currentIndex = -1
+//   return {
+//     fetch: () => rows[++currentIndex]
+//   }
+// }

@@ -13,6 +13,7 @@ export interface Database {
 export interface Statement {
   run(params?: SqlParameters): Promise<RunResult>
   all(params?: SqlParameters): Promise<any[]>
+  get(params?: SqlParameters): Promise<object>
   finalize(): Promise<void>
 }
 
@@ -122,6 +123,16 @@ function promisifyStatement(st): Statement {
             reject(err)
           else
             resolve(rows)
+        })
+      })
+    },
+    get: (params = []) => {
+      return new Promise((resolve, reject) => {
+        st.get(params, function (err, row) {
+          if (err)
+            reject(err)
+          else
+            resolve(row)
         })
       })
     },
