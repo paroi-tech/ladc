@@ -5,7 +5,7 @@
   "main": "mycn-pg.min.js",
   "types": "mycn-pg.d.ts",
   "dependencies": {
-    "mycn": "^0.9.10",
+    "mycn": "^0.11.0",
     "pg": "^7.4.1"
   },
   "devDependencies": {

@@ -106,7 +106,7 @@ function makeBasicPreparedStatement(client: Client, sql: string, psParams?: SqlP
       manualBound = false
       curParams = undefined
     },
-    finalize: async () => {}
+    close: async () => {}
   }
   return thisObj
 }
