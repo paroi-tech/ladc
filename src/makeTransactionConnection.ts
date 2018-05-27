@@ -1,15 +1,20 @@
 import { Pool } from "./Pool"
 import { BasicDatabaseConnection } from "./driver-definitions"
 import { MycnOptions, SqlParameters, TransactionConnection } from "./exported-definitions"
-import { toExecResult, toPreparedStatement, toSingleRow, toSingleValue } from "./helpers"
+import { toExecResult, toSingleRow, toSingleValue } from "./helpers"
+import { PsProvider } from "./PsProvider"
 
 export async function makeTransactionConnection(options: MycnOptions, pool: Pool<BasicDatabaseConnection>): Promise<TransactionConnection> {
   let cn: BasicDatabaseConnection | undefined = await pool.grab()
   await cn.exec("begin")
-  let prepareCb = cnBasicCallback("prepare")
+  let psProvider: PsProvider | undefined
   let obj: TransactionConnection = {
     async prepare(sql: string, params?: SqlParameters) {
-      return await toPreparedStatement(options, await prepareCb(sql, params))
+      if (closed)
+        throw new Error(`Invalid call to 'prepare', the connection is closed`)
+      if (!psProvider)
+        psProvider = new PsProvider({ cn })
+      return await psProvider.make(options, sql, params)
     },
     async exec(sql: string, params?: SqlParameters) {
       if (!cn)
@@ -40,6 +45,8 @@ export async function makeTransactionConnection(options: MycnOptions, pool: Pool
       throw new Error(`Invalid call to '${method}', not in a transaction`)
     let copy = cn
     cn = undefined
+    if (psProvider)
+      await psProvider.closeAll()
     await copy.exec(method)
     pool.release(copy)
   }

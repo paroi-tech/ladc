@@ -22,5 +22,5 @@ export interface BasicPreparedStatement<PS extends ResultRow = any> {
   fetch<ROW = PS>(): Promise<ROW | undefined>
   bind(key: number | string, value: any): Promise<void>
   unbindAll(): Promise<void>
-  finalize(): Promise<void>
+  close(): Promise<void>
 }

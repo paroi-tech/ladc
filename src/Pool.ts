@@ -6,7 +6,7 @@ export interface Closable {
 
 export interface Pool<C extends Closable> {
   grab(): Promise<C>
-  release(db: C)
+  release(db: C): void
   close(): Promise<void>
 }
 

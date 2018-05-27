@@ -1,15 +1,20 @@
 import { Pool } from "./Pool"
 import { BasicDatabaseConnection } from "./driver-definitions"
 import { DatabaseConnection, MycnOptions, SqlParameters } from "./exported-definitions"
-import { toExecResult, toPreparedStatement, toSingleRow, toSingleValue } from "./helpers"
+import { toExecResult, toSingleRow, toSingleValue } from "./helpers"
 import { makeTransactionConnection } from "./makeTransactionConnection"
+import { PsProvider } from "./PsProvider";
 
 export async function makeDbConnection(options: MycnOptions, pool: Pool<BasicDatabaseConnection>): Promise<DatabaseConnection> {
   let closed = false
-  let prepareCb = cnBasicCallback("prepare")
+  let psProvider: PsProvider | undefined
   let obj: DatabaseConnection = {
     async prepare(sql: string, params?: SqlParameters) {
-      return await toPreparedStatement(options, await prepareCb(sql, params))
+      if (closed)
+        throw new Error(`Invalid call to 'prepare', the connection is closed`)
+      if (!psProvider)
+        psProvider = new PsProvider({ pool })
+      return await psProvider.make(options, sql, params)
     },
     async exec(sql: string, params?: SqlParameters) {
       if (closed)
@@ -37,6 +42,8 @@ export async function makeDbConnection(options: MycnOptions, pool: Pool<BasicDat
       if (closed)
         throw new Error(`Invalid call to 'close', the connection is already closed`)
       closed = true
+      if (psProvider)
+        await psProvider.closeAll()
       await pool.close()
     }
   }

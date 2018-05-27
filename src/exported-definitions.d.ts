@@ -48,7 +48,7 @@ export interface PoolOptions {
 export type SqlParameters = any[] | { [key: string]: any }
 export type ResultRow = {}
 
-export interface ConnectionMethods {
+export interface QueryRunner {
   prepare<ROW extends ResultRow = any>(sql: string, params?: SqlParameters): Promise<PreparedStatement<ROW>>
   exec(sql: string, params?: SqlParameters): Promise<ExecResult>
 
@@ -59,12 +59,12 @@ export interface ConnectionMethods {
   execScript(sql: string): Promise<void>
 }
 
-export interface DatabaseConnection extends ConnectionMethods {
+export interface DatabaseConnection extends QueryRunner {
   beginTransaction(): Promise<TransactionConnection>
   close(): Promise<void>
 }
 
-export interface TransactionConnection extends ConnectionMethods {
+export interface TransactionConnection extends QueryRunner {
   readonly inTransaction: boolean
   commit(): Promise<void>
   rollback(): Promise<void>
@@ -102,5 +102,5 @@ export interface PreparedStatement<PS extends ResultRow = any> {
   fetch<ROW = PS>(): Promise<ROW | undefined>
   bind(key: number | string, value: any): Promise<void>
   unbindAll(): Promise<void>
-  finalize(): Promise<void>
+  close(): Promise<void>
 }

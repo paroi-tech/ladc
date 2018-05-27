@@ -1,22 +1,6 @@
 import { MycnOptions, PreparedStatement, SqlParameters, ExecResult } from "./exported-definitions"
 import { BasicPreparedStatement, BasicExecResult } from "./driver-definitions"
 
-export async function toPreparedStatement(options: MycnOptions, ps: BasicPreparedStatement): Promise<PreparedStatement> {
-  let thisObj = {
-    exec: async (params?: SqlParameters) => toExecResult(options, await ps.exec(params)),
-    all: (params?: SqlParameters) => ps.all(params),
-    fetch: () => ps.fetch(),
-    bind: (key: number | string, value: any) => ps.bind(key, value),
-    unbindAll: () => ps.unbindAll(),
-    finalize: () => ps.finalize(),
-    singleRow: async (params?: SqlParameters) => toSingleRow(await thisObj.all(params)),
-    singleValue: async (params?: SqlParameters) => toSingleValue(await thisObj.singleRow(params))
-  }
-  if (options.modifyPreparedStatement)
-    thisObj = await options.modifyPreparedStatement(thisObj)
-  return thisObj
-}
-
 export function toExecResult(options: MycnOptions, result: BasicExecResult): ExecResult {
   let thisObj = {
     affectedRows: result.affectedRows,
