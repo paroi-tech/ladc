@@ -1,5 +1,5 @@
-import { DatabaseConnectionWithSqlBricks, WithSqlBricksOptions, TransactionConnectionWithSqlBricks } from "./exported-definitions"
-import { createDatabaseConnection, MycnOptions, ConnectionMethods, DatabaseConnection, TransactionConnection } from "mycn"
+import { MycnOptions, createDatabaseConnection } from "mycn"
+import { DatabaseConnectionWithSqlBricks, WithSqlBricksOptions } from "./exported-definitions"
 
 export async function createDatabaseConnectionWithSqlBricks(mycnOptions: MycnOptions, sbOptions: WithSqlBricksOptions = {}): Promise<DatabaseConnectionWithSqlBricks> {
   return await createDatabaseConnection({
