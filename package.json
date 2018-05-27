@@ -1,6 +1,6 @@
 {
   "name": "mycn-pg",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "The connector for \"mycn\" to the driver \"pg\"",
   "main": "mycn-pg.min.js",
   "types": "mycn-pg.d.ts",
