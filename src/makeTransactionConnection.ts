@@ -37,7 +37,7 @@ export async function makeTransactionConnection(options: MycnOptions, pool: Pool
     rollback: () => endOfTransaction("rollback")
   }
   if (options.modifyConnection)
-    obj = await options.modifyConnection(obj)
+    obj = options.modifyConnection(obj)
   return obj
 
   async function endOfTransaction(method: "commit" | "rollback") {

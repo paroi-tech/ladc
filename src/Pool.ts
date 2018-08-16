@@ -15,7 +15,7 @@ interface PoolItem<C extends Closable> {
   releaseTime: number
 }
 
-export async function createPool<C extends Closable>(provider: () => Promise<C>, options: PoolOptions = {}): Promise<Pool<C>> {
+export function createPool<C extends Closable>(provider: () => Promise<C>, options: PoolOptions = {}): Pool<C> {
   let opt = {
     connectionTtl: options.connectionTtl || 60,
     logError: options.logError || (msg => console.log(msg)),

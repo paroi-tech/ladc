@@ -5,7 +5,7 @@ import { toExecResult, toSingleRow, toSingleValue } from "./helpers"
 import { makeTransactionConnection } from "./makeTransactionConnection"
 import { PsProvider } from "./PsProvider";
 
-export async function makeDbConnection(options: MycnOptions, pool: Pool<BasicDatabaseConnection>): Promise<DatabaseConnection> {
+export function makeDbConnection(options: MycnOptions, pool: Pool<BasicDatabaseConnection>): DatabaseConnection {
   let closed = false
   let psProvider: PsProvider | undefined
   let obj: DatabaseConnection = {
@@ -48,7 +48,7 @@ export async function makeDbConnection(options: MycnOptions, pool: Pool<BasicDat
     }
   }
   if (options.modifyConnection)
-    obj = await options.modifyConnection(obj)
+    obj = options.modifyConnection(obj)
   return obj
 
   function cnBasicCallback(method: string) {

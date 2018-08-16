@@ -12,7 +12,7 @@ export interface MycnOptions {
   /**
    * This callback will be executed for each new `DatabaseConnection` object. It returns the same or another object that will be used as the `DatabaseConnection`.
    */
-  modifyConnection?<T extends DatabaseConnection | TransactionConnection>(cn: T): T | Promise<T>
+  modifyConnection?<T extends DatabaseConnection | TransactionConnection>(cn: T): T
   /**
    * This callback will be executed for each new `PreparedStatement` object. It returns the same or another object that will be used as the `PreparedStatement`.
    */
