@@ -1,10 +1,10 @@
 import { MycnOptions, createDatabaseConnection } from "mycn"
 import { DatabaseConnectionWithSqlBricks, WithSqlBricksOptions } from "./exported-definitions"
 
-export async function createDatabaseConnectionWithSqlBricks(mycnOptions: MycnOptions, sbOptions: WithSqlBricksOptions = {}): Promise<DatabaseConnectionWithSqlBricks> {
-  return await createDatabaseConnection({
+export function createDatabaseConnectionWithSqlBricks(mycnOptions: MycnOptions, sbOptions: WithSqlBricksOptions = {}): DatabaseConnectionWithSqlBricks {
+  return createDatabaseConnection({
     ...mycnOptions,
-    modifyConnection: async (cn: any) => { // Use `any` because: https://github.com/Microsoft/TypeScript/issues/13995
+    modifyConnection: (cn: any) => { // Use `any` because: https://github.com/Microsoft/TypeScript/issues/13995
       cn.prepareSqlBricks = sqlBricks => {
         if (sbOptions.trace)
           sbOptions.trace("prepare", sqlBricks)
@@ -36,7 +36,7 @@ export async function createDatabaseConnectionWithSqlBricks(mycnOptions: MycnOpt
         return cn.singleValue(params.text, params.values)
       }
       if (mycnOptions.modifyConnection)
-        cn = await mycnOptions.modifyConnection(cn)
+        cn = mycnOptions.modifyConnection(cn)
       return cn
     }
   }) as DatabaseConnectionWithSqlBricks
