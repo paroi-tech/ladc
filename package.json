@@ -1,11 +1,10 @@
 {
   "name": "mycn-with-sql-bricks",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "description": "This package helps to use \"mycn\" with the query builder \"SQL Bricks\".",
   "main": "mycn-with-sql-bricks.min.js",
   "types": "mycn-with-sql-bricks.d.ts",
   "dependencies": {
-    "mycn": ">=0.12.0",
     "sql-bricks": "*"
   },
   "devDependencies": {
@@ -14,6 +13,9 @@
     "uglify-es": "3.3.9",
     "npm-run-all": "4.1.3",
     "rimraf": "2.6.2"
+  },
+  "peerDependencies": {
+    "mycn": "^0.12.0"
   },
   "scripts": {
     "_clear": "rimraf build/compiled/*",
