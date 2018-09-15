@@ -1,10 +1,10 @@
-import { MycnOptions, PreparedStatement, SqlParameters } from "./exported-definitions"
-import { BasicPreparedStatement, BasicDatabaseConnection } from "./driver-definitions"
-import { toExecResult, toSingleRow, toSingleValue } from "./helpers"
 import { Pool } from "./createPool"
+import { BasicDatabaseConnection, BasicPreparedStatement } from "./driver-definitions"
+import { MycnOptions, PreparedStatement, SqlParameters } from "./exported-definitions"
+import { toExecResult, toSingleRow, toSingleValue } from "./helpers"
 
 export interface PsProviderOptions {
-  pool?: Pool<BasicDatabaseConnection>
+  pool?: Pool
   cn?: BasicDatabaseConnection
 }
 

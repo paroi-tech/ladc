@@ -1,5 +1,5 @@
-import { MycnOptions, PreparedStatement, SqlParameters, ExecResult } from "./exported-definitions"
-import { BasicPreparedStatement, BasicExecResult } from "./driver-definitions"
+import { BasicExecResult, BasicPreparedStatement } from "./driver-definitions"
+import { ExecResult, MycnOptions, PreparedStatement, SqlParameters } from "./exported-definitions"
 
 export function toExecResult(options: MycnOptions, result: BasicExecResult): ExecResult {
   let thisObj = {

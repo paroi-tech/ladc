@@ -1,5 +1,5 @@
-import { MycnOptions } from "./exported-definitions"
 import { BasicDatabaseConnection } from "./driver-definitions"
+import { MycnOptions } from "./exported-definitions"
 
 export interface Pool {
   grab(): Promise<BasicDatabaseConnection>
@@ -16,6 +16,7 @@ export default function createPool(provider: () => Promise<BasicDatabaseConnecti
   let poolOptions = options.poolOptions || {}
   const connectionTtl = poolOptions.connectionTtl || 60
   const logMonitoring = poolOptions.logMonitoring || (() => {})
+  // tslint:disable-next-line:no-console
   const logError = options.logError || (err => console.error(err))
   const debug = !!options.debug
 

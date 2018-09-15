@@ -16,6 +16,7 @@
     "interface-name": false,
     "member-access": [true, "no-public"],
     "max-line-length": false,
+    "no-empty": false,
     "no-consecutive-blank-lines": false,
     "no-shadowed-variable": false,
     "no-string-literal": false,
