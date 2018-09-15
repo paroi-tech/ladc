@@ -25,6 +25,14 @@ export interface MycnOptions {
    * If the option is `false` or `undefined`, then the method `ExecResult.getInsertedId()` throws an `Error` when the inserted ID is `undefined`.
    */
   insertedIdCanBeUndefined?: boolean
+  /**
+   * By default, unhandled errors will be logged with `console.error`.
+   */
+  logError?(error: any): void
+  /**
+   * Activate development mode.
+   */
+  debug?: boolean
 }
 
 export interface PoolMonitoring {
@@ -38,10 +46,6 @@ export interface PoolOptions {
    * In seconds. Default value is: 60.
    */
   connectionTtl?: number
-  /**
-   * By default, unhandled errors will be logged with `console.log`.
-   */
-  logError?(reason: any): void
   logMonitoring?(monitoring: PoolMonitoring): void
 }
 

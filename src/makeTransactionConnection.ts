@@ -1,10 +1,10 @@
-import { Pool } from "./Pool"
+import { Pool } from "./createPool"
 import { BasicDatabaseConnection } from "./driver-definitions"
 import { MycnOptions, SqlParameters, TransactionConnection } from "./exported-definitions"
 import { toExecResult, toSingleRow, toSingleValue } from "./helpers"
-import { PsProvider } from "./PsProvider"
+import PsProvider from "./PsProvider"
 
-export async function makeTransactionConnection(options: MycnOptions, pool: Pool<BasicDatabaseConnection>): Promise<TransactionConnection> {
+export default async function makeTransactionConnection(options: MycnOptions, pool: Pool): Promise<TransactionConnection> {
   let cn: BasicDatabaseConnection | undefined = await pool.grab()
   await cn.exec("begin")
   let psProvider: PsProvider | undefined

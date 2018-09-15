@@ -1,14 +1,14 @@
 import { MycnOptions, PreparedStatement, SqlParameters } from "./exported-definitions"
 import { BasicPreparedStatement, BasicDatabaseConnection } from "./driver-definitions"
 import { toExecResult, toSingleRow, toSingleValue } from "./helpers"
-import { Pool } from "./Pool"
+import { Pool } from "./createPool"
 
 export interface PsProviderOptions {
   pool?: Pool<BasicDatabaseConnection>
   cn?: BasicDatabaseConnection
 }
 
-export class PsProvider {
+export default class PsProvider {
   psSet = new Set<PreparedStatement>()
 
   constructor(private opt: PsProviderOptions) {

@@ -16,5 +16,6 @@
     "mycn.d.ts": true,
     "mycn.min.js": true
   },
-  "typescript.locale": "en"
+  "typescript.locale": "en",
+  "workbench.editor.labelFormat": "short"
 }

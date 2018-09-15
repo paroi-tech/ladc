@@ -1,11 +1,11 @@
-import { Pool } from "./Pool"
+import { Pool } from "./createPool"
 import { BasicDatabaseConnection } from "./driver-definitions"
 import { DatabaseConnection, MycnOptions, SqlParameters } from "./exported-definitions"
 import { toExecResult, toSingleRow, toSingleValue } from "./helpers"
-import { makeTransactionConnection } from "./makeTransactionConnection"
-import { PsProvider } from "./PsProvider";
+import makeTransactionConnection from "./makeTransactionConnection"
+import PsProvider from "./PsProvider"
 
-export function makeDbConnection(options: MycnOptions, pool: Pool<BasicDatabaseConnection>): DatabaseConnection {
+export default function makeDbConnection(options: MycnOptions, pool: Pool): DatabaseConnection {
   let closed = false
   let psProvider: PsProvider | undefined
   let obj: DatabaseConnection = {
