@@ -23,26 +23,39 @@ export interface RunResult {
 }
 
 export async function createSqlite3Connection(options: Sqlite3ConnectionOptions): Promise<Database> {
-  let db
-  await new Promise((resolve, reject) => {
-    if (options.mode !== undefined) {
-      db = new sqlite3.Database(options.fileName, options.mode, err => {
-        if (err) {
+  const maxAttempts = options.maxAttempts || 3
+  let curAttempt = 1
+  let delayAfterError = 50
+  let firstError
+  let db = await new Promise<Database>((resolve, reject) => {
+    let db
+    let cb = err => {
+      if (err) {
+        if (curAttempt >= maxAttempts)
           reject(err)
-        } else {
-          resolve()
+        else {
+          if (!firstError)
+            firstError = err
+          setTimeout(() => {
+            db = create()
+          }, delayAfterError)
+          ++curAttempt
+          delayAfterError *= 2
         }
-      })
-    } else {
-      db = new sqlite3.Database(options.fileName, err => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve()
-        }
-      })
+      } else {
+        resolve(db)
+      }
     }
+    const create = () => {
+      if (options.mode !== undefined)
+        return new sqlite3.Database(options.fileName, options.mode, cb)
+      else
+        return new sqlite3.Database(options.fileName, cb)
+    }
+    db = create()
   })
+  if (curAttempt > 1 && options.logWarning)
+    options.logWarning(`SQLite connexion was successfully opened after ${curAttempt} attempts, first error was: ${firstError}`)
   if (options.init)
     await options.init(db)
   return promisifyDatabase(db)
