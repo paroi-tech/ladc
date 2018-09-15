@@ -5,7 +5,7 @@ import { toExecResult, toSingleRow, toSingleValue } from "./helpers"
 import PsProvider from "./PsProvider"
 
 export default async function makeTransactionConnection(options: MycnOptions, pool: Pool): Promise<TransactionConnection> {
-  let cn: BasicDatabaseConnection | undefined = await pool.grab()
+  let cn: BasicDatabaseConnection | undefined = await pool.grab(true)
   await cn.exec("begin")
   let psProvider: PsProvider | undefined
   let obj: TransactionConnection = {

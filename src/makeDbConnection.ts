@@ -1,5 +1,4 @@
 import { Pool } from "./createPool"
-import { BasicDatabaseConnection } from "./driver-definitions"
 import { DatabaseConnection, MycnOptions, SqlParameters } from "./exported-definitions"
 import { toExecResult, toSingleRow, toSingleValue } from "./helpers"
 import makeTransactionConnection from "./makeTransactionConnection"
@@ -33,7 +32,7 @@ export default function makeDbConnection(options: MycnOptions, pool: Pool): Data
     },
     execScript: cnBasicCallback("execScript"),
 
-    beginTransaction: async (force = false) => {
+    beginTransaction: async () => {
       if (closed)
         throw new Error(`Invalid call to 'beginTransaction', the connection is closed`)
       return await makeTransactionConnection(options, pool)

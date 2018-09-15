@@ -32,15 +32,27 @@ export interface MycnOptions {
   /**
    * Activate development mode.
    */
-  debugLog?(err: DebugError): void
+  debugLog?(debug: Debug): void
 }
 
-export interface DebugError {
-  connection: BasicDatabaseConnection,
-  method: string,
-  error: any,
+export interface ContextDebug {
+  connection: BasicDatabaseConnection
+  method: string
+  args: any[]
   inTransaction: boolean
-  idInPool?: number
+  idInPool: number
+}
+
+export interface Debug {
+  callingContext?: ContextDebug
+  /**
+   * Set when an error occured
+   */
+  error?: any
+  /**
+   * Maybe defined only when there is no error
+   */
+  result?: any
 }
 
 export interface PoolMonitoring {
@@ -55,6 +67,7 @@ export interface PoolOptions {
    */
   connectionTtl?: number
   logMonitoring?(monitoring: PoolMonitoring): void
+  keepOneConnection?: boolean
 }
 
 export type SqlParameters = any[] | { [key: string]: any }
