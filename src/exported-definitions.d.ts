@@ -32,7 +32,15 @@ export interface MycnOptions {
   /**
    * Activate development mode.
    */
-  debug?: boolean
+  debugLog?(err: DebugError): void
+}
+
+export interface DebugError {
+  connection: BasicDatabaseConnection,
+  method: string,
+  error: any,
+  inTransaction: boolean
+  idInPool?: number
 }
 
 export interface PoolMonitoring {
@@ -86,13 +94,13 @@ export interface ExecResult {
    *
    * @param seqName For PostgreSQL, give here the column name of the autoincremented primary key
    */
-  getInsertedIdString(seqName?: string): string
+  getInsertedIdAsString(seqName?: string): string
   /**
    * When the ID is `undefined`, an exception is thrown, unless the option `insertedIdCanBeUndefined` is set to `true`.
    *
    * @param seqName For PostgreSQL, give here the column name of the autoincremented primary key
    */
-  getInsertedIdNumber(seqName?: string): number
+  getInsertedIdAsNumber(seqName?: string): number
   readonly affectedRows: number
 }
 

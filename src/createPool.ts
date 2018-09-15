@@ -1,5 +1,5 @@
 import { BasicDatabaseConnection } from "./driver-definitions"
-import { MycnOptions } from "./exported-definitions"
+import { DebugError, MycnOptions } from "./exported-definitions"
 
 export interface Pool {
   grab(): Promise<BasicDatabaseConnection>
@@ -18,7 +18,7 @@ export default function createPool(provider: () => Promise<BasicDatabaseConnecti
   const logMonitoring = poolOptions.logMonitoring || (() => {})
   // tslint:disable-next-line:no-console
   const logError = options.logError || (err => console.error(err))
-  const debug = !!options.debug
+  const debugLog = options.debugLog
 
   let closed = false
   let available = [] as PoolItem[]
@@ -41,7 +41,7 @@ export default function createPool(provider: () => Promise<BasicDatabaseConnecti
         logMonitoring({ event: "open", cn: db, id: identifiers.get(db) })
       }
       logMonitoring({ event: "grab", cn: db, id: identifiers.get(db) })
-      return debug ? wrapAsyncMethods(db) : db
+      return debugLog ? wrapAsyncMethods(db, debugLog) : db
     },
     release: (db: BasicDatabaseConnection) => {
       logMonitoring({ event: "release", cn: db, id: identifiers.get(db) })
@@ -92,14 +92,23 @@ export default function createPool(provider: () => Promise<BasicDatabaseConnecti
       available = available.slice(index)
   }
 
-  function wrapAsyncMethods<O>(obj: O): O {
+  function wrapAsyncMethods(db: BasicDatabaseConnection, debugLog: (err: DebugError) => void): BasicDatabaseConnection {
+    let inTransactions = new WeakSet<any>()
     let wrap: any = {}
-    for (let name of Object.keys(obj)) {
+    for (let name of Object.keys(db)) {
       wrap[name] = (...args) => {
+        if (name === "exec" && args.length === 1 && args[0] === "begin")
+          inTransactions.add(wrap)
         try {
-          return obj[name](...args)
+          return db[name](...args)
         } catch (err) {
-          logError(err)
+          debugLog({
+            connection: db,
+            method: name,
+            error: err,
+            inTransaction: inTransactions.has(wrap),
+            idInPool: identifiers.get(db)
+          })
           throw err
         }
       }

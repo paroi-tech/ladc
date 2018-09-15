@@ -1,6 +1,6 @@
 {
   "name": "mycn",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "description": "A layer above SQL database connectors for Node.js, inspired from PDO and JDBC",
   "main": "mycn.min.js",
   "types": "mycn.d.ts",

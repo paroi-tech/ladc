@@ -74,8 +74,8 @@ The methods of a `DatabaseConnection`:
 The members of a `ExecResult`:
 
 * `getInsertedId(seqName?)` returns the inserted identifier;
-* `getInsertedIdNumber(seqName?)` returns the inserted identifier as `number`;
-* `getInsertedIdString(seqName?)` returns the inserted identifier as `string`;
+* `getInsertedIdAsNumber(seqName?)` returns the inserted identifier as `number`;
+* `getInsertedIdAsString(seqName?)` returns the inserted identifier as `string`;
 * `affectedRows` is a readonly property with the number of affected rows.
 
 The methods of a `PreparedStatement`:

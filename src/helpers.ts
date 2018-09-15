@@ -2,7 +2,7 @@ import { BasicExecResult, BasicPreparedStatement } from "./driver-definitions"
 import { ExecResult, MycnOptions, PreparedStatement, SqlParameters } from "./exported-definitions"
 
 export function toExecResult(options: MycnOptions, result: BasicExecResult): ExecResult {
-  let thisObj = {
+  let thisObj: ExecResult = {
     affectedRows: result.affectedRows,
     getInsertedId: (seqName?: string) => {
       let id = result.getInsertedId(seqName)
@@ -10,7 +10,7 @@ export function toExecResult(options: MycnOptions, result: BasicExecResult): Exe
         throw new Error(`Missing inserted ID`)
       return id
     },
-    getInsertedIdString: (seqName?: string): string => {
+    getInsertedIdAsString: (seqName?: string): string => {
       let val = thisObj.getInsertedId(seqName)
       switch (typeof val) {
         case "string":
@@ -21,7 +21,7 @@ export function toExecResult(options: MycnOptions, result: BasicExecResult): Exe
           throw new Error(`Unexpected inserted ID type: ${typeof val}`)
       }
     },
-    getInsertedIdNumber: (seqName?: string): number => {
+    getInsertedIdAsNumber: (seqName?: string): number => {
       let val = thisObj.getInsertedId(seqName)
       switch (typeof val) {
         case "string":
