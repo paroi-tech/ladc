@@ -41,6 +41,8 @@ export default function createPool(provider: () => Promise<BasicDatabaseConnecti
       if (closed)
         throw new Error(`Invalid call to "grab", the pool is closed`)
 
+      // await ready
+
       if (!exclusive && nonExclusiveDb) {
         ++nonExclusiveCount
         return nonExclusiveDb
@@ -92,6 +94,11 @@ export default function createPool(provider: () => Promise<BasicDatabaseConnecti
       available = []
     }
   }
+
+  // const ready = options.onInit ? pool.grab().then(cn => options.onInit!(cn)).catch(err => {
+  //   logError(err)
+  //   throw new Error('')
+  // }) : Promise.resolve()
 
   function startCleaning() {
     if (cleaning)

@@ -46,8 +46,10 @@ export default function makeDbConnection(options: MycnOptions, pool: Pool): Data
       await pool.close()
     }
   }
+
   if (options.modifyConnection)
     obj = options.modifyConnection(obj)
+
   return obj
 
   function cnBasicCallback(method: string) {
