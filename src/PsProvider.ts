@@ -21,7 +21,7 @@ export default class PsProvider {
   }
 
   async closeAll() {
-    await Array.from(this.psSet).map(inst => inst.close())
+    await Promise.all(Array.from(this.psSet).map(inst => inst.close()))
   }
 
   async getCn() {

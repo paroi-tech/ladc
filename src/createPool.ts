@@ -87,11 +87,15 @@ export default function createPool(provider: () => Promise<BasicDatabaseConnecti
       if (closed)
         throw new Error(`Invalid call to "close", the pool is already closed`)
       closed = true
-      for (let item of available) {
+      let closeAll = available.map(item => {
         logMonitoring({ event: "close", cn: item.db, id: identifiers.get(item.db) })
-        await item.db.close()
-      }
+        return item.db.close()
+      })
       available = []
+      await Promise.all(closeAll)
+console.log('CLOSE POOL', typeof cleaning)
+      if (cleaning)
+        clearInterval(cleaning)
     }
   }
 
@@ -113,6 +117,7 @@ export default function createPool(provider: () => Promise<BasicDatabaseConnecti
         cleaning = undefined
       }
     }, 1000)
+    cleaning.unref()
   }
 
   function cleanOldConnections(force = false) {

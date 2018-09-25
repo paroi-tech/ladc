@@ -19,9 +19,12 @@ export default function makeDbConnection(options: MycnOptions, pool: Pool): Data
       if (closed)
         throw new Error(`Invalid call to 'exec', the connection is closed`)
       let cn = await pool.grab()
-      let res = await cn.exec(sql, params)
-      pool.release(cn)
-      return toExecResult(options, res)
+      try {
+        let res = await cn.exec(sql, params)
+        return toExecResult(options, res)
+      } finally {
+        pool.release(cn)
+      }
     },
     all: cnBasicCallback("all"),
     async singleRow(sql: string, params?: SqlParameters) {
@@ -57,9 +60,11 @@ export default function makeDbConnection(options: MycnOptions, pool: Pool): Data
       if (closed)
         throw new Error(`Invalid call to '${method}', the connection is closed`)
       let cn = await pool.grab()
-      let res = await cn[method](...args)
-      pool.release(cn)
-      return res
+      try {
+        return await cn[method](...args)
+      } finally {
+        pool.release(cn)
+      }
     }
   }
 }
