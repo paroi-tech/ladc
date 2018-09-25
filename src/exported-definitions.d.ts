@@ -5,10 +5,6 @@ export interface MycnOptions {
    * Provided by a _mycn_ plugin.
    */
   provider: () => Promise<BasicDatabaseConnection>
-  // /**
-  //  * This callback will be executed once.
-  //  */
-  // onInit?(cn: BasicDatabaseConnection): Promise<void>
   /**
    * This callback will be executed for each new `DatabaseConnection` when it has a new underlying connection created by the pool. It is a right place to update the underlying connection with `PRAGMA` orders.
    */

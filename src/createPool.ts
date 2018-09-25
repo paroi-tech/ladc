@@ -93,7 +93,6 @@ export default function createPool(provider: () => Promise<BasicDatabaseConnecti
       })
       available = []
       await Promise.all(closeAll)
-console.log('CLOSE POOL', typeof cleaning)
       if (cleaning)
         clearInterval(cleaning)
     }
