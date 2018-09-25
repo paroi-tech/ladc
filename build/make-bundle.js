@@ -31,6 +31,9 @@ async function build() {
 
 async function makeDefinitionsCode() {
   let defs = [
+    "// -- Usage definitions --",
+    removeLocalImportsExports((await readFile(path.join(srcPath, "exported-definitions.d.ts"), "utf-8")).trim()),
+    "// -- Entry point definition --",
     removeSemicolons(
       removeLocalImportsExports((await readFile(path.join(compiledPath, "index.d.ts"), "utf-8")).trim()),
     )

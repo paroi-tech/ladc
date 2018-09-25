@@ -1,5 +1,6 @@
 import { Client, ClientConfig, QueryResult } from "pg"
 import { BasicDatabaseConnection, BasicExecResult, BasicPreparedStatement, SqlParameters } from "mycn"
+import { MycnPgOptions } from "./exported-definitions"
 
 export async function createPgConnection(config: string | ClientConfig): Promise<Client> {
   let client = new Client(config)
@@ -8,30 +9,34 @@ export async function createPgConnection(config: string | ClientConfig): Promise
 }
 
 const insertRegexp = /^\s*insert\s+into\s+([^\s\(]+)\s*(?:\([^)]+\))?\s*values\s*\([\s\S]*\)\s*$/i
-function addReturningToInsert(sql: string) {
+function addReturningToInsert(sql: string, options: MycnPgOptions) {
   let matches = insertRegexp.exec(sql)
   if (!matches)
     return { sql }
-  return { sql: `${sql} returning *`, insertTable: matches[1] }
+  let insertTable = matches[1]
+  let idColumnName = options.getAutoincrementedIdColumnName && options.getAutoincrementedIdColumnName(insertTable)
+  sql = idColumnName ? `${sql} returning ${idColumnName}` : `${sql} returning *`
+  return { sql, insertTable, idColumnName }
 }
 
-export function toBasicDatabaseConnection(client: Client): BasicDatabaseConnection {
+export function toBasicDatabaseConnection(client: Client, options: MycnPgOptions): BasicDatabaseConnection {
   return {
     exec: async (sql: string, params?: SqlParameters) => {
-      let { sql: text, insertTable } = addReturningToInsert(sql)
+      let { sql: text, insertTable, idColumnName } = addReturningToInsert(sql, options)
       return toBasicExecResult(
         await client.query({
           text,
           values: toPositionalParameters(params)
         }),
-        insertTable
+        insertTable,
+        idColumnName
       )
     },
     all: async (sql: string, params?: SqlParameters) => toRows(await client.query({
       text: sql,
       values: toPositionalParameters(params)
     })),
-    prepare: async (sql: string, params?: SqlParameters) => makeBasicPreparedStatement(client, sql, params),
+    prepare: async (sql: string, params?: SqlParameters) => makeBasicPreparedStatement(options, client, sql, params),
     execScript: async (sql: string) => {
       await client.query(sql)
     },
@@ -51,7 +56,7 @@ function toRows(result: QueryResult) {
   return result.rows
 }
 
-function toBasicExecResult(result: QueryResult, insertTable?: string): BasicExecResult {
+function toBasicExecResult(result: QueryResult, insertTable?: string, optIdCol?: string): BasicExecResult {
   return {
     affectedRows: result.rowCount,
     getInsertedId: (idColumnName?: string) => {
@@ -66,6 +71,10 @@ function toBasicExecResult(result: QueryResult, insertTable?: string): BasicExec
         if (!row.hasOwnProperty(idColumnName))
           throw new Error(`Cannot get the inserted ID '${idColumnName}', available columns are: ${Object.keys(row).join(", ")}`)
         col = idColumnName
+      } else if (optIdCol) {
+        if (!row.hasOwnProperty(optIdCol))
+          throw new Error(`Cannot get the inserted ID '${optIdCol}', available columns are: ${Object.keys(row).join(", ")}`)
+        col = optIdCol
       } else if (insertTable) {
         if (row.hasOwnProperty("id"))
           col = "id"
@@ -89,14 +98,14 @@ function toBasicExecResult(result: QueryResult, insertTable?: string): BasicExec
 
 let psSequence = 0
 
-function makeBasicPreparedStatement(client: Client, sql: string, psParams?: SqlParameters): BasicPreparedStatement {
+function makeBasicPreparedStatement(options: MycnPgOptions, client: Client, sql: string, psParams?: SqlParameters): BasicPreparedStatement {
   let psName = `mycn-ps-${++psSequence}`
   let manualBound = false
   let curParams: SqlParameters | undefined = psParams
   let cursor: InMemoryCursor | undefined
   let thisObj = {
     exec: async (params?: SqlParameters) => {
-      let { sql: text, insertTable } = addReturningToInsert(sql)
+      let { sql: text, insertTable, idColumnName } = addReturningToInsert(sql, options)
       if (params) {
         manualBound = false
         curParams = {
@@ -108,7 +117,7 @@ function makeBasicPreparedStatement(client: Client, sql: string, psParams?: SqlP
         name: psName,
         text,
         values: toPositionalParameters(curParams)
-      }), insertTable)
+      }), insertTable, idColumnName)
     },
     all: async (params?: SqlParameters) => {
       if (params) {
