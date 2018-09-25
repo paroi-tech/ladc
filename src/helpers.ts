@@ -4,14 +4,14 @@ import { ExecResult, MycnOptions, PreparedStatement, SqlParameters } from "./exp
 export function toExecResult(options: MycnOptions, result: BasicExecResult): ExecResult {
   let thisObj: ExecResult = {
     affectedRows: result.affectedRows,
-    getInsertedId: (seqName?: string) => {
-      let id = result.getInsertedId(seqName)
+    getInsertedId: (idColumnName?: string) => {
+      let id = result.getInsertedId(idColumnName)
       if (id === undefined && !options.insertedIdCanBeUndefined)
         throw new Error(`Missing inserted ID`)
       return id
     },
-    getInsertedIdAsString: (seqName?: string): string => {
-      let val = thisObj.getInsertedId(seqName)
+    getInsertedIdAsString: (idColumnName?: string): string => {
+      let val = thisObj.getInsertedId(idColumnName)
       switch (typeof val) {
         case "string":
           return val
@@ -21,8 +21,8 @@ export function toExecResult(options: MycnOptions, result: BasicExecResult): Exe
           throw new Error(`Unexpected inserted ID type: ${typeof val}`)
       }
     },
-    getInsertedIdAsNumber: (seqName?: string): number => {
-      let val = thisObj.getInsertedId(seqName)
+    getInsertedIdAsNumber: (idColumnName?: string): number => {
+      let val = thisObj.getInsertedId(idColumnName)
       switch (typeof val) {
         case "string":
           return parseInt(val, 10)

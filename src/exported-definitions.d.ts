@@ -103,21 +103,21 @@ export interface ExecResult {
   /**
    * When the ID is `undefined`, an exception is thrown, unless the option `insertedIdCanBeUndefined` is set to `true`.
    *
-   * @param seqName For PostgreSQL, give here the column name of the autoincremented primary key
+   * @param idColumnName For PostgreSQL, give here the column name of the autoincremented primary key
    */
-  getInsertedId(seqName?: string): any
+  getInsertedId(idColumnName?: string): any
   /**
    * When the ID is `undefined`, an exception is thrown, unless the option `insertedIdCanBeUndefined` is set to `true`.
    *
-   * @param seqName For PostgreSQL, give here the column name of the autoincremented primary key
+   * @param idColumnName For PostgreSQL, give here the column name of the autoincremented primary key
    */
-  getInsertedIdAsString(seqName?: string): string
+  getInsertedIdAsString(idColumnName?: string): string
   /**
    * When the ID is `undefined`, an exception is thrown, unless the option `insertedIdCanBeUndefined` is set to `true`.
    *
-   * @param seqName For PostgreSQL, give here the column name of the autoincremented primary key
+   * @param idColumnName For PostgreSQL, give here the column name of the autoincremented primary key
    */
-  getInsertedIdAsNumber(seqName?: string): number
+  getInsertedIdAsNumber(idColumnName?: string): number
   readonly affectedRows: number
 }
 

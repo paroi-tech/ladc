@@ -12,7 +12,7 @@ export interface BasicExecResult {
   /**
    * NB: This method can return `undefined` if there is no value.
    */
-  getInsertedId(seqName?: string): any
+  getInsertedId(idColumnName?: string): any
   readonly affectedRows: number
 }
 
