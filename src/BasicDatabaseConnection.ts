@@ -7,12 +7,26 @@ export async function createPgConnection(config: string | ClientConfig): Promise
   return client
 }
 
+const insertRegexp = /^\s*insert\s+into\s+([^\s\(]+)\s*(?:\([^)]+\))?\s*values\s*\([\s\S]*\)\s*$/i
+function addReturningToInsert(sql: string) {
+  let matches = insertRegexp.exec(sql)
+  if (!matches)
+    return { sql }
+  return { sql: `${sql} returning *`, insertTable: matches[1] }
+}
+
 export function toBasicDatabaseConnection(client: Client): BasicDatabaseConnection {
   return {
-    exec: async (sql: string, params?: SqlParameters) => toBasicExecResult(await client.query({
-      text: sql,
-      values: toPositionalParameters(params)
-    })),
+    exec: async (sql: string, params?: SqlParameters) => {
+      let { sql: text, insertTable } = addReturningToInsert(sql)
+      return toBasicExecResult(
+        await client.query({
+          text,
+          values: toPositionalParameters(params)
+        }),
+        insertTable
+      )
+    },
     all: async (sql: string, params?: SqlParameters) => toRows(await client.query({
       text: sql,
       values: toPositionalParameters(params)
@@ -37,15 +51,38 @@ function toRows(result: QueryResult) {
   return result.rows
 }
 
-function toBasicExecResult(result: QueryResult): BasicExecResult {
+function toBasicExecResult(result: QueryResult, insertTable?: string): BasicExecResult {
   return {
     affectedRows: result.rowCount,
-    getInsertedId: (idColumnName: string) => {
-      if (!result.rows[0])
-        throw new Error(`Unknown column name ${idColumnName}`)
-      if (!result.rows[0].hasOwnProperty(idColumnName))
-        throw new Error(`Unknown column name ${idColumnName}`)
-      return result.rows[0][idColumnName]
+    getInsertedId: (idColumnName?: string) => {
+      if (result.rows.length !== 1) {
+        if (result.rows.length === 0)
+          throw new Error(`Cannot get the inserted ID, please append 'returning your_column_id' to your query`)
+        throw new Error(`Cannot get the inserted ID, there must be one result row (${result.rows.length})`)
+      }
+      let row = result.rows[0]
+      let col: string | undefined
+      if (idColumnName) {
+        if (!row.hasOwnProperty(idColumnName))
+          throw new Error(`Cannot get the inserted ID '${idColumnName}', available columns are: ${Object.keys(row).join(", ")}`)
+        col = idColumnName
+      } else if (insertTable) {
+        if (row.hasOwnProperty("id"))
+          col = "id"
+        else {
+          let composed = `${insertTable.toLowerCase()}_id`
+          if (row.hasOwnProperty(composed))
+            col = composed
+          else {
+            composed = composed.toUpperCase()
+            if (row.hasOwnProperty(composed))
+              col = composed
+          }
+        }
+      }
+      if (!col)
+        throw new Error(`Cannot get the inserted ID, available columns are: ${Object.keys(row).join(", ")}`)
+      return row[col]
     }
   }
 }
@@ -59,6 +96,7 @@ function makeBasicPreparedStatement(client: Client, sql: string, psParams?: SqlP
   let cursor: InMemoryCursor | undefined
   let thisObj = {
     exec: async (params?: SqlParameters) => {
+      let { sql: text, insertTable } = addReturningToInsert(sql)
       if (params) {
         manualBound = false
         curParams = {
@@ -68,9 +106,9 @@ function makeBasicPreparedStatement(client: Client, sql: string, psParams?: SqlP
       }
       return toBasicExecResult(await client.query({
         name: psName,
-        text: sql,
+        text,
         values: toPositionalParameters(curParams)
-      }))
+      }), insertTable)
     },
     all: async (params?: SqlParameters) => {
       if (params) {
@@ -106,7 +144,7 @@ function makeBasicPreparedStatement(client: Client, sql: string, psParams?: SqlP
       manualBound = false
       curParams = undefined
     },
-    close: async () => {}
+    close: async () => { }
   }
   return thisObj
 }

@@ -16,18 +16,18 @@ How to create a connection:
 import { createDatabaseConnection } from "mycn"
 import { pgConnectionProvider } from "mycn-pg"
 
-let cn
-async function getConnection() {
-  if (!cn) {
-    cn = await createDatabaseConnection({
-      provider: pgConnectionProvider({
-        host: "-my-server-",
-        database: "-my-database-",
-        user: "-my-user-",
-        password: "-my-password-"
-      })
-    })
-  }
-  return cn
-}
+let cn = createDatabaseConnection({
+  provider: pgConnectionProvider({
+    host: "-my-server-",
+    database: "-my-database-",
+    user: "-my-user-",
+    password: "-my-password-"
+  })
+})
 ```
+
+# Get the Postgresql autoincrement inserted ID
+
+If the primary key column name is `id` or `{table-name}_id`, just use the Mycn methods `getInsertedId()`, `getInsertedIdAsString()`, `getInsertedIdAsNumber()` as usual.
+
+Otherwise, you have to provide the primary key column name as a parameter to these methods.
