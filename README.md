@@ -92,11 +92,7 @@ The following members are provided for managing transactions:
 * `transCn.rollback()`
 * `transCn.commit()`
 
-It isn't required to `close` a connection allocated to a transaction, because a `submit` or a `rollback` will release the underlying connection.
-
-When a transaction connection is closed, the transaction is rollbacked. Then the underlying connection is released to the pool.
-
-To stop the connection pool, close the root connection.
+A `submit` or a `rollback` releases the underlying connection to the Mycn pool.
 
 ## How to integrate a query builder
 
