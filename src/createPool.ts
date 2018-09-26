@@ -1,5 +1,5 @@
 import { BasicDatabaseConnection } from "./driver-definitions"
-import { Debug, MycnOptions } from "./exported-definitions"
+import { DebugEvent, MycnOptions } from "./exported-definitions"
 
 export interface Pool {
   /**
@@ -22,10 +22,10 @@ export default function createPool(provider: () => Promise<BasicDatabaseConnecti
   const keepOneConnection = !!poolOptions.keepOneConnection
   // tslint:disable-next-line:no-console
   const logError = options.logError || (err => console.error(err))
-  const debugLog = options.debugLog
+  const logDebug = options.logDebug
 
-  if (debugLog)
-    provider = wrapProvider(provider, debugLog)
+  if (logDebug)
+    provider = debugWrapProvider(provider, logDebug)
 
   let closed = false
   let available: PoolItem[] = []
@@ -41,8 +41,6 @@ export default function createPool(provider: () => Promise<BasicDatabaseConnecti
       if (closed)
         throw new Error(`Invalid call to "grab", the pool is closed`)
 
-      // await ready
-
       if (!exclusive && nonExclusiveDb) {
         ++nonExclusiveCount
         return nonExclusiveDb
@@ -55,8 +53,8 @@ export default function createPool(provider: () => Promise<BasicDatabaseConnecti
       else {
         db = await provider()
         let id = ++counter
-        if (debugLog)
-          db = wrapAsyncMethods(db, id, debugLog)
+        if (logDebug)
+          db = debugWrapAsyncMethods(db, id, logDebug)
         identifiers.set(db, id)
         logMonitoring({ event: "open", cn: db, id: identifiers.get(db) })
       }
@@ -98,11 +96,6 @@ export default function createPool(provider: () => Promise<BasicDatabaseConnecti
     }
   }
 
-  // const ready = options.onInit ? pool.grab().then(cn => options.onInit!(cn)).catch(err => {
-  //   logError(err)
-  //   throw new Error('')
-  // }) : Promise.resolve()
-
   function startCleaning() {
     if (cleaning)
       return
@@ -138,20 +131,20 @@ export default function createPool(provider: () => Promise<BasicDatabaseConnecti
       available = available.slice(index)
   }
 
-  function wrapProvider(provider: () => Promise<BasicDatabaseConnection>, debugLog: (debug: Debug) => void): () => Promise<BasicDatabaseConnection> {
+  function debugWrapProvider(provider: () => Promise<BasicDatabaseConnection>, logDebug: (debug: DebugEvent) => void): () => Promise<BasicDatabaseConnection> {
     return async () => {
       try {
         let result = await provider()
-        debugLog({ result })
+        logDebug({ result })
         return result
       } catch (error) {
-        debugLog({ error })
+        logDebug({ error })
         throw error
       }
     }
   }
 
-  function wrapAsyncMethods(db: BasicDatabaseConnection, idInPool: number, debugLog: (debug: Debug) => void): BasicDatabaseConnection {
+  function debugWrapAsyncMethods(db: BasicDatabaseConnection, idInPool: number, logDebug: (debug: DebugEvent) => void): BasicDatabaseConnection {
     let inTransactions = new WeakSet<any>()
     let wrap: any = {}
     for (let name of Object.keys(db)) {
@@ -160,7 +153,7 @@ export default function createPool(provider: () => Promise<BasicDatabaseConnecti
           inTransactions.add(wrap)
         try {
           let result = await db[name](...args)
-          debugLog({
+          logDebug({
             callingContext: {
               connection: db,
               method: name,
@@ -172,7 +165,7 @@ export default function createPool(provider: () => Promise<BasicDatabaseConnecti
           })
           return result
         } catch (error) {
-          debugLog({
+          logDebug({
             callingContext: {
               connection: db,
               method: name,

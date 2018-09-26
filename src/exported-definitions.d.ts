@@ -32,10 +32,10 @@ export interface MycnOptions {
   /**
    * Activate development mode.
    */
-  debugLog?(debug: Debug): void
+  logDebug?(ev: DebugEvent): void
 }
 
-export interface ContextDebug {
+export interface DebugEventContext {
   connection: BasicDatabaseConnection
   method: string
   args: any[]
@@ -43,8 +43,8 @@ export interface ContextDebug {
   idInPool: number
 }
 
-export interface Debug {
-  callingContext?: ContextDebug
+export interface DebugEvent {
+  callingContext?: DebugEventContext
   /**
    * Set when an error occured
    */

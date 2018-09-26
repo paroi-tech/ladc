@@ -39,8 +39,7 @@ let cn = createDatabaseConnection({
 Then, use the connection:
 
 ```
-async function useMyConnection() {
-  let cn = await getConnection()
+async function useMyConnection(cn) {
   let transCn = await cn.beginTransaction()
   try {
     let newId = (await transCn.exec("... insert 1 ...")).getInsertedId()
