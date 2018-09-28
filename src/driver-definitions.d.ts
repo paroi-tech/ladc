@@ -13,12 +13,12 @@ export interface BasicExecResult {
   /**
    * NB: This method can return `undefined` if there is no value.
    */
-  getInsertedId(idColumnName?: string): any
+  getInsertedId(idColumnName?: string): unknown
   readonly affectedRows: number
 }
 
 export interface BasicPreparedStatement<R extends ResultRow = ResultRow> {
-  bind(nbOrKey: number | string, value: any): void
+  bind(nbOrKey: number | string, value: unknown): void
   unbind(nbOrKey: number | string): void
 
   exec(params?: SqlParameters): Promise<BasicExecResult>

@@ -62,8 +62,11 @@ export default function makeDbConnection(context: Context): DatabaseConnection {
       if (closed)
         throw new Error(`Invalid call to 'close', the connection is already closed`)
       closed = true
-      if (psProvider)
-        await psProvider.closeAll()
+      await Promise.all([
+        psProvider.closeAll(),
+        cursorProvider.closeAll(),
+        txProvider.closeAll()
+      ])
       await pool.close()
     }
   }

@@ -28,7 +28,7 @@ export interface MycnOptions {
   /**
    * By default, unhandled errors will be logged with `console.error`.
    */
-  logError?(error: any): void
+  logError?(error: unknown): void
   /**
    * Activate development mode.
    */
@@ -70,10 +70,10 @@ export interface PoolOptions {
   keepOneConnection?: boolean
 }
 
-export type SqlParameters = any[] | { [key: string]: any }
+export type SqlParameters = unknown[] | { [key: string]: unknown }
 
 export interface ResultRow {
-  [columnName: string]: any
+  [columnName: string]: unknown
 }
 
 export interface QueryRunner {
@@ -105,7 +105,7 @@ export interface ExecResult {
    *
    * @param idColumnName For PostgreSQL, give here the column name of the autoincremented primary key
    */
-  getInsertedId(idColumnName?: string): any
+  getInsertedId(idColumnName?: string): unknown
   /**
    * When the ID is `undefined`, an exception is thrown, unless the option `insertedIdCanBeUndefined` is set to `true`.
    *
@@ -122,7 +122,7 @@ export interface ExecResult {
 }
 
 export interface PreparedStatement<R extends ResultRow = ResultRow> {
-  bind(nbOrKey: number | string, value: any): void
+  bind(nbOrKey: number | string, value: unknown): void
   unbind(nbOrKey: number | string): void
   /**
    * Unbind all previous parameters, then bind all new parameters

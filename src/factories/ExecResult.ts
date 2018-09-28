@@ -15,9 +15,9 @@ export function toExecResult(context: Context, result: BasicExecResult): ExecRes
       let val = obj.getInsertedId(idColumnName)
       switch (typeof val) {
         case "string":
-          return val
+          return val as string
         case "number":
-          return val.toString()
+          return (val as number).toString()
         default:
           throw new Error(`Unexpected inserted ID type: ${typeof val}`)
       }
@@ -26,9 +26,9 @@ export function toExecResult(context: Context, result: BasicExecResult): ExecRes
       let val = obj.getInsertedId(idColumnName)
       switch (typeof val) {
         case "string":
-          return parseInt(val, 10)
+          return parseInt(val as string, 10)
         case "number":
-          return val
+          return val as number
         default:
           throw new Error(`Unexpected inserted ID type: ${typeof val}`)
       }
