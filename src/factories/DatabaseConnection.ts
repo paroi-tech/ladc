@@ -1,19 +1,32 @@
-import { Pool } from "./createPool"
-import { DatabaseConnection, MycnOptions, SqlParameters } from "./exported-definitions"
-import { toExecResult, toSingleRow, toSingleValue } from "./helpers"
-import makeTransactionConnection from "./makeTransactionConnection"
-import PsProvider from "./PsProvider"
+import { Pool } from "../createPool"
+import { DatabaseConnection, MycnOptions, SqlParameters } from "../exported-definitions"
+import { toSingleRow, toSingleValue } from "../helpers"
+import { CursorProvider } from "./Cursor"
+import { toExecResult } from "./ExecResult"
+import { PsProvider } from "./PreparedStatement"
+import { TxProvider } from "./TransactionConnection"
 
-export default function makeDbConnection(options: MycnOptions, pool: Pool): DatabaseConnection {
+export interface Context {
+  pool: Pool
+  options: MycnOptions
+}
+
+export default function makeDbConnection(context: Context): DatabaseConnection {
+  let { pool } = context
+  let psProvider = new PsProvider({
+    context,
+    canCreateCursor: () => true
+  })
+  let txProvider = new TxProvider(context)
+  let cursorProvider = new CursorProvider(context)
+
   let closed = false
-  let psProvider: PsProvider | undefined
+
   let obj: DatabaseConnection = {
     async prepare(sql: string, params?: SqlParameters) {
       if (closed)
         throw new Error(`Invalid call to 'prepare', the connection is closed`)
-      if (!psProvider)
-        psProvider = new PsProvider({ pool })
-      return await psProvider.make(options, sql, params)
+      return await psProvider.prepare(sql, params)
     },
     async exec(sql: string, params?: SqlParameters) {
       if (closed)
@@ -21,7 +34,7 @@ export default function makeDbConnection(options: MycnOptions, pool: Pool): Data
       let cn = await pool.grab()
       try {
         let res = await cn.exec(sql, params)
-        return toExecResult(options, res)
+        return toExecResult(context, res)
       } finally {
         pool.release(cn)
       }
@@ -33,12 +46,17 @@ export default function makeDbConnection(options: MycnOptions, pool: Pool): Data
     async singleValue(sql: string, params?: SqlParameters) {
       return toSingleValue(await this.singleRow(sql, params))
     },
+    async cursor(sql: string, params?: SqlParameters) {
+      if (closed)
+        throw new Error(`Invalid call to 'cursor', the connection is closed`)
+      return await cursorProvider.open(sql, params)
+    },
     execScript: cnBasicCallback("execScript"),
 
     beginTransaction: async () => {
       if (closed)
         throw new Error(`Invalid call to 'beginTransaction', the connection is closed`)
-      return await makeTransactionConnection(options, pool)
+      return await txProvider.create()
     },
     close: async () => {
       if (closed)
@@ -50,8 +68,8 @@ export default function makeDbConnection(options: MycnOptions, pool: Pool): Data
     }
   }
 
-  if (options.modifyConnection)
-    obj = options.modifyConnection(obj)
+  if (context.options.modifyConnection)
+    obj = context.options.modifyConnection(obj)
 
   return obj
 

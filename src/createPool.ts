@@ -7,6 +7,7 @@ export interface Pool {
    */
   grab(exclusive?: boolean): Promise<BasicDatabaseConnection>
   release(db: BasicDatabaseConnection): void
+  abandon(db: BasicDatabaseConnection): void
   close(): Promise<void>
 }
 
@@ -80,6 +81,14 @@ export default function createPool(provider: () => Promise<BasicDatabaseConnecti
         cleanOldConnections(true)
       else
         startCleaning()
+    },
+    abandon: (db: BasicDatabaseConnection) => {
+      logMonitoring({ event: "abandon", cn: db, id: identifiers.get(db) })
+      if (db === nonExclusiveDb) {
+        --nonExclusiveCount
+        nonExclusiveDb = undefined
+      }
+      db.close().catch(err => logError(err))
     },
     close: async () => {
       if (closed)

@@ -1,9 +1,10 @@
 import { SqlParameters, ResultRow } from "./exported-definitions"
 
 export interface BasicDatabaseConnection {
-  prepare<ROW extends ResultRow = any>(sql: string, params?: SqlParameters): Promise<BasicPreparedStatement<ROW>>
+  prepare<R extends ResultRow = ResultRow>(sql: string, params?: SqlParameters): Promise<BasicPreparedStatement<R>>
   exec(sql: string, params?: SqlParameters): Promise<BasicExecResult>
-  all<ROW extends ResultRow = any>(sql: string, params?: SqlParameters): Promise<ROW[]>
+  all<R extends ResultRow = ResultRow>(sql: string, params?: SqlParameters): Promise<R[]>
+  cursor<R extends ResultRow = ResultRow>(sql: string, params?: SqlParameters): Promise<BasicCursor<R>>
   execScript(sql: string): Promise<void>
   close(): Promise<void>
 }
@@ -16,11 +17,19 @@ export interface BasicExecResult {
   readonly affectedRows: number
 }
 
-export interface BasicPreparedStatement<PS extends ResultRow = any> {
+export interface BasicPreparedStatement<R extends ResultRow = ResultRow> {
+  bind(nbOrKey: number | string, value: any): void
+  unbind(nbOrKey: number | string): void
+
   exec(params?: SqlParameters): Promise<BasicExecResult>
-  all<ROW = PS>(params?: SqlParameters): Promise<ROW[]>
-  fetch<ROW = PS>(): Promise<ROW | undefined>
-  bind(key: number | string, value: any): Promise<void>
-  unbindAll(): Promise<void>
+
+  all(params?: SqlParameters): Promise<R[]>
+  cursor<R extends ResultRow = ResultRow>(params?: SqlParameters): Promise<BasicCursor<R>>
+
+  close(): Promise<void>
+}
+
+export interface BasicCursor<R extends ResultRow = ResultRow> {
+  fetch(): Promise<R | undefined>
   close(): Promise<void>
 }

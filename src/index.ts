@@ -1,6 +1,6 @@
 import createPool from "./createPool"
 import { DatabaseConnection, MycnOptions } from "./exported-definitions"
-import makeDbConnection from "./makeDbConnection"
+import makeDbConnection from "./factories/DatabaseConnection"
 
 export function createDatabaseConnection(options: MycnOptions): DatabaseConnection {
   let provider = async () => {
@@ -9,7 +9,8 @@ export function createDatabaseConnection(options: MycnOptions): DatabaseConnecti
       await options.afterOpen(cn)
     return cn
   }
-  return makeDbConnection(options, createPool(provider, options))
+  let pool = createPool(provider, options)
+  return makeDbConnection({ options, pool })
 }
 
 export * from "./driver-definitions"

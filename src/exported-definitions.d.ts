@@ -16,7 +16,7 @@ export interface MycnOptions {
   /**
    * This callback will be executed for each new `PreparedStatement` object. It returns the same or another object that will be used as the `PreparedStatement`.
    */
-  modifyPreparedStatement?(ps: PreparedStatement): PreparedStatement | Promise<PreparedStatement>
+  modifyPreparedStatement?(ps: PreparedStatement): PreparedStatement
   /**
    * The configuration of the connection pool.
    */
@@ -56,8 +56,8 @@ export interface DebugEvent {
 }
 
 export interface PoolMonitoring {
-  event: "open" | "close" | "grab" | "release"
-  cn: any
+  event: "open" | "close" | "grab" | "release" | "abandon"
+  cn: BasicDatabaseConnection
   id?: number
 }
 
@@ -71,15 +71,19 @@ export interface PoolOptions {
 }
 
 export type SqlParameters = any[] | { [key: string]: any }
-export type ResultRow = {}
+
+export interface ResultRow {
+  [columnName: string]: any
+}
 
 export interface QueryRunner {
-  prepare<ROW extends ResultRow = any>(sql: string, params?: SqlParameters): Promise<PreparedStatement<ROW>>
+  prepare<R extends ResultRow = ResultRow>(sql: string, params?: SqlParameters): Promise<PreparedStatement<R>>
   exec(sql: string, params?: SqlParameters): Promise<ExecResult>
 
-  all<ROW extends ResultRow = any>(sql: string, params?: SqlParameters): Promise<ROW[]>
-  singleRow<ROW extends ResultRow = any>(sql: string, params?: SqlParameters): Promise<ROW | undefined>
-  singleValue<VAL = any>(sql: string, params?: SqlParameters): Promise<VAL | undefined | null>
+  all<R extends ResultRow = ResultRow>(sql: string, params?: SqlParameters): Promise<R[]>
+  singleRow<R extends ResultRow = ResultRow>(sql: string, params?: SqlParameters): Promise<R | undefined>
+  singleValue<V = ResultRow>(sql: string, params?: SqlParameters): Promise<V | null | undefined>
+  cursor<R extends ResultRow = ResultRow>(sql: string, params?: SqlParameters): Promise<Cursor<R>>
 
   execScript(sql: string): Promise<void>
 }
@@ -117,15 +121,26 @@ export interface ExecResult {
   readonly affectedRows: number
 }
 
-export interface PreparedStatement<PS extends ResultRow = any> {
+export interface PreparedStatement<R extends ResultRow = ResultRow> {
+  bind(nbOrKey: number | string, value: any): void
+  unbind(nbOrKey: number | string): void
+  /**
+   * Unbind all previous parameters, then bind all new parameters
+   */
+  bindAll(params: SqlParameters): void
+  unbindAll(): void
+
   exec(params?: SqlParameters): Promise<ExecResult>
 
-  all<ROW = PS>(params?: SqlParameters): Promise<ROW[]>
-  singleRow<ROW = PS>(params?: SqlParameters): Promise<ROW | undefined>
-  singleValue<VAL>(params?: SqlParameters): Promise<VAL | undefined | null>
+  all(params?: SqlParameters): Promise<R[]>
+  singleRow(params?: SqlParameters): Promise<R | undefined>
+  singleValue<V>(params?: SqlParameters): Promise<V | null | undefined>
+  cursor<R extends ResultRow = ResultRow>(params?: SqlParameters): Promise<Cursor<R>>
 
-  fetch<ROW = PS>(): Promise<ROW | undefined>
-  bind(key: number | string, value: any): Promise<void>
-  unbindAll(): Promise<void>
+  close(): Promise<void>
+}
+
+export interface Cursor<R extends ResultRow = ResultRow> {
+  fetch(): Promise<R | undefined>
   close(): Promise<void>
 }
