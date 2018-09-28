@@ -4,7 +4,9 @@ import { Context } from "./DatabaseConnection"
 
 export function toExecResult(context: Context, result: BasicExecResult): ExecResult {
   let obj: ExecResult = {
-    affectedRows: result.affectedRows,
+    get affectedRows() {
+      return result.affectedRows
+    },
     getInsertedId: (idColumnName?: string) => {
       let id = result.getInsertedId(idColumnName)
       if (id === undefined && !context.options.insertedIdCanBeUndefined)
