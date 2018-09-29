@@ -55,7 +55,8 @@ function mergeParams(params1: SqlParameters | undefined, params2: SqlParameters 
     throw new Error("Cannot merge named parameters with positioned parameters")
   if (isArr) {
     let result = [...(params1 as string[])]
-      ; (params2 as string[]).forEach((val, index) => result[index] = val)
+    let p2 = params2 as string[]
+    p2.forEach((val, index) => result[index] = val)
     return result
   }
   return {
