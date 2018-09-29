@@ -100,7 +100,7 @@ class TxItem {
         }, await basic.cursor(sql, params))
         return this.cursorItem.cursor
       },
-      execScript: cnBasicCallback("execScript"),
+      script: cnBasicCallback("script"),
 
       get inTransaction() {
         return !!basic

@@ -5,7 +5,7 @@ export interface BasicDatabaseConnection {
   exec(sql: string, params?: SqlParameters): Promise<BasicExecResult>
   all<R extends ResultRow = ResultRow>(sql: string, params?: SqlParameters): Promise<R[]>
   cursor<R extends ResultRow = ResultRow>(sql: string, params?: SqlParameters): Promise<BasicCursor<R>>
-  execScript(sql: string): Promise<void>
+  script(sql: string): Promise<void>
   close(): Promise<void>
 }
 

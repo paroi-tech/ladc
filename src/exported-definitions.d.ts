@@ -12,7 +12,8 @@ export interface MycnOptions {
   /**
    * This callback will be executed for each new `DatabaseConnection` object. It returns the same or another object that will be used as the `DatabaseConnection`.
    */
-  modifyConnection?<T extends DatabaseConnection | TransactionConnection>(cn: T): T
+  modifyConnection?(cn: DatabaseConnection): DatabaseConnection
+  modifyConnection?(cn: TransactionConnection): TransactionConnection
   /**
    * This callback will be executed for each new `PreparedStatement` object. It returns the same or another object that will be used as the `PreparedStatement`.
    */
@@ -82,10 +83,10 @@ export interface QueryRunner {
 
   all<R extends ResultRow = ResultRow>(sql: string, params?: SqlParameters): Promise<R[]>
   singleRow<R extends ResultRow = ResultRow>(sql: string, params?: SqlParameters): Promise<R | undefined>
-  singleValue<V = ResultRow>(sql: string, params?: SqlParameters): Promise<V | null | undefined>
+  singleValue<V = unknown>(sql: string, params?: SqlParameters): Promise<V | null | undefined>
   cursor<R extends ResultRow = ResultRow>(sql: string, params?: SqlParameters): Promise<Cursor<R>>
 
-  execScript(sql: string): Promise<void>
+  script(sql: string): Promise<void>
 }
 
 export interface DatabaseConnection extends QueryRunner {

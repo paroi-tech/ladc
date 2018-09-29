@@ -1,6 +1,6 @@
 {
   "name": "mycn",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "description": "A layer above SQL database connectors for Node.js, inspired from PDO and JDBC",
   "main": "mycn.min.js",
   "types": "mycn.d.ts",
@@ -9,7 +9,7 @@
     "rimraf": "^2.6.2",
     "rollup": "^0.64.1",
     "tslint": "^5.11.0",
-    "typescript": "^3.0.1",
+    "typescript": "^3.1.1",
     "uglify-es": "^3.3.9"
   },
   "scripts": {

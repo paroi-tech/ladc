@@ -61,7 +61,7 @@ The methods of a `DatabaseConnection`:
 * `all(sql, params)` returns a promise of an array of rows;
 * `singleRow(sql, params)` fetches with `cn.all(sql)` and returns the single row;
 * `singleValue(sql, params)` fetches with `cn.all(sql)` and returns the single value of the single row;
-* `execScript(sql)` execute a multilines script;
+* `script(sql)` execute a multilines script;
 * `close()` close the connection (for the root connection) or release it in the pool.
 
 The members of a `ExecResult`:

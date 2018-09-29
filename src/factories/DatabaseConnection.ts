@@ -51,7 +51,7 @@ export default function makeDbConnection(context: Context): DatabaseConnection {
         throw new Error(`Invalid call to 'cursor', the connection is closed`)
       return await cursorProvider.open(sql, params)
     },
-    execScript: cnBasicCallback("execScript"),
+    script: cnBasicCallback("script"),
 
     beginTransaction: async () => {
       if (closed)
