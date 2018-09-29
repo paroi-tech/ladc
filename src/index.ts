@@ -1,5 +1,5 @@
-import { ClientConfig } from "pg"
 import { BasicDatabaseConnection } from "mycn"
+import { ClientConfig } from "pg"
 import { createPgConnection, toBasicDatabaseConnection } from "./BasicDatabaseConnection"
 import { MycnPgOptions } from "./exported-definitions"
 

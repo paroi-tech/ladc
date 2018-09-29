@@ -1,5 +1,5 @@
+import { BasicCursor, BasicDatabaseConnection, BasicExecResult, BasicPreparedStatement, SqlParameters } from "mycn"
 import { Client, ClientConfig, QueryResult } from "pg"
-import { BasicDatabaseConnection, BasicExecResult, BasicPreparedStatement, SqlParameters } from "mycn"
 import { MycnPgOptions } from "./exported-definitions"
 
 export async function createPgConnection(config: string | ClientConfig): Promise<Client> {
@@ -9,6 +9,7 @@ export async function createPgConnection(config: string | ClientConfig): Promise
 }
 
 const insertRegexp = /^\s*insert\s+into\s+([^\s\(]+)\s*(?:\([^)]+\))?\s*values\s*\([\s\S]*\)\s*$/i
+
 function addReturningToInsert(sql: string, options: MycnPgOptions) {
   let matches = insertRegexp.exec(sql)
   if (!matches)
@@ -21,6 +22,7 @@ function addReturningToInsert(sql: string, options: MycnPgOptions) {
 
 export function toBasicDatabaseConnection(client: Client, options: MycnPgOptions): BasicDatabaseConnection {
   return {
+    prepare: async (sql: string, params?: SqlParameters) => makeBasicPreparedStatement(options, client, sql, params),
     exec: async (sql: string, params?: SqlParameters) => {
       let { sql: text, insertTable, idColumnName } = addReturningToInsert(sql, options)
       return toBasicExecResult(
@@ -36,8 +38,13 @@ export function toBasicDatabaseConnection(client: Client, options: MycnPgOptions
       text: sql,
       values: toPositionalParameters(params)
     })),
-    prepare: async (sql: string, params?: SqlParameters) => makeBasicPreparedStatement(options, client, sql, params),
-    execScript: async (sql: string) => {
+    cursor: async (sql: string, params?: SqlParameters) => {
+      return makeInMemoryCursor(toRows(await client.query({
+        text: sql,
+        values: toPositionalParameters(params)
+      })))
+    },
+    script: async (sql: string) => {
       await client.query(sql)
     },
     close: async () => {
@@ -46,13 +53,13 @@ export function toBasicDatabaseConnection(client: Client, options: MycnPgOptions
   }
 }
 
-function toPositionalParameters(params?: SqlParameters): string[] | undefined {
+function toPositionalParameters(params?: SqlParameters): Array<unknown> | undefined {
   if (params === undefined || Array.isArray(params))
     return params
-  throw new Error('Named parameters are not implemented')
+  throw new Error("Named parameters are not implemented")
 }
 
-function toRows(result: QueryResult) {
+function toRows(result: QueryResult): any[] {
   return result.rows
 }
 
@@ -98,73 +105,74 @@ function toBasicExecResult(result: QueryResult, insertTable?: string, optIdCol?:
 
 let psSequence = 0
 
-function makeBasicPreparedStatement(options: MycnPgOptions, client: Client, sql: string, psParams?: SqlParameters): BasicPreparedStatement {
+function makeBasicPreparedStatement(options: MycnPgOptions, client: Client, sql: string, initialParams?: SqlParameters): BasicPreparedStatement<any> {
   let psName = `mycn-ps-${++psSequence}`
-  let manualBound = false
-  let curParams: SqlParameters | undefined = psParams
-  let cursor: InMemoryCursor | undefined
-  let thisObj = {
+  let boundParams = initialParams
+  let obj: BasicPreparedStatement<any> = {
+    bind: async (key: number | string, value: any) => {
+      if (typeof key === "string")
+        throw new Error("Named parameters are not implemented")
+      if (!boundParams)
+        boundParams = []
+      boundParams[key - 1] = value
+    },
+    unbind: async (key: number | string) => {
+      if (boundParams)
+        boundParams[key] = undefined
+    },
     exec: async (params?: SqlParameters) => {
       let { sql: text, insertTable, idColumnName } = addReturningToInsert(sql, options)
-      if (params) {
-        manualBound = false
-        curParams = {
-          ...psParams,
-          ...params
-        }
-      }
       return toBasicExecResult(await client.query({
         name: psName,
         text,
-        values: toPositionalParameters(curParams)
+        values: toPositionalParameters(mergeParams(boundParams, params))
       }), insertTable, idColumnName)
     },
     all: async (params?: SqlParameters) => {
-      if (params) {
-        manualBound = false
-        curParams = {
-          ...psParams,
-          ...params
-        }
-      }
       return toRows(await client.query({
         name: psName,
         text: sql,
-        values: toPositionalParameters(curParams)
+        values: toPositionalParameters(mergeParams(boundParams, params))
       }))
     },
-    fetch: async () => {
-      if (!cursor)
-        cursor = makeInMemoryCursor(await thisObj.all(curParams))
-      return cursor.fetch()
-    },
-    bind: async (key: number | string, value: any) => {
-      if (!manualBound) {
-        manualBound = true
-        curParams = typeof key === "number" ? [] : {}
-      } else if (!curParams)
-        curParams = typeof key === "number" ? [] : {}
-      if (typeof key === "number")
-        curParams[key - 1] = value
-      else
-        curParams[key] = value
-    },
-    unbindAll: async () => {
-      manualBound = false
-      curParams = undefined
+    cursor: async (params?: SqlParameters) => {
+      return makeInMemoryCursor(toRows(await client.query({
+        name: psName,
+        text: sql,
+        values: toPositionalParameters(mergeParams(boundParams, params))
+      })))
     },
     close: async () => { }
   }
-  return thisObj
+  return obj
 }
 
-interface InMemoryCursor {
-  fetch(): any | undefined
-}
-
-function makeInMemoryCursor(rows: any[]): InMemoryCursor {
-  let currentIndex = -1
+function mergeParams(params1: SqlParameters | undefined, params2: SqlParameters | undefined): SqlParameters | undefined {
+  if (!params1)
+    return params2
+  if (!params2)
+    return params1
+  let isArr = Array.isArray(params1)
+  if (isArr !== Array.isArray(params2))
+    throw new Error("Cannot merge named parameters with positioned parameters")
+  if (isArr) {
+    let result = [...(params1 as string[])]
+      ; (params2 as string[]).forEach((val, index) => result[index] = val)
+    return result
+  }
   return {
-    fetch: () => rows[++currentIndex]
+    ...params1,
+    ...params2
+  }
+}
+
+function makeInMemoryCursor(rows: any[]): BasicCursor<any> {
+  let currentIndex = -1
+  let closed = false
+  return {
+    fetch: async () => closed ? undefined : rows[++currentIndex],
+    close: async () => {
+      closed = true
+    }
   }
 }
