@@ -1,12 +1,13 @@
-import { BasicDatabaseConnection, BasicExecResult, BasicPreparedStatement, SqlParameters } from "mycn"
-import { RunResult, Database, Statement } from "./promisifySqlite3"
+import { BasicCursor, BasicDatabaseConnection, BasicExecResult, BasicPreparedStatement, SqlParameters } from "mycn"
+import { Database, RunResult, Statement } from "./promisifySqlite3"
 
 export function toBasicDatabaseConnection(db: Database): BasicDatabaseConnection {
   return {
-    prepare: async (sql: string, params?: SqlParameters) => toBasicPreparedStatement(await db.prepare(sql, params)),
+    prepare: async (sql: string, params?: SqlParameters) => toBasicPreparedStatement(await db.prepare(sql, params), params),
     exec: async (sql: string, params?: SqlParameters) => toBasicExecResult(await db.run(sql, params)),
     all: (sql: string, params?: SqlParameters) => db.all(sql, params),
-    execScript: async (sql: string) => {
+    cursor: (sql: string, params?: SqlParameters) => createBasicCursor(db, sql, params),
+    script: async (sql: string) => {
       await db.exec(sql)
     },
     close: async () => {
@@ -22,57 +23,71 @@ function toBasicExecResult(st: RunResult): BasicExecResult {
   }
 }
 
-function toBasicPreparedStatement(st: Statement): BasicPreparedStatement {
-  let manualBound = false
-  let curParams: SqlParameters | undefined
-  // let cursor: InMemoryCursor | undefined
+function toBasicPreparedStatement(st: Statement, initialParams?: SqlParameters): BasicPreparedStatement<any> {
+  let boundParams = initialParams
   return {
-    exec: async (params?: SqlParameters) => {
-      if (params) {
-        manualBound = false
-        curParams = params
-      }
-      return toBasicExecResult(await st.run(curParams))
-    },
-    all: (params?: SqlParameters) => {
-      if (params) {
-        manualBound = false
-        curParams = params
-      }
-      return st.all(curParams)
-    },
-    fetch: () => {
-      return st.get() as Promise<any>
-      // if (!cursor)
-      //   cursor = makeInMemoryCursor(await st.all(curParams))
-      // return cursor.fetch()
-    },
     bind: async (key: number | string, value: any) => {
-      if (!manualBound) {
-        manualBound = true
-        curParams = typeof key === "number" ? [] : {}
-      } else if (!curParams)
-        curParams = typeof key === "number" ? [] : {}
+      if (!boundParams)
+        boundParams = typeof key === "number" ? [] : {}
       if (typeof key === "number")
-        curParams[key - 1] = value
+        boundParams[key - 1] = value
       else
-        curParams[key] = value
+        boundParams[key] = value
     },
-    unbindAll: async () => {
-      manualBound = false
-      curParams = undefined
+    unbind: async (key: number | string) => {
+      if (boundParams)
+        boundParams[key] = undefined
     },
+    exec: async (params?: SqlParameters) => toBasicExecResult(await st.run(mergeParams(boundParams, params))),
+    all: (params?: SqlParameters) => st.all(mergeParams(boundParams, params)),
+    cursor: async (params?: SqlParameters) => statementToBasicCursor(st, params),
     close: () => st.finalize()
   }
 }
 
-// interface InMemoryCursor {
-//   fetch(): any | undefined
-// }
+function mergeParams(params1: SqlParameters | undefined, params2: SqlParameters | undefined): SqlParameters | undefined {
+  if (!params1)
+    return params2
+  if (!params2)
+    return params1
+  let isArr = Array.isArray(params1)
+  if (isArr !== Array.isArray(params2))
+    throw new Error("Cannot merge named parameters with positioned parameters")
+  if (isArr) {
+    let result = [...(params1 as string[])]
+      ; (params2 as string[]).forEach((val, index) => result[index] = val)
+    return result
+  }
+  return {
+    ...params1,
+    ...params2
+  }
+}
 
-// function makeInMemoryCursor(rows: any[]): InMemoryCursor {
-//   let currentIndex = -1
-//   return {
-//     fetch: () => rows[++currentIndex]
-//   }
-// }
+function statementToBasicCursor(st: Statement, params?: SqlParameters): BasicCursor<any> {
+  let closed = false
+  return {
+    fetch: async () => {
+      if (closed)
+        return undefined
+      let copy = params
+      params = undefined
+      return await st.get(copy)
+    },
+    close: async () => {
+      closed = true
+    }
+  }
+}
+
+async function createBasicCursor(db: Database, sql: string, params?: SqlParameters): Promise<BasicCursor<any>> {
+  let st = await db.prepare(sql, params)
+  let closed = false
+  return {
+    fetch: async () => closed ? undefined : await st.get(),
+    close: async () => {
+      closed = true
+      await st.finalize()
+    }
+  }
+}

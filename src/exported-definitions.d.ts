@@ -1,4 +1,3 @@
-
 export interface Sqlite3ConnectionOptions {
   fileName: string
   mode?: number

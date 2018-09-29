@@ -1,6 +1,6 @@
+import { SqlParameters } from "mycn"
 import sqlite3 from "sqlite3"
 import { Sqlite3ConnectionOptions } from "./exported-definitions"
-import { SqlParameters } from "mycn"
 
 export interface Database {
   run(sql: string, params?: SqlParameters): Promise<RunResult>
@@ -11,9 +11,10 @@ export interface Database {
 }
 
 export interface Statement {
+  bind(...params: any[]): void
   run(params?: SqlParameters): Promise<RunResult>
   all(params?: SqlParameters): Promise<any[]>
-  get(params?: SqlParameters): Promise<object>
+  get(params?: SqlParameters): Promise<any>
   finalize(): Promise<void>
 }
 
@@ -119,6 +120,16 @@ function promisifyDatabase(db): Database {
 
 function promisifyStatement(st): Statement {
   return {
+    bind: (...params: any[]) => {
+      return new Promise((resolve, reject) => {
+        st.bind(...params, function (err) {
+          if (err)
+            reject(err)
+          else
+            resolve()
+        })
+      })
+    },
     run: (params = []) => {
       return new Promise((resolve, reject) => {
         st.run(params, function (err) {
