@@ -1,8 +1,8 @@
 import { BasicDatabaseConnection } from "./driver-definitions"
 
-export interface MycnOptions {
+export interface LadcOptions {
   /**
-   * Provided by a _mycn_ plugin.
+   * Provided by a _LADC_ plugin.
    */
   provider: () => Promise<BasicDatabaseConnection>
   /**

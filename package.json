@@ -1,9 +1,9 @@
 {
-  "name": "mycn",
-  "version": "0.15.0",
-  "description": "A layer above SQL database connectors for Node.js, inspired from PDO and JDBC",
-  "main": "mycn.min.js",
-  "types": "mycn.d.ts",
+  "name": "ladc",
+  "version": "0.16.0",
+  "description": "A Layer Above Database Connectors, that provides a common API inspired from PDO and JDBC.",
+  "main": "ladc.min.js",
+  "types": "ladc.d.ts",
   "devDependencies": {
     "npm-run-all": "^4.1.3",
     "rimraf": "^2.6.2",
@@ -26,22 +26,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/paleo/mycn.git"
+    "url": "git+https://github.com/paleo/ladc.git"
   },
   "author": {
     "name": "Paleo"
   },
   "license": "CC0-1.0",
   "keywords": [
+    "sql",
     "connection",
     "connector",
     "relational",
     "database",
     "pool",
     "transaction",
-    "sql",
-    "sqlite",
-    "postgresql",
     "jdbc",
     "pdo"
   ]

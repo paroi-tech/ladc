@@ -1,8 +1,8 @@
-# mycn
+# LADC
 
-My Connector.
+A Layer Above Database Connectors, for Node.js.
 
-This is a layer above relational database (SQL) connectors for Node.js, inspired from PDO and JDBC:
+_LADC_ provides a common API inspired from PDO and JDBC. It is built on top of relational database (SQL) connectors for Node.js.
 
 1. A common way to access to relational databases;
 1. A pool of connections in order to allow transactions in an asynchronous context;
@@ -11,13 +11,13 @@ This is a layer above relational database (SQL) connectors for Node.js, inspired
 ## Install for SQLite (driver [sqlite3](https://github.com/mapbox/node-sqlite3))
 
 ```
-npm install mycn mycn-sqlite3
+npm install ladc ladc-sqlite3
 ```
 
 ## Install for PostgreSQL (driver [pg](https://github.com/brianc/node-postgres))
 
 ```
-npm install mycn mycn-pg
+npm install ladc ladc-pg
 ```
 
 ## Usage
@@ -25,8 +25,8 @@ npm install mycn mycn-pg
 How to create a connection (here with SQLite):
 
 ```
-import { createDatabaseConnection } from "mycn"
-import { sqlite3ConnectionProvider } from "mycn-sqlite3"
+import { createDatabaseConnection } from "ladc"
+import { sqlite3ConnectionProvider } from "ladc-sqlite3"
 
 let cn = createDatabaseConnection({
   provider: sqlite3ConnectionProvider({ fileName: `${__dirname}/mydb.sqlite` }),
@@ -40,14 +40,14 @@ Then, use the connection:
 
 ```
 async function useMyConnection(cn) {
-  let transCn = await cn.beginTransaction()
+  let tx = await cn.beginTransaction()
   try {
-    let newId = (await transCn.exec("... insert 1 ...")).getInsertedId()
-    await transCn.exec("... insert 2 ...")
-    await transCn.commit() // A commit releases the underlying connection
+    let newId = (await tx.exec("... insert 1 ...")).getInsertedId()
+    await tx.exec("... insert 2 ...")
+    await tx.commit() // A commit releases the underlying connection
   } finally {
-    if (transCn.inTransaction)
-      await transCn.rollback() // A rollback releases the underlying connection
+    if (tx.inTransaction)
+      await tx.rollback() // A rollback releases the underlying connection
   }
 }
 ```
@@ -86,13 +86,13 @@ The methods of a `PreparedStatement`:
 
 The following members are provided for managing transactions:
 
-* `beginTransaction()` starts the transaction and returns a connection `transCn` allocated to the transaction
-* `transCn.inTransaction` is a readonly boolean
-* `transCn.rollback()`
-* `transCn.commit()`
+* `beginTransaction()` starts the transaction and returns a connection `tx` allocated to the transaction
+* `tx.inTransaction` is a readonly boolean
+* `tx.rollback()`
+* `tx.commit()`
 
-A `submit` or a `rollback` releases the underlying connection to the Mycn pool.
+A `submit` or a `rollback` releases the underlying connection to the LADC pool.
 
 ## How to integrate a query builder
 
-The package [mycn-with-sql-bricks](https://github.com/paleo/mycn-with-sql-bricks) adds methods for [SQL Bricks](https://github.com/CSNW/sql-bricks) to `DatabaseConnection`.
+The package [ladc-with-sql-bricks](https://github.com/paleo/ladc-with-sql-bricks) adds methods for [SQL Bricks](https://github.com/CSNW/sql-bricks) to `DatabaseConnection`.

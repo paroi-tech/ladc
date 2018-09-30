@@ -1,5 +1,5 @@
 import { BasicDatabaseConnection } from "./driver-definitions"
-import { DebugEvent, MycnOptions } from "./exported-definitions"
+import { DebugEvent, LadcOptions } from "./exported-definitions"
 
 export interface Pool {
   /**
@@ -16,7 +16,7 @@ interface PoolItem {
   releaseTime: number
 }
 
-export default function createPool(provider: () => Promise<BasicDatabaseConnection>, options: MycnOptions): Pool {
+export default function createPool(provider: () => Promise<BasicDatabaseConnection>, options: LadcOptions): Pool {
   let poolOptions = options.poolOptions || {}
   const connectionTtl = poolOptions.connectionTtl || 60
   const logMonitoring = poolOptions.logMonitoring || (() => { })

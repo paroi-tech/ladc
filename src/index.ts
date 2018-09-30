@@ -1,8 +1,8 @@
 import createPool from "./createPool"
-import { DatabaseConnection, MycnOptions } from "./exported-definitions"
+import { DatabaseConnection, LadcOptions } from "./exported-definitions"
 import makeDbConnection from "./factories/DatabaseConnection"
 
-export function createDatabaseConnection(options: MycnOptions): DatabaseConnection {
+export function createDatabaseConnection(options: LadcOptions): DatabaseConnection {
   let provider = async () => {
     let cn = await options.provider()
     if (options.afterOpen)

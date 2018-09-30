@@ -3,7 +3,9 @@
   "editor.insertSpaces": true,
   "editor.wordWrapColumn": 132,
   "editor.wordWrap": "wordWrapColumn",
-  "editor.rulers": [120],
+  "editor.rulers": [
+    120
+  ],
   "files.trimTrailingWhitespace": true,
   "files.associations": {
     "*.monk": "html"
@@ -13,8 +15,8 @@
     "build/compiled": true,
     "node_modules": true,
     "package-lock.json": true,
-    "mycn.d.ts": true,
-    "mycn.min.js": true
+    "ladc.d.ts": true,
+    "ladc.min.js": true
   },
   "typescript.locale": "en",
   "workbench.editor.labelFormat": "short"

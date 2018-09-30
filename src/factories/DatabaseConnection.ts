@@ -1,5 +1,5 @@
 import { Pool } from "../createPool"
-import { DatabaseConnection, MycnOptions, SqlParameters } from "../exported-definitions"
+import { DatabaseConnection, LadcOptions, SqlParameters } from "../exported-definitions"
 import { toSingleRow, toSingleValue } from "../helpers"
 import { CursorProvider } from "./Cursor"
 import { toExecResult } from "./ExecResult"
@@ -8,7 +8,7 @@ import { TxProvider } from "./TransactionConnection"
 
 export interface Context {
   pool: Pool
-  options: MycnOptions
+  options: LadcOptions
 }
 
 export default function makeDbConnection(context: Context): DatabaseConnection {
