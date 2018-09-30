@@ -1,10 +1,10 @@
-import { SqlParameters, ResultRow } from "./exported-definitions"
+import { SqlParameters, ResultRow, LadcAsyncIterableIterator } from "./exported-definitions"
 
 export interface BasicDatabaseConnection {
   prepare<R extends ResultRow = ResultRow>(sql: string, params?: SqlParameters): Promise<BasicPreparedStatement<R>>
   exec(sql: string, params?: SqlParameters): Promise<BasicExecResult>
   all<R extends ResultRow = ResultRow>(sql: string, params?: SqlParameters): Promise<R[]>
-  cursor<R extends ResultRow = ResultRow>(sql: string, params?: SqlParameters): Promise<BasicCursor<R>>
+  cursor<R extends ResultRow = ResultRow>(sql: string, params?: SqlParameters): Promise<LadcAsyncIterableIterator<R>>
   script(sql: string): Promise<void>
   close(): Promise<void>
 }
@@ -24,12 +24,7 @@ export interface BasicPreparedStatement<R extends ResultRow = ResultRow> {
   exec(params?: SqlParameters): Promise<BasicExecResult>
 
   all(params?: SqlParameters): Promise<R[]>
-  cursor<R extends ResultRow = ResultRow>(params?: SqlParameters): Promise<BasicCursor<R>>
+  cursor<R extends ResultRow = ResultRow>(params?: SqlParameters): Promise<LadcAsyncIterableIterator<R>>
 
-  close(): Promise<void>
-}
-
-export interface BasicCursor<R extends ResultRow = ResultRow> {
-  fetch(): Promise<R | undefined>
   close(): Promise<void>
 }

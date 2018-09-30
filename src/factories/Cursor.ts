@@ -1,5 +1,4 @@
-import { BasicCursor } from "../driver-definitions"
-import { Cursor } from "../exported-definitions"
+import { LadcAsyncIterableIterator } from "../exported-definitions"
 import { Context } from "./DatabaseConnection"
 
 export class CursorProvider {
@@ -8,22 +7,25 @@ export class CursorProvider {
   constructor(private context: Context) {
   }
 
-  async open(sql, params): Promise<Cursor<any>> {
+  async open(sql, params): Promise<LadcAsyncIterableIterator<any>> {
     let { pool } = this.context
     let cn = await pool.grab()
-    let inst = new CursorItem({
-      context: this.context,
-      end: (item: CursorItem) => {
-        this.items.delete(item)
-        pool.release(cn)
-      }
-    }, await cn.cursor(sql, params))
+    let inst = new CursorItem(
+      {
+        context: this.context,
+        end: (item: CursorItem) => {
+          this.items.delete(item)
+          pool.release(cn)
+        }
+      },
+      await cn.cursor(sql, params)
+    )
     this.items.add(inst)
     return inst.cursor
   }
 
   async closeAll() {
-    await Promise.all(Array.from(this.items).map(item => item.cursor.close()))
+    await Promise.all(Array.from(this.items).map(item => item.close()))
   }
 }
 
@@ -33,32 +35,53 @@ interface CursorItemContext {
 }
 
 export class CursorItem {
-  cursor: Cursor<any>
+  cursor: LadcAsyncIterableIterator<any>
 
-  constructor(itemContext: CursorItemContext, basic: BasicCursor) {
+  constructor(itemContext: CursorItemContext, basic: LadcAsyncIterableIterator<any>) {
     this.cursor = this.toCursor(itemContext, basic)
   }
 
-  private toCursor(itemContext: CursorItemContext, basic: BasicCursor | undefined) {
-    return {
-      fetch: async () => {
+  async close(): Promise<void> {
+    if (this.cursor.return)
+      await this.cursor.return()
+  }
+
+  private toCursor(itemContext: CursorItemContext, basic: LadcAsyncIterableIterator<any> | undefined) {
+    let obj: LadcAsyncIterableIterator<any> = {
+      [Symbol.asyncIterator]: () => {
+        return obj
+      },
+      next: async () => {
         if (!basic)
-          throw new Error(`Invalid call to 'fetch', the cursor is closed`)
-        let row = await basic.fetch()
-        if (!row) {
+          return { done: true, value: undefined }
+        let result = await basic.next()
+        if (result.done) {
           basic = undefined
           itemContext.end(this)
         }
-        return row
+        return result
       },
-      close: async () => {
+      return: async () => {
         if (!basic)
-          throw new Error(`Cursor is already closed`)
-        let copy = basic
-        basic = undefined
-        await copy.close()
+          return { done: true, value: undefined }
         itemContext.end(this)
+        let returnCb = basic.return
+        basic = undefined
+        if (returnCb)
+          return await returnCb()
+        return { done: true, value: undefined }
+      },
+      throw: async (err) => {
+        if (!basic)
+          throw err
+        itemContext.end(this)
+        let throwCb = basic.return
+        basic = undefined
+        if (throwCb)
+          await throwCb(err)
+        throw err
       }
     }
+    return obj
   }
 }

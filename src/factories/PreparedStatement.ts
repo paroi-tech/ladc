@@ -142,7 +142,7 @@ class PsItem {
         let copy = basic
         basic = undefined
         if (this.cursorItem)
-          await this.cursorItem.cursor.close()
+          await this.cursorItem.close()
         await copy.close()
         itemContext.end(this)
       }

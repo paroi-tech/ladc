@@ -59,7 +59,7 @@ class TxItem {
   private async closeDependencies() {
     let promises: Array<Promise<void>> = []
     if (this.cursorItem)
-      promises.push(this.cursorItem.cursor.close())
+      promises.push(this.cursorItem.close())
     if (this.psProvider)
       promises.push(this.psProvider.closeAll())
     await promises

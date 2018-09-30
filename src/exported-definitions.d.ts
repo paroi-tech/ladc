@@ -84,7 +84,7 @@ export interface QueryRunner {
   all<R extends ResultRow = ResultRow>(sql: string, params?: SqlParameters): Promise<R[]>
   singleRow<R extends ResultRow = ResultRow>(sql: string, params?: SqlParameters): Promise<R | undefined>
   singleValue<V = unknown>(sql: string, params?: SqlParameters): Promise<V | null | undefined>
-  cursor<R extends ResultRow = ResultRow>(sql: string, params?: SqlParameters): Promise<Cursor<R>>
+  cursor<R extends ResultRow = ResultRow>(sql: string, params?: SqlParameters): Promise<LadcAsyncIterableIterator<R>>
 
   script(sql: string): Promise<void>
 }
@@ -136,12 +136,22 @@ export interface PreparedStatement<R extends ResultRow = ResultRow> {
   all(params?: SqlParameters): Promise<R[]>
   singleRow(params?: SqlParameters): Promise<R | undefined>
   singleValue<V>(params?: SqlParameters): Promise<V | null | undefined>
-  cursor<R extends ResultRow = ResultRow>(params?: SqlParameters): Promise<Cursor<R>>
+  cursor<R extends ResultRow = ResultRow>(params?: SqlParameters): Promise<LadcAsyncIterableIterator<R>>
 
   close(): Promise<void>
 }
 
-export interface Cursor<R extends ResultRow = ResultRow> {
-  fetch(): Promise<R | undefined>
-  close(): Promise<void>
+/**
+ * Remove this interface when the target will be Node.js 10
+ */
+interface LadcAsyncIterableIterator<T> extends LadcAsyncIterator<T> {
+  [Symbol.asyncIterator](): LadcAsyncIterableIterator<T>
+}
+/**
+ * Remove this interface when the target will be Node.js 10
+ */
+interface LadcAsyncIterator<T> {
+  next(value?: any): Promise<IteratorResult<T>>
+  return?(value?: any): Promise<IteratorResult<T>>
+  throw?(e?: any): Promise<IteratorResult<T>>
 }
