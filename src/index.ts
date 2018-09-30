@@ -1,11 +1,11 @@
-import { BasicDatabaseConnection } from "mycn"
+import { BasicDatabaseConnection } from "ladc"
 import { ClientConfig } from "pg"
 import { createPgConnection, toBasicDatabaseConnection } from "./BasicDatabaseConnection"
-import { MycnPgOptions } from "./exported-definitions"
+import { LadcPgOptions } from "./exported-definitions"
 
-export function pgConnectionProvider(config: string | ClientConfig, mycnPgOptions: MycnPgOptions = {}): () => Promise<BasicDatabaseConnection> {
+export function pgConnectionProvider(config: string | ClientConfig, ladcPgOptions: LadcPgOptions = {}): () => Promise<BasicDatabaseConnection> {
   return async () => {
     let db = await createPgConnection(config)
-    return toBasicDatabaseConnection(db, mycnPgOptions)
+    return toBasicDatabaseConnection(db, ladcPgOptions)
   }
 }

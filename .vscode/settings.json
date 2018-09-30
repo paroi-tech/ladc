@@ -13,8 +13,8 @@
     "node_modules": true,
     "package-lock.json": true,
     "tsproject/compiled": true,
-    "mycn-pg.min.js": true,
-    "mycn-pg.d.ts": true
+    "ladc-pg.min.js": true,
+    "ladc-pg.d.ts": true
   },
   "typescript.locale": "en"
 }

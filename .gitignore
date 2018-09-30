@@ -1,4 +1,4 @@
 node_modules
 /build/compiled
-/mycn-pg.d.ts
-/mycn-pg.min.js
+/ladc-pg.d.ts
+/ladc-pg.min.js

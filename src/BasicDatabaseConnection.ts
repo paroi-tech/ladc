@@ -1,6 +1,6 @@
-import { BasicCursor, BasicDatabaseConnection, BasicExecResult, BasicPreparedStatement, SqlParameters } from "mycn"
+import { BasicCursor, BasicDatabaseConnection, BasicExecResult, BasicPreparedStatement, SqlParameters } from "ladc"
 import { Client, ClientConfig, QueryResult } from "pg"
-import { MycnPgOptions } from "./exported-definitions"
+import { LadcPgOptions } from "./exported-definitions"
 
 export async function createPgConnection(config: string | ClientConfig): Promise<Client> {
   let client = new Client(config)
@@ -10,7 +10,7 @@ export async function createPgConnection(config: string | ClientConfig): Promise
 
 const insertRegexp = /^\s*insert\s+into\s+([^\s\(]+)\s*(?:\([^)]+\))?\s*values\s*\([\s\S]*\)\s*$/i
 
-function addReturningToInsert(sql: string, options: MycnPgOptions) {
+function addReturningToInsert(sql: string, options: LadcPgOptions) {
   let matches = insertRegexp.exec(sql)
   if (!matches)
     return { sql }
@@ -20,7 +20,7 @@ function addReturningToInsert(sql: string, options: MycnPgOptions) {
   return { sql, insertTable, idColumnName }
 }
 
-export function toBasicDatabaseConnection(client: Client, options: MycnPgOptions): BasicDatabaseConnection {
+export function toBasicDatabaseConnection(client: Client, options: LadcPgOptions): BasicDatabaseConnection {
   return {
     prepare: async (sql: string, params?: SqlParameters) => makeBasicPreparedStatement(options, client, sql, params),
     exec: async (sql: string, params?: SqlParameters) => {
@@ -105,8 +105,8 @@ function toBasicExecResult(result: QueryResult, insertTable?: string, optIdCol?:
 
 let psSequence = 0
 
-function makeBasicPreparedStatement(options: MycnPgOptions, client: Client, sql: string, initialParams?: SqlParameters): BasicPreparedStatement<any> {
-  let psName = `mycn-ps-${++psSequence}`
+function makeBasicPreparedStatement(options: LadcPgOptions, client: Client, sql: string, initialParams?: SqlParameters): BasicPreparedStatement<any> {
+  let psName = `ladc-ps-${++psSequence}`
   let boundParams = initialParams
   let obj: BasicPreparedStatement<any> = {
     bind: async (key: number | string, value: any) => {

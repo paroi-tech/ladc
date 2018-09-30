@@ -1,11 +1,11 @@
-# mycn-pg
+# @ladc/pg
 
-This package is the connector for [mycn](https://github.com/paleo/mycn) to the driver [pg](https://github.com/brianc/node-postgres).
+The [LADC](https://github.com/paleo/ladc) adapter to the driver [pg](https://github.com/brianc/node-postgres) (Postgresql).
 
 ## Install
 
 ```
-npm install mycn mycn-pg
+npm install ladc @ladc/pg
 ```
 
 ## Usage
@@ -13,8 +13,8 @@ npm install mycn mycn-pg
 How to create a connection:
 
 ```
-import { createDatabaseConnection } from "mycn"
-import { pgConnectionProvider } from "mycn-pg"
+import { createDatabaseConnection } from "ladc"
+import { pgConnectionProvider } from "@ladc/pg"
 
 let cn = createDatabaseConnection({
   provider: pgConnectionProvider({
@@ -28,6 +28,24 @@ let cn = createDatabaseConnection({
 
 # Get the Postgresql autoincrement inserted ID
 
-If the primary key column name is `id` or `{table-name}_id`, just use the Mycn methods `getInsertedId()`, `getInsertedIdAsString()`, `getInsertedIdAsNumber()` as usual.
+By default, when an `insert` query is recognized by the adapter, it automatically appends `returning *` at the end of the query. Then, when the method `getLastInsertId()` is called, the adapter searchs for a column named `id` or `theTableName_id` and returns its value.
 
-Otherwise, you have to provide the primary key column name as a parameter to these methods.
+It is possible to optimize this behaviour. The option `getAutoincrementedIdColumnName` can be set with a function that returns the autoincremented column name of a given table:
+
+```js
+const autoincColumns = {
+  "myprefix_category": "category_id",
+  "myprefix_post": "post_id",
+}
+
+pgConnectionProvider({ /* credentials */ }, {
+  getAutoincrementedIdColumnName: tableName => autoincColumns[tableName]
+})
+```
+
+Or, it is still possible to manually write the `returning` statement then to get it:
+
+```js
+let result = await cn.exec("insert into message(message) values ('Hi there!') returning message_id") // Postgres only
+let newId = result.getInsertedId("message_id")
+```

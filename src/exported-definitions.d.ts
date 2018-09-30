@@ -1,3 +1,3 @@
-export interface MycnPgOptions {
+export interface LadcPgOptions {
   getAutoincrementedIdColumnName?(tableName: string): string | undefined
 }
