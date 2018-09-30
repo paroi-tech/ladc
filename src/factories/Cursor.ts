@@ -48,9 +48,7 @@ export class CursorItem {
 
   private toCursor(itemContext: CursorItemContext, basic: LadcAsyncIterableIterator<any> | undefined) {
     let obj: LadcAsyncIterableIterator<any> = {
-      [Symbol.asyncIterator]: () => {
-        return obj
-      },
+      [Symbol.asyncIterator]: () => obj,
       next: async () => {
         if (!basic)
           return { done: true, value: undefined }
@@ -71,7 +69,7 @@ export class CursorItem {
           return await returnCb()
         return { done: true, value: undefined }
       },
-      throw: async (err) => {
+      throw: async err => {
         if (!basic)
           throw err
         itemContext.end(this)
