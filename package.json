@@ -1,6 +1,6 @@
 {
   "name": "@ladc/pg-adapter",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "The LADC adapter to the driver \"pg\" (Postgresql).",
   "main": "ladc-pg-adapter.min.js",
   "types": "ladc-pg-adapter.d.ts",
