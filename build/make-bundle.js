@@ -7,7 +7,7 @@ const uglifyEs = require("uglify-es")
 const readFile = promisify(fs.readFile)
 const writeFile = promisify(fs.writeFile)
 
-const packageName = "mycn-with-sql-bricks"
+const bundleName = "ladc-sql-bricks-qb"
 const srcPath = path.join(__dirname, "..", "src")
 const compiledPath = path.join(__dirname, "compiled")
 const distNpmPath = path.join(__dirname, "..")
@@ -25,8 +25,8 @@ async function build() {
   if (minified.error)
     throw minified.error
 
-  await writeFile(path.join(distNpmPath, `${packageName}.min.js`), minified.code)
-  await writeFile(path.join(distNpmPath, `${packageName}.d.ts`), await makeDefinitionsCode())
+  await writeFile(path.join(distNpmPath, `${bundleName}.min.js`), minified.code)
+  await writeFile(path.join(distNpmPath, `${bundleName}.d.ts`), await makeDefinitionsCode())
 }
 
 async function makeDefinitionsCode() {

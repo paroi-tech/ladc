@@ -1,15 +1,15 @@
-import { createDatabaseConnection, DatabaseConnection, MycnOptions } from "mycn"
+import { createDatabaseConnection, DatabaseConnection, LadcOptions } from "ladc"
 import { SelectStatement as SqlBricksSelect, Statement as SqlBricksQuery } from "sql-bricks"
 import { DatabaseConnectionWithSqlBricks, WithSqlBricksOptions } from "./exported-definitions"
 
-export function createDatabaseConnectionWithSqlBricks(mycnOptions: MycnOptions, sbOptions: WithSqlBricksOptions = {}): DatabaseConnectionWithSqlBricks {
+export function createDatabaseConnectionWithSqlBricks(ladcOptions: LadcOptions, sbOptions: WithSqlBricksOptions = {}): DatabaseConnectionWithSqlBricks {
   return createDatabaseConnection({
-    ...mycnOptions,
-    modifyConnection: cn => modifyConnection(cn, mycnOptions, sbOptions),
+    ...ladcOptions,
+    modifyConnection: cn => modifyConnection(cn, ladcOptions, sbOptions),
   }) as DatabaseConnectionWithSqlBricks
 }
 
-function modifyConnection(parent: DatabaseConnection, mycnOptions: MycnOptions, sbOptions: WithSqlBricksOptions) {
+function modifyConnection(parent: DatabaseConnection, ladcOptions: LadcOptions, sbOptions: WithSqlBricksOptions) {
   let modified = Object.create(parent)
 
   modified.prepare = (sql: string | SqlBricksQuery, params?) => {
@@ -61,8 +61,8 @@ function modifyConnection(parent: DatabaseConnection, mycnOptions: MycnOptions, 
     return parent.cursor(text, values)
   }
 
-  if (mycnOptions.modifyConnection)
-    modified = mycnOptions.modifyConnection(modified)
+  if (ladcOptions.modifyConnection)
+    modified = ladcOptions.modifyConnection(modified)
 
   return modified
 }

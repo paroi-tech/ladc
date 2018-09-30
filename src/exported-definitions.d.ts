@@ -1,4 +1,4 @@
-import { DatabaseConnection, ExecResult, PreparedStatement, QueryRunner, ResultRow, TransactionConnection, Cursor } from "mycn"
+import { DatabaseConnection, ExecResult, PreparedStatement, QueryRunner, ResultRow, TransactionConnection, Cursor } from "ladc"
 import { Statement as SqlBricksQuery, SelectStatement as SqlBricksSelect } from "sql-bricks"
 
 export interface WithSqlBricksOptions {
