@@ -11,13 +11,13 @@ _LADC_ provides a common API inspired from PDO and JDBC. It is built on top of r
 ## Install for SQLite (driver [sqlite3](https://github.com/mapbox/node-sqlite3))
 
 ```
-npm install ladc ladc-sqlite3
+npm install ladc @ladc/sqlite3-adapter
 ```
 
 ## Install for PostgreSQL (driver [pg](https://github.com/brianc/node-postgres))
 
 ```
-npm install ladc ladc-pg
+npm install ladc @ladc/pg-adapter
 ```
 
 ## Usage
@@ -26,7 +26,7 @@ How to create a connection (here with SQLite):
 
 ```
 import { createDatabaseConnection } from "ladc"
-import { sqlite3ConnectionProvider } from "ladc-sqlite3"
+import { sqlite3ConnectionProvider } from "@ladc/sqlite3-adapter"
 
 let cn = createDatabaseConnection({
   provider: sqlite3ConnectionProvider({ fileName: `${__dirname}/mydb.sqlite` }),
@@ -95,4 +95,4 @@ A `submit` or a `rollback` releases the underlying connection to the LADC pool.
 
 ## How to integrate a query builder
 
-The package [ladc-with-sql-bricks](https://github.com/paleo/ladc-with-sql-bricks) adds methods for [SQL Bricks](https://github.com/CSNW/sql-bricks) to `DatabaseConnection`.
+The package [@ladc/sql-bricks-qb](https://github.com/paleo/ladc-sql-bricks-qb) adds methods for [SQL Bricks](https://github.com/CSNW/sql-bricks) to `DatabaseConnection`.
