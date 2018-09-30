@@ -7,7 +7,7 @@ const uglifyEs = require("uglify-es")
 const readFile = promisify(fs.readFile)
 const writeFile = promisify(fs.writeFile)
 
-const bundleName = "ladc-sqlite3"
+const bundleName = "ladc-sqlite3-adapter"
 const srcPath = path.join(__dirname, "..", "src")
 const compiledPath = path.join(__dirname, "compiled")
 const distNpmPath = path.join(__dirname, "..")

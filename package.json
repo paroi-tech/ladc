@@ -1,9 +1,9 @@
 {
-  "name": "@ladc/sqlite3",
+  "name": "@ladc/sqlite3-adapter",
   "version": "0.4.0",
   "description": "The LADC adapter to the driver \"sqlite3\" (SQLite).",
-  "main": "ladc-sqlite3.min.js",
-  "types": "ladc-sqlite3.d.ts",
+  "main": "ladc-sqlite3-adapter.min.js",
+  "types": "ladc-sqlite3-adapter.d.ts",
   "dependencies": {
     "sqlite3": "4"
   },
@@ -31,7 +31,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/paleo/ladc-sqlite3.git"
+    "url": "git+https://github.com/paleo/ladc-sqlite3-adapter.git"
   },
   "author": {
     "name": "Paleo"

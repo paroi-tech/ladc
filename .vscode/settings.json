@@ -13,8 +13,8 @@
     "node_modules": true,
     "package-lock.json": true,
     "build/compiled": true,
-    "ladc-sqlite3.min.js": true,
-    "ladc-sqlite3.d.ts": true
+    "ladc-sqlite3-adapter.min.js": true,
+    "ladc-sqlite3-adapter.d.ts": true
   },
   "typescript.locale": "en"
 }

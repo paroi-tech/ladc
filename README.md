@@ -1,11 +1,11 @@
-# @ladc/sqlite3
+# @ladc/sqlite3-adapter
 
 The [LADC](https://github.com/paleo/ladc) adapter to the driver [sqlite3](https://github.com/mapbox/node-sqlite3) (SQLite).
 
 ## Install
 
 ```
-npm install ladc @ladc/sqlite3
+npm install ladc @ladc/sqlite3-adapter
 ```
 
 ## Usage
@@ -14,7 +14,7 @@ How to create a connection:
 
 ```
 import { createDatabaseConnection } from "ladc"
-import { sqlite3ConnectionProvider } from "@ladc/sqlite3"
+import { sqlite3ConnectionProvider } from "@ladc/sqlite3-adapter"
 
 let cn = createDatabaseConnection({
   provider: sqlite3ConnectionProvider({ fileName: `${__dirname}/mydb.sqlite` }),
