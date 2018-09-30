@@ -1,4 +1,4 @@
-import { BasicCursor, BasicDatabaseConnection, BasicExecResult, BasicPreparedStatement, SqlParameters } from "ladc"
+import { BasicDatabaseConnection, BasicExecResult, BasicPreparedStatement, LadcAsyncIterableIterator, SqlParameters } from "ladc"
 import { Database, RunResult, Statement } from "./promisifySqlite3"
 
 export function toBasicDatabaseConnection(db: Database): BasicDatabaseConnection {
@@ -65,30 +65,65 @@ function mergeParams(params1: SqlParameters | undefined, params2: SqlParameters 
   }
 }
 
-function statementToBasicCursor(st: Statement, params?: SqlParameters): BasicCursor<any> {
+function statementToBasicCursor(st: Statement, params?: SqlParameters): LadcAsyncIterableIterator<any> {
   let closed = false
-  return {
-    fetch: async () => {
+  let obj: LadcAsyncIterableIterator<any> = {
+    [Symbol.asyncIterator]: () => {
+      return obj
+    },
+    next: async () => {
       if (closed)
-        return undefined
+        return { done: true, value: undefined }
       let copy = params
       params = undefined
-      return await st.get(copy)
+      let value = await st.get(copy)
+      return {
+        done: value === undefined,
+        value
+      }
     },
-    close: async () => {
+    return: async () => {
       closed = true
+      return { done: true, value: undefined }
+    },
+    throw: async err => {
+      closed = true
+      throw err
     }
   }
+  return obj
 }
 
-async function createBasicCursor(db: Database, sql: string, params?: SqlParameters): Promise<BasicCursor<any>> {
+async function createBasicCursor(db: Database, sql: string, params?: SqlParameters): Promise<LadcAsyncIterableIterator<any>> {
   let st = await db.prepare(sql, params)
   let closed = false
-  return {
-    fetch: async () => closed ? undefined : await st.get(),
-    close: async () => {
-      closed = true
-      await st.finalize()
+  let obj: LadcAsyncIterableIterator<any> = {
+    [Symbol.asyncIterator]: () => {
+      return obj
+    },
+    next: async () => {
+      if (closed)
+        return { done: true, value: undefined }
+      let value = await st.get()
+      return {
+        done: value === undefined,
+        value
+      }
+    },
+    return: async () => {
+      if (!closed) {
+        closed = true
+        await st.finalize()
+      }
+      return { done: true, value: undefined }
+    },
+    throw: async err => {
+      if (!closed) {
+        closed = true
+        await st.finalize()
+      }
+      throw err
     }
   }
+  return obj
 }
