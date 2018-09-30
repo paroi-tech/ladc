@@ -66,28 +66,25 @@ function mergeParams(params1: SqlParameters | undefined, params2: SqlParameters 
 }
 
 function statementToBasicCursor(st: Statement, params?: SqlParameters): LadcAsyncIterableIterator<any> {
-  let closed = false
+  let done = false
   let obj: LadcAsyncIterableIterator<any> = {
-    [Symbol.asyncIterator]: () => {
-      return obj
-    },
+    [Symbol.asyncIterator]: () => obj,
     next: async () => {
-      if (closed)
-        return { done: true, value: undefined }
+      if (done)
+        return { done, value: undefined }
       let copy = params
       params = undefined
       let value = await st.get(copy)
-      return {
-        done: value === undefined,
-        value
-      }
+      if (!value)
+        done = true
+      return { done, value }
     },
     return: async () => {
-      closed = true
-      return { done: true, value: undefined }
+      done = true
+      return { done, value: undefined }
     },
     throw: async err => {
-      closed = true
+      done = true
       throw err
     }
   }
@@ -96,32 +93,29 @@ function statementToBasicCursor(st: Statement, params?: SqlParameters): LadcAsyn
 
 async function createBasicCursor(db: Database, sql: string, params?: SqlParameters): Promise<LadcAsyncIterableIterator<any>> {
   let st = await db.prepare(sql, params)
-  let closed = false
+  let done = false
+  const closeCursor = async () => {
+    done = true
+    await st.finalize()
+  }
   let obj: LadcAsyncIterableIterator<any> = {
-    [Symbol.asyncIterator]: () => {
-      return obj
-    },
+    [Symbol.asyncIterator]: () => obj,
     next: async () => {
-      if (closed)
-        return { done: true, value: undefined }
+      if (done)
+        return { done, value: undefined }
       let value = await st.get()
-      return {
-        done: value === undefined,
-        value
-      }
+      if (!value)
+        await closeCursor()
+      return { done, value }
     },
     return: async () => {
-      if (!closed) {
-        closed = true
-        await st.finalize()
-      }
-      return { done: true, value: undefined }
+      if (!done)
+        await closeCursor()
+      return { done, value: undefined }
     },
     throw: async err => {
-      if (!closed) {
-        closed = true
-        await st.finalize()
-      }
+      if (!done)
+        await closeCursor()
       throw err
     }
   }
