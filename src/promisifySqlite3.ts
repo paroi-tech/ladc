@@ -1,4 +1,4 @@
-import { SqlParameters } from "mycn"
+import { SqlParameters } from "ladc"
 import sqlite3 from "sqlite3"
 import { Sqlite3ConnectionOptions } from "./exported-definitions"
 

@@ -1,4 +1,4 @@
-import { BasicDatabaseConnection } from "mycn"
+import { BasicDatabaseConnection } from "ladc"
 import sqlite3 from "sqlite3"
 import { toBasicDatabaseConnection } from "./BasicDatabaseConnection"
 import { Sqlite3ConnectionOptions } from "./exported-definitions"

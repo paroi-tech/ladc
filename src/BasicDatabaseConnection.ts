@@ -1,4 +1,4 @@
-import { BasicCursor, BasicDatabaseConnection, BasicExecResult, BasicPreparedStatement, SqlParameters } from "mycn"
+import { BasicCursor, BasicDatabaseConnection, BasicExecResult, BasicPreparedStatement, SqlParameters } from "ladc"
 import { Database, RunResult, Statement } from "./promisifySqlite3"
 
 export function toBasicDatabaseConnection(db: Database): BasicDatabaseConnection {
