@@ -1,6 +1,6 @@
 {
   "name": "@ladc/sqlite3-adapter",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "The LADC adapter to the driver \"sqlite3\" (SQLite).",
   "main": "ladc-sqlite3-adapter.min.js",
   "types": "ladc-sqlite3-adapter.d.ts",
