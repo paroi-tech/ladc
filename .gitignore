@@ -1,4 +1,4 @@
 node_modules
 /build/compiled
-/ladc-pg.d.ts
-/ladc-pg.min.js
+/ladc-pg-adapter.d.ts
+/ladc-pg-adapter.min.js

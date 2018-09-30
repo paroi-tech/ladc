@@ -1,11 +1,11 @@
-# @ladc/pg
+# @ladc/pg-adapter
 
 The [LADC](https://github.com/paleo/ladc) adapter to the driver [pg](https://github.com/brianc/node-postgres) (Postgresql).
 
 ## Install
 
 ```
-npm install ladc @ladc/pg
+npm install ladc @ladc/pg-adapter
 ```
 
 ## Usage
@@ -14,7 +14,7 @@ How to create a connection:
 
 ```
 import { createDatabaseConnection } from "ladc"
-import { pgConnectionProvider } from "@ladc/pg"
+import { pgConnectionProvider } from "@ladc/pg-adapter"
 
 let cn = createDatabaseConnection({
   provider: pgConnectionProvider({
