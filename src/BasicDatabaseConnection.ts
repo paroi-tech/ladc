@@ -1,4 +1,4 @@
-import { BasicDatabaseConnection, BasicExecResult, BasicPreparedStatement, LadcAsyncIterableIterator, SqlParameters } from "ladc"
+import { BasicDatabaseConnection, BasicExecResult, BasicPreparedStatement, SqlParameters } from "ladc"
 import { Database, RunResult, Statement } from "./promisifySqlite3"
 
 export function toBasicDatabaseConnection(db: Database): BasicDatabaseConnection {
@@ -65,9 +65,9 @@ function mergeParams(params1: SqlParameters | undefined, params2: SqlParameters 
   }
 }
 
-function statementToBasicCursor(st: Statement, params?: SqlParameters): LadcAsyncIterableIterator<any> {
+function statementToBasicCursor(st: Statement, params?: SqlParameters): AsyncIterableIterator<any> {
   let done = false
-  let obj: LadcAsyncIterableIterator<any> = {
+  let obj: AsyncIterableIterator<any> = {
     [Symbol.asyncIterator]: () => obj,
     next: async () => {
       if (done)
@@ -91,14 +91,14 @@ function statementToBasicCursor(st: Statement, params?: SqlParameters): LadcAsyn
   return obj
 }
 
-async function createBasicCursor(db: Database, sql: string, params?: SqlParameters): Promise<LadcAsyncIterableIterator<any>> {
+async function createBasicCursor(db: Database, sql: string, params?: SqlParameters): Promise<AsyncIterableIterator<any>> {
   let st = await db.prepare(sql, params)
   let done = false
   const closeCursor = async () => {
     done = true
     await st.finalize()
   }
-  let obj: LadcAsyncIterableIterator<any> = {
+  let obj: AsyncIterableIterator<any> = {
     [Symbol.asyncIterator]: () => obj,
     next: async () => {
       if (done)
