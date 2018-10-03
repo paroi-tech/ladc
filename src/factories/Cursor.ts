@@ -1,4 +1,3 @@
-import { LadcAsyncIterableIterator } from "../exported-definitions"
 import { Context } from "./DatabaseConnection"
 
 export class CursorProvider {
@@ -7,7 +6,7 @@ export class CursorProvider {
   constructor(private context: Context) {
   }
 
-  async open(sql, params): Promise<LadcAsyncIterableIterator<any>> {
+  async open(sql, params): Promise<AsyncIterableIterator<any>> {
     let { pool } = this.context
     let cn = await pool.grab()
     let inst = new CursorItem(
@@ -35,9 +34,9 @@ interface CursorItemContext {
 }
 
 export class CursorItem {
-  cursor: LadcAsyncIterableIterator<any>
+  cursor: AsyncIterableIterator<any>
 
-  constructor(itemContext: CursorItemContext, basic: LadcAsyncIterableIterator<any>) {
+  constructor(itemContext: CursorItemContext, basic: AsyncIterableIterator<any>) {
     this.cursor = this.toCursor(itemContext, basic)
   }
 
@@ -46,8 +45,8 @@ export class CursorItem {
       await this.cursor.return()
   }
 
-  private toCursor(itemContext: CursorItemContext, basic: LadcAsyncIterableIterator<any> | undefined) {
-    let obj: LadcAsyncIterableIterator<any> = {
+  private toCursor(itemContext: CursorItemContext, basic: AsyncIterableIterator<any> | undefined) {
+    let obj: AsyncIterableIterator<any> = {
       [Symbol.asyncIterator]: () => obj,
       next: async () => {
         if (!basic)
