@@ -68,7 +68,7 @@ class TxItem {
   private toTx(itemContext: TxItemContext, basic: BasicDatabaseConnection | undefined): TransactionConnection {
     let obj: TransactionConnection = {
       prepare: async (sql: string, params?: SqlParameters) => {
-        if (closed)
+        if (!basic)
           throw new Error(`Invalid call to 'prepare', the connection is closed`)
         if (!this.psProvider) {
           this.psProvider = new PsProvider({
