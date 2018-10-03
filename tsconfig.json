@@ -6,7 +6,11 @@
     "noImplicitAny": false,
     "noImplicitThis": false,
     "outDir": "build/compiled",
-    "declaration": true
+    "declaration": true,
+    "lib": [
+      "es2017",
+      "esnext.asynciterable"
+    ]
   },
   "include": [
     "src"

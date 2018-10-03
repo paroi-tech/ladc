@@ -1,4 +1,4 @@
-import { BasicDatabaseConnection, BasicExecResult, BasicPreparedStatement, LadcAsyncIterableIterator, SqlParameters } from "ladc"
+import { BasicDatabaseConnection, BasicExecResult, BasicPreparedStatement, SqlParameters } from "ladc"
 import { Client, ClientConfig, QueryResult } from "pg"
 import { LadcPgOptions } from "./exported-definitions"
 
@@ -167,9 +167,9 @@ function mergeParams(params1: SqlParameters | undefined, params2: SqlParameters 
   }
 }
 
-function makeInMemoryCursor(rows?: any[]): LadcAsyncIterableIterator<any> {
+function makeInMemoryCursor(rows?: any[]): AsyncIterableIterator<any> {
   let currentIndex = -1
-  let obj: LadcAsyncIterableIterator<any> = {
+  let obj: AsyncIterableIterator<any> = {
     [Symbol.asyncIterator]: () => obj,
     next: async () => {
       if (!rows)
