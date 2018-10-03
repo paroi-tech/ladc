@@ -1,4 +1,4 @@
-import { DatabaseConnection, ExecResult, PreparedStatement, QueryRunner, ResultRow, TransactionConnection, LadcAsyncIterableIterator } from "ladc"
+import { DatabaseConnection, ExecResult, PreparedStatement, QueryRunner, ResultRow, TransactionConnection } from "ladc"
 import { Statement as SqlBricksQuery, SelectStatement as SqlBricksSelect } from "sql-bricks"
 
 export interface WithSqlBricksOptions {
@@ -15,7 +15,7 @@ export type QueryRunnerWithSqlBricks = QueryRunner & {
   all<R extends ResultRow = ResultRow>(sqlBricks: SqlBricksSelect): Promise<R[]>
   singleRow<R extends ResultRow = ResultRow>(sqlBricks: SqlBricksSelect): Promise<R | undefined>
   singleValue<V = unknown>(sqlBricks: SqlBricksSelect): Promise<V | undefined | null>
-  cursor<R extends ResultRow = ResultRow>(sqlBricks: SqlBricksSelect): Promise<LadcAsyncIterableIterator<R>>
+  cursor<R extends ResultRow = ResultRow>(sqlBricks: SqlBricksSelect): Promise<AsyncIterableIterator<R>>
 }
 
 interface DatabaseConnectionWithSqlBricksTx extends DatabaseConnection {
