@@ -5,7 +5,7 @@
   "main": "ladc-sql-bricks-qb.min.js",
   "types": "ladc-sql-bricks-qb.d.ts",
   "dependencies": {
-    "sql-bricks": "*"
+    "sql-bricks": "2"
   },
   "peerDependencies": {
     "ladc": "^0.17.0"
