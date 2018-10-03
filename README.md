@@ -24,15 +24,16 @@ npm install ladc @ladc/sqlite3-adapter @ladc/sql-bricks-qb
 Here is how to create a connection:
 
 ```
-import { sqlite3ConnectionProvider } from "@ladc/sqlite3-adapter"
-import { createDatabaseConnectionWithSqlBricks } from "@ladc/sql-bricks-qb"
+const { createDatabaseConnection } = require("ladc")
+const { addSqlBricksToConnection } = require("@ladc/sql-bricks-qb")
+const { sqlite3ConnectionProvider } = require("@ladc/sqlite3-adapter")
 
-let cn = createDatabaseConnectionWithSqlBricks({
-    provider: sqlite3ConnectionProvider({ fileName: "path/to/db.sqlite" })
-  }, {
+let sqlite3Cn = createDatabaseConnection({
+  provider: sqlite3ConnectionProvider({ fileName: `${__dirname}/testdb.sqlite` })
+  modifyConnection: addSqlBricksToConnection({
     toParamsOptions: { placeholder: "?%d" } // SQLite requires parameter placeholders with '?'
   })
-}
+})
 ```
 
 Then, use it:
