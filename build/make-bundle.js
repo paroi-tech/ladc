@@ -18,7 +18,10 @@ async function build() {
   })
   let { code } = await bundle.generate({
     format: "cjs",
-    sourcemap: false
+    sourcemap: false,
+    output: {
+      exports: "named"
+    }
   })
 
   let minified = uglifyEs.minify(code)
