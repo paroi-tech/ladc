@@ -1,4 +1,4 @@
-# @ladc/sql-bricks-qb
+# @ladc/sql-bricks-modifier
 
 This package integrates the query builder [SQL Bricks](https://github.com/CSNW/sql-bricks) to [LADC](https://github.com/paleo/ladc).
 
@@ -18,14 +18,14 @@ This package overloads the following methods to the LADC objects `DatabaseConnec
 Install with LADC and a connector (here is an example with SQLite):
 
 ```
-npm install ladc @ladc/sqlite3-adapter @ladc/sql-bricks-qb
+npm install ladc @ladc/sqlite3-adapter @ladc/sql-bricks-modifier
 ```
 
 Here is how to create a connection:
 
 ```
 const { createDatabaseConnection } = require("ladc")
-const { addSqlBricksToConnection } = require("@ladc/sql-bricks-qb")
+const { addSqlBricksToConnection } = require("@ladc/sql-bricks-modifier")
 const { sqlite3ConnectionProvider } = require("@ladc/sqlite3-adapter")
 
 let sqlite3Cn = createDatabaseConnection({

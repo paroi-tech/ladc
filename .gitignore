@@ -1,4 +1,4 @@
 node_modules
 /build/compiled
-/ladc-sql-bricks-qb.d.ts
-/ladc-sql-bricks-qb.min.js
+/ladc-sql-bricks-modifier.d.ts
+/ladc-sql-bricks-modifier.min.js

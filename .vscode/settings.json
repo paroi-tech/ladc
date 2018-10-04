@@ -13,8 +13,8 @@
     "node_modules": true,
     "package-lock.json": true,
     "tsproject/compiled": true,
-    "ladc-sql-bricks-qb.min.js": true,
-    "ladc-sql-bricks-qb.d.ts": true
+    "ladc-sql-bricks-modifier.min.js": true,
+    "ladc-sql-bricks-modifier.d.ts": true
   },
   "typescript.locale": "en"
 }
