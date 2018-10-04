@@ -1,7 +1,7 @@
 import { BasicDatabaseConnection } from "./driver-definitions"
 
 export interface LadcAdapter {
-  openConnection: () => Promise<BasicDatabaseConnection>
+  createConnection: () => Promise<BasicDatabaseConnection>
 }
 
 export interface LadcModifier {

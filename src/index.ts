@@ -4,7 +4,7 @@ import makeDbConnection from "./factories/DatabaseConnection"
 
 export default function ladc(options: LadcOptions): DatabaseConnection {
   let provider = async () => {
-    let cn = await options.adapter.openConnection()
+    let cn = await options.adapter.createConnection()
     if (options.initConnection)
       await options.initConnection(cn)
     return cn
