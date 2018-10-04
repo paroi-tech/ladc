@@ -9,7 +9,7 @@ export function toExecResult(context: Context, result: BasicExecResult): ExecRes
     },
     getInsertedId: (idColumnName?: string) => {
       let id = result.getInsertedId(idColumnName)
-      if (id === undefined && !context.options.insertedIdCanBeUndefined)
+      if (id === undefined)
         throw new Error(`Missing inserted ID`)
       return id
     },

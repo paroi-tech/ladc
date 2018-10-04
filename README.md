@@ -25,11 +25,11 @@ npm install ladc @ladc/pg-adapter
 How to create a connection (here with SQLite):
 
 ```
-import { createDatabaseConnection } from "ladc"
-import { sqlite3ConnectionProvider } from "@ladc/sqlite3-adapter"
+import ladc from "ladc"
+import sqlite3Adapter from "@ladc/sqlite3-adapter"
 
-let cn = createDatabaseConnection({
-  provider: sqlite3ConnectionProvider({ fileName: `${__dirname}/mydb.sqlite` }),
+let cn = ladc({
+  provider: sqlite3Adapter({ fileName: `${__dirname}/mydb.sqlite` }),
   init: async cn => {
     await cn.exec("PRAGMA foreign_keys = ON")
   }

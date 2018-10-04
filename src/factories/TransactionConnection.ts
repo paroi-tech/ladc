@@ -108,8 +108,10 @@ class TxItem {
       commit: () => endOfTransaction("commit", () => this.closeDependencies()),
       rollback: () => endOfTransaction("rollback", () => this.closeDependencies())
     }
-    if (itemContext.context.options.modifyConnection)
-      obj = itemContext.context.options.modifyConnection(obj)
+
+    if (itemContext.context.options.modifier && itemContext.context.options.modifier.modifyConnection)
+      obj = itemContext.context.options.modifier.modifyConnection(obj)
+
     return obj
 
     async function endOfTransaction(method: "commit" | "rollback", closeDependencies: () => Promise<void>) {

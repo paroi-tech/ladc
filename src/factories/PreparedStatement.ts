@@ -147,8 +147,10 @@ class PsItem {
         itemContext.end(this)
       }
     }
-    if (itemContext.context.options.modifyPreparedStatement)
-      obj = itemContext.context.options.modifyPreparedStatement(obj)
+
+    if (itemContext.context.options.modifier && itemContext.context.options.modifier.modifyPreparedStatement)
+      obj = itemContext.context.options.modifier.modifyPreparedStatement(obj)
+
     return obj
 
     function check(method: string) {

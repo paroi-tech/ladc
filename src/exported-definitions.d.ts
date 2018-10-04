@@ -1,31 +1,31 @@
 import { BasicDatabaseConnection } from "./driver-definitions"
 
-export interface LadcOptions {
-  /**
-   * Provided by a _LADC_ plugin.
-   */
-  provider: () => Promise<BasicDatabaseConnection>
-  /**
-   * This callback will be executed for each new `DatabaseConnection` when it has a new underlying connection created by the pool. It is a right place to update the underlying connection with `PRAGMA` orders.
-   */
-  afterOpen?(cn: BasicDatabaseConnection): void | Promise<void>
+export interface LadcAdapter {
+  openConnection: () => Promise<BasicDatabaseConnection>
+}
+
+export interface LadcModifier {
   /**
    * This callback will be executed for each new `DatabaseConnection` object. It returns the same or another object that will be used as the `DatabaseConnection`.
    */
-  modifyConnection?(cn: DatabaseConnection): DatabaseConnection
-  modifyConnection?(cn: TransactionConnection): TransactionConnection
+  modifyConnection?<C extends TransactionConnection | DatabaseConnection>(cn: C): C
   /**
    * This callback will be executed for each new `PreparedStatement` object. It returns the same or another object that will be used as the `PreparedStatement`.
    */
   modifyPreparedStatement?(ps: PreparedStatement): PreparedStatement
+}
+
+export interface LadcOptions {
+  adapter: LadcAdapter
+  modifier?: LadcModifier
+  /**
+   * This callback will be executed for each new `DatabaseConnection` when it has a new underlying connection created by the pool. It is a right place to update the underlying connection with `PRAGMA` orders.
+   */
+  initConnection?(cn: BasicDatabaseConnection): void | Promise<void>
   /**
    * The configuration of the connection pool.
    */
   poolOptions?: PoolOptions
-  /**
-   * If the option is `false` or `undefined`, then the method `ExecResult.getInsertedId()` throws an `Error` when the inserted ID is `undefined`.
-   */
-  insertedIdCanBeUndefined?: boolean
   /**
    * By default, unhandled errors will be logged with `console.error`.
    */
@@ -102,19 +102,19 @@ export interface TransactionConnection extends QueryRunner {
 
 export interface ExecResult {
   /**
-   * When the ID is `undefined`, an exception is thrown, unless the option `insertedIdCanBeUndefined` is set to `true`.
+   * When the ID is `undefined`, an exception is thrown.
    *
    * @param idColumnName For PostgreSQL, give here the column name of the autoincremented primary key
    */
   getInsertedId(idColumnName?: string): unknown
   /**
-   * When the ID is `undefined`, an exception is thrown, unless the option `insertedIdCanBeUndefined` is set to `true`.
+   * When the ID is `undefined`, an exception is thrown.
    *
    * @param idColumnName For PostgreSQL, give here the column name of the autoincremented primary key
    */
   getInsertedIdAsString(idColumnName?: string): string
   /**
-   * When the ID is `undefined`, an exception is thrown, unless the option `insertedIdCanBeUndefined` is set to `true`.
+   * When the ID is `undefined`, an exception is thrown.
    *
    * @param idColumnName For PostgreSQL, give here the column name of the autoincremented primary key
    */

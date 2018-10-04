@@ -71,8 +71,8 @@ export default function makeDbConnection(context: Context): DatabaseConnection {
     }
   }
 
-  if (context.options.modifyConnection)
-    obj = context.options.modifyConnection(obj)
+  if (context.options.modifier && context.options.modifier.modifyConnection)
+    obj = context.options.modifier.modifyConnection(obj)
 
   return obj
 
