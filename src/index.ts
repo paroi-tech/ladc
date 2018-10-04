@@ -1,4 +1,4 @@
-import { BasicDatabaseConnection, LadcAdapter } from "ladc"
+import { LadcAdapter } from "ladc"
 import { ClientConfig } from "pg"
 import { createPgConnection, toBasicDatabaseConnection } from "./BasicDatabaseConnection"
 import { LadcPgOptions } from "./exported-definitions"
