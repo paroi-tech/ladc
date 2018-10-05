@@ -1,7 +1,7 @@
 import { ClientConfig } from "pg"
 
 export interface LadcPgOptions {
-  pg: string | ClientConfig,
+  pgConfig: string | ClientConfig,
   getAutoincrementedIdColumnName?(tableName: string): string | undefined
   useReturningAll?: boolean
 }
