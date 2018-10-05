@@ -16,7 +16,10 @@ function addReturningToInsert(sql: string, options: LadcPgOptions) {
     return { sql }
   let insertTable = matches[1]
   let idColumnName = options.getAutoincrementedIdColumnName && options.getAutoincrementedIdColumnName(insertTable)
-  sql = idColumnName ? `${sql} returning ${idColumnName}` : `${sql} returning *`
+  if (idColumnName)
+    sql = `${sql} returning ${idColumnName}`
+  else if (options.useReturningAll)
+    sql = `${sql} returning *`
   return { sql, insertTable, idColumnName }
 }
 
