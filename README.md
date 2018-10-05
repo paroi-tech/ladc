@@ -52,47 +52,62 @@ async function useMyConnection(cn) {
 }
 ```
 
-## The API
+## The Complete API
 
-The methods of a `DatabaseConnection`:
+### Members of a `DatabaseConnection`
 
-* `prepare(sql, params)` returns a promise of an `PreparedStatement`;
-* `exec(sql, params)` returns a promise of an `ExecResult`;
-* `all(sql, params)` returns a promise of an array of rows;
-* `singleRow(sql, params)` fetches with `cn.all(sql)` and returns the single row;
-* `singleValue(sql, params)` fetches with `cn.all(sql)` and returns the single value of the single row;
-* `script(sql)` execute a multilines script;
-* `close()` close the connection (for the root connection) or release it in the pool.
+Common methods between `DatabaseConnection` and `TransactionConnection`:
 
-The members of a `ExecResult`:
+* `cn.prepare(sql, params)` returns a promise of a `PreparedStatement`;
+* `cn.exec(sql, params)` executes the query and returns a promise of an `ExecResult`;
+* `cn.all(sql, params)` executes the select query and returns a promise of an array of rows;
+* `cn.singleRow(sql, params)` fetches with `cn.all(sql)` and returns the single row;
+* `cn.singleValue(sql, params)` fetches with `cn.all(sql)` and returns the single value of the single row;
+* `cn.cursor(sql, params)` opens a cursor and returns a promise of a `AsyncIterableIterator`.
 
-* `getInsertedId()` returns the inserted identifier;
-* `getInsertedIdAsNumber()` returns the inserted identifier as `number`;
-* `getInsertedIdAsString()` returns the inserted identifier as `string`;
-* `affectedRows` is a readonly property with the number of affected rows.
+Members that are specific to a `DatabaseConnection`:
 
-The methods of a `PreparedStatement`:
+* `cn.beginTransaction()` starts a transaction and returns a promise of a `TransactionConnection`;
+* `cn.script(sql)` executes a multi-line script;
+* `cn.close()` closes the LADC connection, this includes closing the pool of underlying connections.
 
-* `exec(params)` returns a promise of an `ExecResult`;
-* `all(params)` returns a promise of an array of rows;
-* `singleRow(params)` fetches with `cn.all(sql)` and returns the single row;
-* `singleValue(params)` fetches with `cn.all(sql)` and returns the single value of the single row;
-* `fetch()` fetches the next row or returns `undefined` if the resultset is finished;
-* `bind(nb, value)` binds a value to the specified parameter number;
-* `unbindAll()` cancels all the bound values;
-* `finalize()` closes the cursor (optional).
+### Members of an `ExecResult`
 
-## The API related to transactions
+* `result.affectedRows` is a readonly number;
+* `result.getInsertedId()` returns the inserted identifier;
+* `result.getInsertedIdAsNumber()` returns the inserted identifier as a `number`;
+* `result.getInsertedIdAsString()` returns the inserted identifier as a `string`.
 
-The following members are provided for managing transactions:
+### Members of a `PreparedStatement`
 
-* `beginTransaction()` starts the transaction and returns a connection `tx` allocated to the transaction
-* `tx.inTransaction` is a readonly boolean
-* `tx.rollback()`
-* `tx.commit()`
+* `ps.bind(nbOrKey, value)` binds a value to the specified parameter number;
+* `ps.unbind(nbOrKey)` unbinds a value to the specified parameter number;
+* `ps.bindAll(params)` binds a value to the specified parameter number;
+* `ps.unbindAll()` unbinds all the bound values;
+* `ps.exec(params?)` executes the query and returns a promise of an `ExecResult`;
+* `ps.all(params?)` executes the select query and returns a promise of an array of rows;
+* `ps.singleRow(params?)` fetches with `cn.all(sql)` and returns the single row;
+* `ps.singleValue(params?)` fetches with `cn.all(sql)` and returns the single value of the single row;
+* `ps.cursor(params?)` opens a cursor and returns a promise of a `AsyncIterableIterator`;
+* `ps.close()` closes the prepared statement.
 
-A `submit` or a `rollback` releases the underlying connection to the LADC pool.
+### Members of a `TransactionConnection`
+
+Common methods between `DatabaseConnection` and `TransactionConnection`:
+
+* `tx.prepare(sql, params)` returns a promise of a `PreparedStatement`;
+* `tx.exec(sql, params)` executes the query and returns a promise of an `ExecResult`;
+* `tx.all(sql, params)` executes the select query and returns a promise of an array of rows;
+* `tx.singleRow(sql, params)` fetches with `cn.all(sql)` and returns the single row;
+* `tx.singleValue(sql, params)` fetches with `cn.all(sql)` and returns the single value of the single row;
+* `tx.cursor(sql, params)` opens a cursor and returns a promise of a `AsyncIterableIterator`.
+
+Members that are specific to a `TransactionConnection`:
+
+* `tx.inTransaction` is a readonly boolean;
+* `tx.rollback()` rollbacks the transaction, then releases the underlying connection to the pool;
+* `tx.commit()` commits the transaction, then releases the underlying connection to the pool.
 
 ## How to integrate a query builder
 
-The package [@ladc/sql-bricks-qb](https://github.com/paleo/ladc-sql-bricks-qb) adds methods for [SQL Bricks](https://github.com/CSNW/sql-bricks) to `DatabaseConnection`.
+The package [@ladc/sql-bricks-modifier](https://github.com/paleo/ladc-sql-bricks-modifier) adds methods for [SQL Bricks](https://github.com/CSNW/sql-bricks) to the connections (`DatabaseConnection`, `TransactionConnection`).
