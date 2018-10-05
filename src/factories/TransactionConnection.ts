@@ -105,8 +105,8 @@ class TxItem {
       get inTransaction() {
         return !!basic
       },
-      commit: () => endOfTransaction("commit", () => this.closeDependencies()),
-      rollback: () => endOfTransaction("rollback", () => this.closeDependencies())
+      commit: () => endOfTransaction("commit", this),
+      rollback: () => endOfTransaction("rollback", this)
     }
 
     if (itemContext.context.options.modifier && itemContext.context.options.modifier.modifyConnection)
@@ -114,13 +114,14 @@ class TxItem {
 
     return obj
 
-    async function endOfTransaction(method: "commit" | "rollback", closeDependencies: () => Promise<void>) {
+    async function endOfTransaction(method: "commit" | "rollback", item: TxItem) {
       if (!basic)
         throw new Error(`Invalid call to '${method}', not in a transaction`)
       let copy = basic
       basic = undefined
+      itemContext.end(item)
       try {
-        await closeDependencies()
+        await item.closeDependencies()
         await copy.exec(method)
         itemContext.context.pool.release(copy)
       } catch (err) {
