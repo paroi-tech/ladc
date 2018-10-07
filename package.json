@@ -1,6 +1,6 @@
 {
   "name": "ladc",
-  "version": "0.19.2",
+  "version": "0.19.3",
   "description": "A Layer Above Database Connectors, that provides a common API inspired from PDO and JDBC.",
   "main": "ladc.min.js",
   "types": "ladc.d.ts",

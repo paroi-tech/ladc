@@ -29,8 +29,8 @@ import ladc from "ladc"
 import sqlite3Adapter from "@ladc/sqlite3-adapter"
 
 let cn = ladc({
-  provider: sqlite3Adapter({ fileName: `${__dirname}/mydb.sqlite` }),
-  init: async cn => {
+  adapter: sqlite3Adapter({ fileName: `${__dirname}/mydb.sqlite` }),
+  initConnection: async cn => {
     await cn.exec("PRAGMA foreign_keys = ON")
   }
 })
