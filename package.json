@@ -1,22 +1,22 @@
 {
   "name": "@ladc/sqlite3-adapter",
-  "version": "0.19.1",
+  "version": "0.20.0",
   "description": "The LADC adapter to the driver \"sqlite3\" (SQLite).",
   "main": "ladc-sqlite3-adapter.min.js",
   "types": "ladc-sqlite3-adapter.d.ts",
   "dependencies": {
-    "sqlite3": "4"
+    "sqlite3": "^4.0.4"
   },
   "peerDependencies": {
-    "ladc": "^0.19"
+    "ladc": "0.20"
   },
   "devDependencies": {
-    "ladc": "^0.19",
-    "npm-run-all": "^4.1.3",
+    "ladc": "^0.20.1",
+    "npm-run-all": "^4.1.5",
     "rimraf": "^2.6.2",
-    "rollup": "^0.66.4",
+    "rollup": "^0.67.4",
     "tslint": "^5.11.0",
-    "typescript": "^3.1.1",
+    "typescript": "^3.2.2",
     "uglify-es": "^3.3.9"
   },
   "scripts": {

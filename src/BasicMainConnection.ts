@@ -1,7 +1,7 @@
-import { BasicDatabaseConnection, BasicExecResult, BasicPreparedStatement, SqlParameters } from "ladc"
+import { BasicExecResult, BasicMainConnection, BasicPreparedStatement, SqlParameters } from "ladc"
 import { Database, RunResult, Statement } from "./promisifySqlite3"
 
-export function toBasicDatabaseConnection(db: Database): BasicDatabaseConnection {
+export function toBasicMainConnection(db: Database): BasicMainConnection {
   return {
     prepare: async (sql: string, params?: SqlParameters) => toBasicPreparedStatement(await db.prepare(sql, params), params),
     exec: async (sql: string, params?: SqlParameters) => toBasicExecResult(await db.run(sql, params)),
