@@ -1,4 +1,4 @@
-import { BasicDatabaseConnection, BasicExecResult, BasicPreparedStatement, SqlParameters } from "ladc"
+import { BasicExecResult, BasicMainConnection, BasicPreparedStatement, SqlParameters } from "ladc"
 import { Client, ClientConfig, QueryResult } from "pg"
 import { LadcPgOptions } from "./exported-definitions"
 
@@ -23,7 +23,7 @@ function addReturningToInsert(sql: string, options: LadcPgOptions) {
   return { sql, insertTable, idColumnName }
 }
 
-export function toBasicDatabaseConnection(client: Client, options: LadcPgOptions): BasicDatabaseConnection {
+export function toBasicMainConnection(client: Client, options: LadcPgOptions): BasicMainConnection {
   return {
     prepare: async (sql: string, params?: SqlParameters) => makeBasicPreparedStatement(options, client, sql, params),
     exec: async (sql: string, params?: SqlParameters) => {

@@ -13,15 +13,17 @@ npm install ladc @ladc/pg-adapter
 How to create a connection:
 
 ```
-import { createDatabaseConnection } from "ladc"
-import { pgConnectionProvider } from "@ladc/pg-adapter"
+import ladc from "ladc"
+import pgAdapter from "@ladc/pg-adapter"
 
-let cn = createDatabaseConnection({
-  provider: pgConnectionProvider({
-    host: "-my-server-",
-    database: "-my-database-",
-    user: "-my-user-",
-    password: "-my-password-"
+let cn = ladc({
+  adapter: pgAdapter({
+    pgConfig: {
+      host: "-my-server-",
+      database: "-my-database-",
+      user: "-my-user-",
+      password: "-my-password-"
+    }
   })
 })
 ```
@@ -38,7 +40,8 @@ const autoincColumns = {
   "myprefix_post": "post_id",
 }
 
-pgConnectionProvider({ /* credentials */ }, {
+pgAdapter({
+  pgConfig: { /* credentials */ },
   getAutoincrementedIdColumnName: tableName => autoincColumns[tableName]
 })
 ```
