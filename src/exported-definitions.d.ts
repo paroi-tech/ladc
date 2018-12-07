@@ -1,4 +1,4 @@
-import { DatabaseConnection, ExecResult, PreparedStatement, QueryRunner, ResultRow, TransactionConnection } from "ladc"
+import { MainConnection, ExecResult, PreparedStatement, Connection, ResultRow, TransactionConnection } from "ladc"
 import { Statement as SqlBricksQuery, SelectStatement as SqlBricksSelect } from "sql-bricks"
 
 export interface WithSqlBricksOptions {
@@ -9,7 +9,7 @@ export interface WithSqlBricksOptions {
   trace?(action: string, sqlBricks: SqlBricksQuery): void
 }
 
-export type QueryRunnerWithSqlBricks = QueryRunner & {
+export type ConnectionWithSqlBricks = Connection & {
   prepare<R extends ResultRow = ResultRow>(sqlBricks: SqlBricksQuery): Promise<PreparedStatement<R>>
   exec(sqlBricks: SqlBricksQuery): Promise<ExecResult>
   all<R extends ResultRow = ResultRow>(sqlBricks: SqlBricksSelect): Promise<R[]>
@@ -18,10 +18,10 @@ export type QueryRunnerWithSqlBricks = QueryRunner & {
   cursor<R extends ResultRow = ResultRow>(sqlBricks: SqlBricksSelect): Promise<AsyncIterableIterator<R>>
 }
 
-interface DatabaseConnectionWithSqlBricksTx extends DatabaseConnection {
+interface MainConnectionWithSqlBricksTx extends MainConnection {
   // This method replaces the parent one
   beginTransaction(): Promise<TransactionConnectionWithSqlBricks>
 }
 
-export type DatabaseConnectionWithSqlBricks = DatabaseConnectionWithSqlBricksTx & QueryRunnerWithSqlBricks
-export type TransactionConnectionWithSqlBricks = TransactionConnection & QueryRunnerWithSqlBricks
+export type MainConnectionWithSqlBricks = MainConnectionWithSqlBricksTx & ConnectionWithSqlBricks
+export type TransactionConnectionWithSqlBricks = TransactionConnection & ConnectionWithSqlBricks

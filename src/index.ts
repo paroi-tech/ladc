@@ -1,4 +1,4 @@
-import { DatabaseConnection, LadcModifier, TransactionConnection } from "ladc"
+import { LadcModifier, MainConnection, TransactionConnection } from "ladc"
 import { Statement as SqlBricksQuery } from "sql-bricks"
 import { WithSqlBricksOptions } from "./exported-definitions"
 
@@ -10,7 +10,7 @@ export default function sqlBricksModifier(options: WithSqlBricksOptions = {}): L
 
 const methodNames = ["prepare", "exec", "all", "singleRow", "singleValue", "cursor"]
 
-function modifyConnection(parent: TransactionConnection | DatabaseConnection, options: WithSqlBricksOptions) {
+function modifyConnection(parent: TransactionConnection | MainConnection, options: WithSqlBricksOptions) {
   let modified = Object.create(parent)
 
   for (let method of methodNames) {

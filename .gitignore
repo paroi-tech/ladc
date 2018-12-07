@@ -1,3 +1,4 @@
+.npmrc
 node_modules
 /build/compiled
 /ladc-sql-bricks-modifier.d.ts
