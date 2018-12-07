@@ -13,12 +13,12 @@ npm install ladc @ladc/sqlite3-adapter
 How to create a connection:
 
 ```
-import { createMainConnection } from "ladc"
-import { sqlite3ConnectionProvider } from "@ladc/sqlite3-adapter"
+import ladc from "ladc"
+import sqlite3Adapter from "@ladc/sqlite3-adapter"
 
-let cn = createMainConnection({
-  provider: sqlite3ConnectionProvider({ fileName: `${__dirname}/mydb.sqlite` }),
-  init: async cn => {
+let cn = ladc({
+  adapter: sqlite3Adapter({ fileName: `${__dirname}/mydb.sqlite` }),
+  initConnection: async cn => {
     await cn.exec("PRAGMA foreign_keys = ON")
   }
 })
