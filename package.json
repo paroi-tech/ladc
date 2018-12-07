@@ -9,7 +9,7 @@
     "pg": "^7.7.1"
   },
   "peerDependencies": {
-    "ladc": "0"
+    "ladc": "0.20"
   },
   "devDependencies": {
     "ladc": "^0.20.0",
