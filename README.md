@@ -2,19 +2,25 @@
 
 A Layer Above Database Connectors, for Node.js.
 
+**Note: Read [this article](https://medium.com/@paleo.said/a-layer-above-database-connectors-that-provides-a-common-api-like-pdo-and-jdbc-but-for-node-js-cf7e47666c81) for a detailed presentation of LADC.**
+
+## What it is
+
 _LADC_ provides a common API inspired from PDO and JDBC. It is built on top of relational database (SQL) connectors for Node.js. It provides:
 
 1. A common way to access to relational databases;
 1. A pool of connections in order to allow transactions in an asynchronous context;
 1. A way to augment your connector with your SQL query builder.
 
-## Install for SQLite (driver [sqlite3](https://github.com/mapbox/node-sqlite3))
+## Install
+
+Install for SQLite (driver [sqlite3](https://github.com/mapbox/node-sqlite3)):
 
 ```
 npm install ladc @ladc/sqlite3-adapter
 ```
 
-## Install for PostgreSQL (driver [pg](https://github.com/brianc/node-postgres))
+Or, install for PostgreSQL (driver [pg](https://github.com/brianc/node-postgres)):
 
 ```
 npm install ladc @ladc/pg-adapter
