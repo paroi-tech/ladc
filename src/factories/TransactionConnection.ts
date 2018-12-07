@@ -2,8 +2,8 @@ import { BasicMainConnection } from "../driver-definitions"
 import { SqlParameters, TransactionConnection } from "../exported-definitions"
 import { toSingleRow, toSingleValue } from "../helpers"
 import { CursorItem } from "./Cursor"
-import { Context } from "./MainConnection"
 import { toExecResult } from "./ExecResult"
+import { Context } from "./MainConnection"
 import { PsProvider } from "./PreparedStatement"
 
 export class TxProvider {

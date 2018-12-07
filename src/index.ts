@@ -1,6 +1,6 @@
 import createPool from "./createPool"
-import { MainConnection, LadcOptions } from "./exported-definitions"
-import makeDbConnection from "./factories/MainConnection"
+import { LadcOptions, MainConnection } from "./exported-definitions"
+import makeMainConnection from "./factories/MainConnection"
 
 export default function ladc(options: LadcOptions): MainConnection {
   let provider = async () => {
@@ -10,7 +10,7 @@ export default function ladc(options: LadcOptions): MainConnection {
     return cn
   }
   let pool = createPool(provider, options)
-  return makeDbConnection({ options, pool })
+  return makeMainConnection({ options, pool })
 }
 
 export * from "./driver-definitions"

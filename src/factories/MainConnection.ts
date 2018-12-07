@@ -11,7 +11,7 @@ export interface Context {
   options: LadcOptions
 }
 
-export default function makeDbConnection(context: Context): MainConnection {
+export default function makeMainConnection(context: Context): MainConnection {
   let { pool } = context
   let psProvider = new PsProvider({
     context,

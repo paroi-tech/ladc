@@ -1,10 +1,9 @@
-import { Pool } from "../createPool"
 import { BasicMainConnection, BasicPreparedStatement } from "../driver-definitions"
 import { PreparedStatement, SqlParameters } from "../exported-definitions"
 import { toSingleRow, toSingleValue } from "../helpers"
 import { CursorItem } from "./Cursor"
-import { Context } from "./MainConnection"
 import { toExecResult } from "./ExecResult"
+import { Context } from "./MainConnection"
 
 export interface PsProviderContext {
   exclusiveCn?: BasicMainConnection
