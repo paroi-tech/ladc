@@ -1,7 +1,7 @@
 import { MainConnection, ExecResult, PreparedStatement, Connection, ResultRow, TransactionConnection } from "ladc"
 import { Statement as SqlBricksQuery, SelectStatement as SqlBricksSelect } from "sql-bricks"
 
-export interface WithSqlBricksOptions {
+export interface SBModifierOptions {
   toParamsOptions?: {
     [key: string]: any
     placeholder?: string
@@ -9,7 +9,7 @@ export interface WithSqlBricksOptions {
   trace?(action: string, sqlBricks: SqlBricksQuery): void
 }
 
-export type ConnectionWithSqlBricks = Connection & {
+export type SBConnection = Connection & {
   prepare<R extends ResultRow = ResultRow>(sqlBricks: SqlBricksQuery): Promise<PreparedStatement<R>>
   exec(sqlBricks: SqlBricksQuery): Promise<ExecResult>
   all<R extends ResultRow = ResultRow>(sqlBricks: SqlBricksSelect): Promise<R[]>
@@ -18,10 +18,10 @@ export type ConnectionWithSqlBricks = Connection & {
   cursor<R extends ResultRow = ResultRow>(sqlBricks: SqlBricksSelect): Promise<AsyncIterableIterator<R>>
 }
 
-interface MainConnectionWithSqlBricksTx extends MainConnection {
+interface SBMainConnectionTx extends MainConnection {
   // This method replaces the parent one
-  beginTransaction(): Promise<TransactionConnectionWithSqlBricks>
+  beginTransaction(): Promise<SBTransactionConnection>
 }
 
-export type MainConnectionWithSqlBricks = MainConnectionWithSqlBricksTx & ConnectionWithSqlBricks
-export type TransactionConnectionWithSqlBricks = TransactionConnection & ConnectionWithSqlBricks
+export type SBMainConnection = SBMainConnectionTx & SBConnection
+export type SBTransactionConnection = TransactionConnection & SBConnection
