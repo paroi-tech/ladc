@@ -1,8 +1,8 @@
 import createPool from "./createPool"
-import { DatabaseConnection, LadcOptions } from "./exported-definitions"
-import makeDbConnection from "./factories/DatabaseConnection"
+import { MainConnection, LadcOptions } from "./exported-definitions"
+import makeDbConnection from "./factories/MainConnection"
 
-export default function ladc(options: LadcOptions): DatabaseConnection {
+export default function ladc(options: LadcOptions): MainConnection {
   let provider = async () => {
     let cn = await options.adapter.createConnection()
     if (options.initConnection)

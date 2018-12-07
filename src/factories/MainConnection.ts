@@ -1,5 +1,5 @@
 import { Pool } from "../createPool"
-import { DatabaseConnection, LadcOptions, SqlParameters } from "../exported-definitions"
+import { LadcOptions, MainConnection, SqlParameters } from "../exported-definitions"
 import { toSingleRow, toSingleValue } from "../helpers"
 import { CursorProvider } from "./Cursor"
 import { toExecResult } from "./ExecResult"
@@ -11,7 +11,7 @@ export interface Context {
   options: LadcOptions
 }
 
-export default function makeDbConnection(context: Context): DatabaseConnection {
+export default function makeDbConnection(context: Context): MainConnection {
   let { pool } = context
   let psProvider = new PsProvider({
     context,
@@ -22,7 +22,7 @@ export default function makeDbConnection(context: Context): DatabaseConnection {
 
   let closed = false
 
-  let obj: DatabaseConnection = {
+  let obj: MainConnection = {
     async prepare(sql: string, params?: SqlParameters) {
       if (closed)
         throw new Error(`Invalid call to 'prepare', the connection is closed`)

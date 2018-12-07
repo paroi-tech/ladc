@@ -1,4 +1,4 @@
-import { Context } from "./DatabaseConnection"
+import { Context } from "./MainConnection"
 
 export class CursorProvider {
   private items = new Set<CursorItem>()

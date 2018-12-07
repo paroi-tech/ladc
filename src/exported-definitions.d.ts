@@ -1,14 +1,14 @@
-import { BasicDatabaseConnection } from "./driver-definitions"
+import { BasicMainConnection } from "./driver-definitions"
 
 export interface LadcAdapter {
-  createConnection: () => Promise<BasicDatabaseConnection>
+  createConnection: () => Promise<BasicMainConnection>
 }
 
 export interface LadcModifier {
   /**
-   * This callback will be executed for each new `DatabaseConnection` object. It returns the same or another object that will be used as the `DatabaseConnection`.
+   * This callback will be executed for each new `MainConnection` object. It returns the same or another object that will be used as the `MainConnection`.
    */
-  modifyConnection?<C extends TransactionConnection | DatabaseConnection>(cn: C): C
+  modifyConnection?<C extends TransactionConnection | MainConnection>(cn: C): C
   /**
    * This callback will be executed for each new `PreparedStatement` object. It returns the same or another object that will be used as the `PreparedStatement`.
    */
@@ -19,9 +19,9 @@ export interface LadcOptions {
   adapter: LadcAdapter
   modifier?: LadcModifier
   /**
-   * This callback will be executed for each new `DatabaseConnection` when it has a new underlying connection created by the pool. It is a right place to update the underlying connection with `PRAGMA` orders.
+   * This callback will be executed for each new `MainConnection` when it has a new underlying connection created by the pool. It is a right place to update the underlying connection with `PRAGMA` orders.
    */
-  initConnection?(cn: BasicDatabaseConnection): void | Promise<void>
+  initConnection?(cn: BasicMainConnection): void | Promise<void>
   /**
    * The configuration of the connection pool.
    */
@@ -37,7 +37,7 @@ export interface LadcOptions {
 }
 
 export interface DebugEventContext {
-  connection: BasicDatabaseConnection
+  connection: BasicMainConnection
   method: string
   args: any[]
   inTransaction: boolean
@@ -58,7 +58,7 @@ export interface DebugEvent {
 
 export interface PoolMonitoring {
   event: "open" | "close" | "grab" | "release" | "abandon"
-  cn: BasicDatabaseConnection
+  cn: BasicMainConnection
   id?: number
 }
 
@@ -77,7 +77,7 @@ export interface ResultRow {
   [columnName: string]: unknown
 }
 
-export interface QueryRunner {
+export interface Connection {
   prepare<R extends ResultRow = ResultRow>(sql: string, params?: SqlParameters): Promise<PreparedStatement<R>>
   exec(sql: string, params?: SqlParameters): Promise<ExecResult>
 
@@ -89,12 +89,12 @@ export interface QueryRunner {
   script(sql: string): Promise<void>
 }
 
-export interface DatabaseConnection extends QueryRunner {
+export interface MainConnection extends Connection {
   beginTransaction(): Promise<TransactionConnection>
   close(): Promise<void>
 }
 
-export interface TransactionConnection extends QueryRunner {
+export interface TransactionConnection extends Connection {
   readonly inTransaction: boolean
   commit(): Promise<void>
   rollback(): Promise<void>

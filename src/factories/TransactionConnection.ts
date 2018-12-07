@@ -1,8 +1,8 @@
-import { BasicDatabaseConnection } from "../driver-definitions"
+import { BasicMainConnection } from "../driver-definitions"
 import { SqlParameters, TransactionConnection } from "../exported-definitions"
 import { toSingleRow, toSingleValue } from "../helpers"
 import { CursorItem } from "./Cursor"
-import { Context } from "./DatabaseConnection"
+import { Context } from "./MainConnection"
 import { toExecResult } from "./ExecResult"
 import { PsProvider } from "./PreparedStatement"
 
@@ -35,7 +35,7 @@ interface TxItemContext {
 
 class TxItem {
   static async create(txContext: TxItemContext): Promise<TxItem> {
-    let basic: BasicDatabaseConnection = await txContext.context.pool.grab(true)
+    let basic: BasicMainConnection = await txContext.context.pool.grab(true)
     await basic.exec("begin")
     return new TxItem(txContext, basic)
   }
@@ -44,7 +44,7 @@ class TxItem {
   private psProvider?: PsProvider
   private cursorItem?: CursorItem
 
-  constructor(itemContext: TxItemContext, basic: BasicDatabaseConnection) {
+  constructor(itemContext: TxItemContext, basic: BasicMainConnection) {
     this.tx = this.toTx(itemContext, basic)
   }
 
@@ -65,7 +65,7 @@ class TxItem {
     await promises
   }
 
-  private toTx(itemContext: TxItemContext, basic: BasicDatabaseConnection | undefined): TransactionConnection {
+  private toTx(itemContext: TxItemContext, basic: BasicMainConnection | undefined): TransactionConnection {
     let obj: TransactionConnection = {
       prepare: async (sql: string, params?: SqlParameters) => {
         if (!basic)

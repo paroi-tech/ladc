@@ -1,6 +1,6 @@
 import { SqlParameters, ResultRow } from "./exported-definitions"
 
-export interface BasicDatabaseConnection {
+export interface BasicMainConnection {
   prepare<R extends ResultRow = ResultRow>(sql: string, params?: SqlParameters): Promise<BasicPreparedStatement<R>>
   exec(sql: string, params?: SqlParameters): Promise<BasicExecResult>
   all<R extends ResultRow = ResultRow>(sql: string, params?: SqlParameters): Promise<R[]>

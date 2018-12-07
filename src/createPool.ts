@@ -1,22 +1,22 @@
-import { BasicDatabaseConnection } from "./driver-definitions"
+import { BasicMainConnection } from "./driver-definitions"
 import { DebugEvent, LadcOptions } from "./exported-definitions"
 
 export interface Pool {
   /**
    * @param exclusive Default value is `false`.
    */
-  grab(exclusive?: boolean): Promise<BasicDatabaseConnection>
-  release(db: BasicDatabaseConnection): void
-  abandon(db: BasicDatabaseConnection): void
+  grab(exclusive?: boolean): Promise<BasicMainConnection>
+  release(db: BasicMainConnection): void
+  abandon(db: BasicMainConnection): void
   close(): Promise<void>
 }
 
 interface PoolItem {
-  db: BasicDatabaseConnection
+  db: BasicMainConnection
   releaseTime: number
 }
 
-export default function createPool(provider: () => Promise<BasicDatabaseConnection>, options: LadcOptions): Pool {
+export default function createPool(provider: () => Promise<BasicMainConnection>, options: LadcOptions): Pool {
   let poolOptions = options.poolOptions || {}
   const connectionTtl = poolOptions.connectionTtl || 60
   const logMonitoring = poolOptions.logMonitoring || (() => { })
@@ -30,12 +30,12 @@ export default function createPool(provider: () => Promise<BasicDatabaseConnecti
 
   let closed = false
   let available: PoolItem[] = []
-  let nonExclusiveDb: BasicDatabaseConnection | undefined
+  let nonExclusiveDb: BasicMainConnection | undefined
   let nonExclusiveCount = 0
   let cleaning: any | undefined
 
   let counter = 0
-  let identifiers = new WeakMap<BasicDatabaseConnection, number>()
+  let identifiers = new WeakMap<BasicMainConnection, number>()
 
   return {
     grab: async (exclusive = false) => {
@@ -48,7 +48,7 @@ export default function createPool(provider: () => Promise<BasicDatabaseConnecti
       }
 
       let item = available.pop()
-      let db: BasicDatabaseConnection
+      let db: BasicMainConnection
       if (item)
         db = item.db
       else {
@@ -68,7 +68,7 @@ export default function createPool(provider: () => Promise<BasicDatabaseConnecti
       logMonitoring({ event: "grab", cn: db, id: identifiers.get(db) || -123 })
       return db
     },
-    release: (db: BasicDatabaseConnection) => {
+    release: (db: BasicMainConnection) => {
       logMonitoring({ event: "release", cn: db, id: identifiers.get(db) })
       if (db === nonExclusiveDb) {
         if (--nonExclusiveCount === 0) {
@@ -82,7 +82,7 @@ export default function createPool(provider: () => Promise<BasicDatabaseConnecti
       else
         startCleaning()
     },
-    abandon: (db: BasicDatabaseConnection) => {
+    abandon: (db: BasicMainConnection) => {
       logMonitoring({ event: "abandon", cn: db, id: identifiers.get(db) })
       if (db === nonExclusiveDb) {
         --nonExclusiveCount
@@ -140,7 +140,7 @@ export default function createPool(provider: () => Promise<BasicDatabaseConnecti
       available = available.slice(index)
   }
 
-  function debugWrapProvider(provider: () => Promise<BasicDatabaseConnection>, logDebug: (debug: DebugEvent) => void): () => Promise<BasicDatabaseConnection> {
+  function debugWrapProvider(provider: () => Promise<BasicMainConnection>, logDebug: (debug: DebugEvent) => void): () => Promise<BasicMainConnection> {
     return async () => {
       try {
         let result = await provider()
@@ -153,7 +153,7 @@ export default function createPool(provider: () => Promise<BasicDatabaseConnecti
     }
   }
 
-  function debugWrapAsyncMethods(db: BasicDatabaseConnection, idInPool: number, logDebug: (debug: DebugEvent) => void): BasicDatabaseConnection {
+  function debugWrapAsyncMethods(db: BasicMainConnection, idInPool: number, logDebug: (debug: DebugEvent) => void): BasicMainConnection {
     let inTransactions = new WeakSet<any>()
     let wrap: any = {}
     for (let name of Object.keys(db)) {

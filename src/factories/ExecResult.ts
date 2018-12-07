@@ -1,6 +1,6 @@
 import { BasicExecResult } from "../driver-definitions"
 import { ExecResult } from "../exported-definitions"
-import { Context } from "./DatabaseConnection"
+import { Context } from "./MainConnection"
 
 export function toExecResult(context: Context, result: BasicExecResult): ExecResult {
   let obj: ExecResult = {

@@ -1,13 +1,13 @@
 import { Pool } from "../createPool"
-import { BasicDatabaseConnection, BasicPreparedStatement } from "../driver-definitions"
+import { BasicMainConnection, BasicPreparedStatement } from "../driver-definitions"
 import { PreparedStatement, SqlParameters } from "../exported-definitions"
 import { toSingleRow, toSingleValue } from "../helpers"
 import { CursorItem } from "./Cursor"
-import { Context } from "./DatabaseConnection"
+import { Context } from "./MainConnection"
 import { toExecResult } from "./ExecResult"
 
 export interface PsProviderContext {
-  exclusiveCn?: BasicDatabaseConnection
+  exclusiveCn?: BasicMainConnection
   context: Context
   canCreateCursor(): boolean
 }
@@ -64,7 +64,7 @@ export class PsProvider {
 
 interface PsItemContext {
   context: Context
-  cn: BasicDatabaseConnection
+  cn: BasicMainConnection
   end: (item: PsItem) => void
   canCreateCursor(): boolean
 }

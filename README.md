@@ -2,7 +2,7 @@
 
 A Layer Above Database Connectors, for Node.js.
 
-_LADC_ provides a common API inspired from PDO and JDBC. It is built on top of relational database (SQL) connectors for Node.js.
+_LADC_ provides a common API inspired from PDO and JDBC. It is built on top of relational database (SQL) connectors for Node.js. It provides:
 
 1. A common way to access to relational databases;
 1. A pool of connections in order to allow transactions in an asynchronous context;
@@ -54,9 +54,9 @@ async function useMyConnection(cn) {
 
 ## The Complete API
 
-### Members of a `DatabaseConnection`
+### Members of a `MainConnection`
 
-Common methods between `DatabaseConnection` and `TransactionConnection`:
+Common methods between `MainConnection` and `TransactionConnection`:
 
 * `cn.prepare(sql, params)` returns a promise of a `PreparedStatement`;
 * `cn.exec(sql, params)` executes the query and returns a promise of an `ExecResult`;
@@ -65,7 +65,7 @@ Common methods between `DatabaseConnection` and `TransactionConnection`:
 * `cn.singleValue(sql, params)` fetches with `cn.all(sql)` and returns the single value of the single row;
 * `cn.cursor(sql, params)` opens a cursor and returns a promise of a `AsyncIterableIterator`.
 
-Members that are specific to a `DatabaseConnection`:
+Members that are specific to a `MainConnection`:
 
 * `cn.beginTransaction()` starts a transaction and returns a promise of a `TransactionConnection`;
 * `cn.script(sql)` executes a multi-line script;
@@ -93,7 +93,7 @@ Members that are specific to a `DatabaseConnection`:
 
 ### Members of a `TransactionConnection`
 
-Common methods between `DatabaseConnection` and `TransactionConnection`:
+Common methods between `MainConnection` and `TransactionConnection`:
 
 * `tx.prepare(sql, params)` returns a promise of a `PreparedStatement`;
 * `tx.exec(sql, params)` executes the query and returns a promise of an `ExecResult`;
@@ -110,4 +110,4 @@ Members that are specific to a `TransactionConnection`:
 
 ## How to integrate a query builder
 
-The package [@ladc/sql-bricks-modifier](https://github.com/paleo/ladc-sql-bricks-modifier) adds methods for [SQL Bricks](https://github.com/CSNW/sql-bricks) to the connections (`DatabaseConnection`, `TransactionConnection`).
+The package [@ladc/sql-bricks-modifier](https://github.com/paleo/ladc-sql-bricks-modifier) adds methods for [SQL Bricks](https://github.com/CSNW/sql-bricks) to the connections (`MainConnection`, `TransactionConnection`).
