@@ -46,17 +46,10 @@ Then, use the connection:
 
 ```
 async function example(cn) {
-  let tx = await cn.beginTransaction()
-  try {
-    let result = await cn.exec("insert into test (message) values ('Hello, World!')")
-    let newId = result.getInsertedIdAsString()
-    let row = await cn.singleRow("select message, ts from test where test_id = $1", [newId])
-    console.log(`Inserted row ${newId}:`, row)
-    await tx.commit()
-  } finally {
-    if (tx.inTransaction)
-      await tx.rollback()
-  }
+  let result = await cn.exec("insert into test (message) values ('Hello, World!')")
+  let newId = result.getInsertedIdAsString()
+  let row = await cn.singleRow("select message, ts from test where test_id = $1", [newId])
+  console.log(`Inserted row ${newId}:`, row)
 }
 ```
 
