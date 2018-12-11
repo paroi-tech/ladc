@@ -24,15 +24,13 @@ npm install ladc @ladc/sqlite3-adapter sql-bricks @ladc/sql-bricks-modifier
 Here is how to create a connection:
 
 ```
-const ladc = require("ladc")
-const sqlite3Adapter = require("@ladc/sqlite3-adapter")
-const sqlBricksModifier = require("@ladc/sql-bricks-modifier")
+import ladc from "ladc"
+import sqlite3Adapter from "@ladc/sqlite3-adapter"
+import sqlBricksModifier from "@ladc/sql-bricks-modifier"
 
-let sqlite3Cn = ladc({
-  adapter: sqlite3Adapter({ fileName: `${__dirname}/testdb.sqlite` })
-  modifier: sqlBricksModifier({
-    toParamsOptions: { placeholder: "?%d" } // SQLite requires parameter placeholders with '?'
-  })
+let cn = ladc({
+  adapter: sqlite3Adapter({ fileName: `${__dirname}/mydb.sqlite` }),
+  modifier: sqlBricksModifier()
 })
 ```
 
@@ -42,8 +40,8 @@ Then, use it:
 import { select } from "sql-bricks"
 
 async function test(cn) {
-  let sql = select("col1, col2").from("table1")
-  let rows = await cn.all(sql)
+  let q = select("col1, col2").from("table1")
+  let rows = await cn.all(q)
   console.log(rows)
 }
 ```
