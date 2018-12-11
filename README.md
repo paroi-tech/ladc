@@ -45,15 +45,17 @@ let cn = ladc({
 Then, use the connection:
 
 ```
-async function useMyConnection(cn) {
+async function example(cn) {
   let tx = await cn.beginTransaction()
   try {
-    let newId = (await tx.exec("... insert 1 ...")).getInsertedId()
-    await tx.exec("... insert 2 ...")
-    await tx.commit() // A commit releases the underlying connection
+    let result = await cn.exec("insert into test (message) values ('Hello, World!')")
+    let newId = result.getInsertedIdAsString()
+    let row = await cn.singleRow("select message, ts from test where test_id = $1", [newId])
+    console.log(`Inserted row ${newId}:`, row)
+    await tx.commit()
   } finally {
     if (tx.inTransaction)
-      await tx.rollback() // A rollback releases the underlying connection
+      await tx.rollback()
   }
 }
 ```
