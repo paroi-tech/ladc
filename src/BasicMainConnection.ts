@@ -15,7 +15,7 @@ function addReturningToInsert(sql: string, options: LadcPgOptions) {
   if (!matches)
     return { sql }
   let insertTable = matches[1]
-  let idColumnName = options.getAutoincrementedIdColumnName && options.getAutoincrementedIdColumnName(insertTable)
+  let idColumnName = options.autoincMapping && options.autoincMapping[insertTable]
   if (idColumnName)
     sql = `${sql} returning ${idColumnName}`
   else if (options.useReturningAll)
@@ -42,6 +42,8 @@ export function toBasicMainConnection(client: Client, options: LadcPgOptions): B
       values: toPositionalParameters(params)
     })),
     cursor: async (sql: string, params?: SqlParameters) => {
+      if (!options.inMemoryCursor)
+        throw new Error("Cursor is not available. Maybe use the option 'inMemoryCursor'.")
       return makeInMemoryCursor(toRows(await client.query({
         text: sql,
         values: toPositionalParameters(params)
@@ -139,6 +141,8 @@ function makeBasicPreparedStatement(options: LadcPgOptions, client: Client, sql:
       }))
     },
     cursor: async (params?: SqlParameters) => {
+      if (!options.inMemoryCursor)
+        throw new Error("Cursor is not available. Maybe use the option 'inMemoryCursor'.")
       return makeInMemoryCursor(toRows(await client.query({
         name: psName,
         text: sql,

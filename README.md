@@ -28,21 +28,19 @@ let cn = ladc({
 })
 ```
 
-# Get the Postgresql autoincrement inserted ID
+# Get the Postgresql autoincrement inserted identifier
 
-By default, when an `insert` query is recognized by the adapter, it automatically appends `returning *` at the end of the query. Then, when the method `getLastInsertId()` is called, the adapter searchs for a column named `id` or `theTableName_id` and returns its value.
-
-It is possible to optimize this behaviour. The option `getAutoincrementedIdColumnName` can be set with a function that returns the autoincremented column name of a given table:
+Set the option `autoincMapping` to map the autoincremented column name of each table that has one:
 
 ```js
-const autoincColumns = {
-  "myprefix_category": "category_id",
-  "myprefix_post": "post_id",
+const autoincMapping = {
+  "category": "category_id",
+  "post": "post_id",
 }
 
 pgAdapter({
   pgConfig: { /* credentials */ },
-  getAutoincrementedIdColumnName: tableName => autoincColumns[tableName]
+  autoincMapping
 })
 ```
 
