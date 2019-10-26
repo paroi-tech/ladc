@@ -1,4 +1,4 @@
-import { AdapterConnection } from "../adapter-definitions"
+import { AConnection } from "../adapter-definitions"
 import { SqlParameters, TransactionConnection } from "../exported-definitions"
 import { toSingleRow, toSingleValue } from "../helpers"
 import { CursorItem } from "./Cursor"
@@ -35,7 +35,7 @@ interface TxItemContext {
 
 class TxItem {
   static async create(txContext: TxItemContext): Promise<TxItem> {
-    const acn: AdapterConnection = await txContext.context.pool.grab(true)
+    const acn: AConnection = await txContext.context.pool.grab(true)
     await acn.exec("begin")
     return new TxItem(txContext, acn)
   }
@@ -44,7 +44,7 @@ class TxItem {
   private psProvider?: PsProvider
   private cursorItem?: CursorItem
 
-  constructor(itemContext: TxItemContext, acn: AdapterConnection) {
+  constructor(itemContext: TxItemContext, acn: AConnection) {
     this.tx = this.toTx(itemContext, acn)
   }
 
@@ -65,11 +65,10 @@ class TxItem {
     await Promise.all(promises)
   }
 
-  private toTx(itemContext: TxItemContext, acn: AdapterConnection | undefined): TransactionConnection {
+  private toTx(itemContext: TxItemContext, acn: AConnection | undefined): TransactionConnection {
     let obj: TransactionConnection = {
-      prepare: async (sql: string, params?: SqlParameters) => {
-        if (!itemContext.context.capabilities.preparedStatements)
-          throw new Error(`Prepared statements are not available with this adapter`)
+      prepare: async (sql: string) => {
+        itemContext.context.check.preparedStatements()
         if (!acn)
           throw new Error(`Invalid call to 'prepare', the connection is closed`)
         if (!this.psProvider) {
@@ -79,19 +78,25 @@ class TxItem {
             canCreateCursor: () => this.canCreateCursor()
           })
         }
-        return await this.psProvider.prepare(sql, params)
+        return await this.psProvider.prepare(sql)
       },
       async exec(sql: string, params?: SqlParameters) {
+        itemContext.context.check.parameters(params)
         if (!acn)
           throw new Error(`Invalid call to 'exec', not in a transaction`)
         return toExecResult(await acn.exec(sql, params))
       },
-      all: cnAdapterCallback("all"),
+      async all(sql: string, params?: SqlParameters) {
+        itemContext.context.check.parameters(params)
+        if (!acn)
+          throw new Error(`Invalid call to 'all', not in a transaction`)
+        return acn.all(sql, params)
+      },
       singleRow: async (sql: string, params?: SqlParameters) => toSingleRow(await obj.all(sql, params)),
       singleValue: async (sql: string, params?: SqlParameters) => toSingleValue(await obj.singleRow(sql, params)),
       cursor: async (sql: string, params?: SqlParameters) => {
-        if (!itemContext.context.capabilities.cursors)
-          throw new Error(`Cursors are not available with this adapter`)
+        itemContext.context.check.cursors()
+        itemContext.context.check.parameters(params)
         if (!acn)
           throw new Error(`Invalid call to 'cursor', not in a transaction`)
         if (!this.canCreateCursor())
@@ -104,8 +109,11 @@ class TxItem {
         }, await acn.cursor(sql, params))
         return this.cursorItem.cursor
       },
-      script: cnAdapterCallback("script"),
-
+      async script(sql: string) {
+        if (!acn)
+          throw new Error(`Invalid call to 'script', not in a transaction`)
+        return acn.script(sql)
+      },
       get inTransaction() {
         return !!acn
       },
@@ -131,14 +139,6 @@ class TxItem {
       } catch (err) {
         itemContext.context.pool.abandon(copy)
         throw err
-      }
-    }
-
-    function cnAdapterCallback(method: string) {
-      return (...args: any[]) => {
-        if (!acn)
-          throw new Error(`Invalid call to '${method}', not in a transaction`)
-        return (acn as any)[method](...args)
       }
     }
   }

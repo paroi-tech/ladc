@@ -1,22 +1,22 @@
-import { AdapterConnection } from "./adapter-definitions"
+import { AConnection } from "./adapter-definitions"
 import { DebugEvent, LadcOptions } from "./exported-definitions"
 
 export interface Pool {
   /**
    * @param exclusive Default value is `false`.
    */
-  grab(exclusive?: boolean): Promise<AdapterConnection>
-  release(db: AdapterConnection): void
-  abandon(db: AdapterConnection): void
+  grab(exclusive?: boolean): Promise<AConnection>
+  release(db: AConnection): void
+  abandon(db: AConnection): void
   close(): Promise<void>
 }
 
 interface PoolItem {
-  db: AdapterConnection
+  db: AConnection
   releaseTime: number
 }
 
-export default function createPool(provider: () => Promise<AdapterConnection>, options: LadcOptions): Pool {
+export default function createPool(provider: () => Promise<AConnection>, options: LadcOptions): Pool {
   const poolOptions = options.poolOptions || {}
   const connectionTtl = poolOptions.connectionTtl || 60
   const logMonitoring = poolOptions.logMonitoring || (() => { })
@@ -30,12 +30,12 @@ export default function createPool(provider: () => Promise<AdapterConnection>, o
 
   let closed = false
   let available: PoolItem[] = []
-  let nonExclusiveDb: AdapterConnection | undefined
+  let nonExclusiveDb: AConnection | undefined
   let nonExclusiveCount = 0
   let cleaning: any | undefined
 
   let counter = 0
-  const identifiers = new WeakMap<AdapterConnection, number>()
+  const identifiers = new WeakMap<AConnection, number>()
 
   return {
     grab: async (exclusive = false) => {
@@ -48,7 +48,7 @@ export default function createPool(provider: () => Promise<AdapterConnection>, o
       }
 
       const item = available.pop()
-      let db: AdapterConnection
+      let db: AConnection
       if (item)
         db = item.db
       else {
@@ -68,7 +68,7 @@ export default function createPool(provider: () => Promise<AdapterConnection>, o
       logMonitoring({ event: "grab", cn: db, id: identifiers.get(db) || -123 })
       return db
     },
-    release: (db: AdapterConnection) => {
+    release: (db: AConnection) => {
       logMonitoring({ event: "release", cn: db, id: identifiers.get(db) })
       if (db === nonExclusiveDb) {
         if (--nonExclusiveCount === 0) {
@@ -82,7 +82,7 @@ export default function createPool(provider: () => Promise<AdapterConnection>, o
       else
         startCleaning()
     },
-    abandon: (db: AdapterConnection) => {
+    abandon: (db: AConnection) => {
       logMonitoring({ event: "abandon", cn: db, id: identifiers.get(db) })
       if (db === nonExclusiveDb) {
         --nonExclusiveCount
@@ -140,7 +140,7 @@ export default function createPool(provider: () => Promise<AdapterConnection>, o
       available = available.slice(index)
   }
 
-  function debugWrapProvider(provider: () => Promise<AdapterConnection>, logDebug: (debug: DebugEvent) => void): () => Promise<AdapterConnection> {
+  function debugWrapProvider(provider: () => Promise<AConnection>, logDebug: (debug: DebugEvent) => void): () => Promise<AConnection> {
     return async () => {
       try {
         const result = await provider()
@@ -153,7 +153,7 @@ export default function createPool(provider: () => Promise<AdapterConnection>, o
     }
   }
 
-  function debugWrapAsyncMethods(db: AdapterConnection, idInPool: number, logDebug: (debug: DebugEvent) => void): AdapterConnection {
+  function debugWrapAsyncMethods(db: AConnection, idInPool: number, logDebug: (debug: DebugEvent) => void): AConnection {
     const inTransactions = new WeakSet<any>()
     const wrap: any = {}
     for (const name of Object.keys(db)) {

@@ -1,4 +1,4 @@
-import { AdapterConnection, AdapterPreparedStatement } from "../adapter-definitions"
+import { AConnection, APreparedStatement } from "../adapter-definitions"
 import { PreparedStatement, SqlParameters } from "../exported-definitions"
 import { toSingleRow, toSingleValue } from "../helpers"
 import { CursorItem } from "./Cursor"
@@ -6,7 +6,7 @@ import { toExecResult } from "./ExecResult"
 import { Context } from "./MainConnection"
 
 export interface PsProviderContext {
-  exclusiveCn?: AdapterConnection
+  exclusiveCn?: AConnection
   context: Context
   canCreateCursor(): boolean
 }
@@ -17,8 +17,8 @@ export class PsProvider {
   constructor(private ppContext: PsProviderContext) {
   }
 
-  async prepare(sql: string, params?: SqlParameters): Promise<PreparedStatement<any>> {
-    const item = await PsItem.create(await this.createPsContext(), sql, params)
+  async prepare(sql: string): Promise<PreparedStatement<any>> {
+    const item = await PsItem.create(await this.createPsContext(), sql)
     this.items.add(item)
     return item.ps
   }
@@ -63,23 +63,22 @@ export class PsProvider {
 
 interface PsItemContext {
   context: Context
-  cn: AdapterConnection
+  cn: AConnection
   end: (item: PsItem) => void
   canCreateCursor(): boolean
 }
 
 class PsItem {
-  static async create(psContext: PsItemContext, sql: string, params?: SqlParameters): Promise<PsItem> {
-    const aps = await psContext.cn.prepare(sql, params)
-    return new PsItem(psContext, aps, params)
+  static async create(psContext: PsItemContext, sql: string): Promise<PsItem> {
+    const aps = await psContext.cn.prepare(sql)
+    return new PsItem(psContext, aps)
   }
 
   ps: PreparedStatement<any>
   private cursorItem?: CursorItem
-  private boundParameters: Set<number | string>
+  private boundParams?: SqlParameters
 
-  constructor(itemContext: PsItemContext, aps: AdapterPreparedStatement, initialParams?: SqlParameters) {
-    this.boundParameters = paramNamesOf(initialParams)
+  constructor(itemContext: PsItemContext, aps: APreparedStatement) {
     this.ps = this.toPs(itemContext, aps)
   }
 
@@ -87,19 +86,22 @@ class PsItem {
     return !!this.cursorItem
   }
 
-  private toPs(itemContext: PsItemContext, aps: AdapterPreparedStatement | undefined) {
+  private toPs(itemContext: PsItemContext, aps: APreparedStatement | undefined) {
     let obj: PreparedStatement<any> = {
       exec: async (params?: SqlParameters) => {
+        itemContext.context.check.parameters(params)
         check("exec")
-        return toExecResult(await aps!.exec(params))
+        return toExecResult(await aps!.exec(mergeParameters(this.boundParams, params)))
       },
       all: async (params?: SqlParameters) => {
+        itemContext.context.check.parameters(params)
         check("all")
-        return await aps!.all(params)
+        return await aps!.all(mergeParameters(this.boundParams, params))
       },
       singleRow: async (params?: SqlParameters) => toSingleRow(await obj.all(params)),
       singleValue: async (params?: SqlParameters) => toSingleValue(await obj.singleRow(params)),
       cursor: async (params?: SqlParameters) => {
+        itemContext.context.check.parameters(params)
         check("cursor")
         if (!itemContext.context.capabilities.cursors)
           throw new Error(`Cursors are not available with this adapter`)
@@ -110,32 +112,31 @@ class PsItem {
           end: () => {
             this.cursorItem = undefined
           }
-        }, await aps!.cursor(params))
+        }, await aps!.cursor(mergeParameters(this.boundParams, params)))
         return this.cursorItem.cursor
       },
-      bind: async (nbOrKey: number | string, value: any) => {
+      bind: async (paramsOrIndexOrKey: SqlParameters | number | string, value?: any) => {
         check("bind")
-        this.boundParameters.add(nbOrKey)
-        aps!.bind(nbOrKey, value)
+        if (typeof paramsOrIndexOrKey === "object") {
+          itemContext.context.check.parameters(paramsOrIndexOrKey)
+          this.boundParams = mergeParameters(this.boundParams, paramsOrIndexOrKey)
+        } else {
+          if (typeof paramsOrIndexOrKey === "string") {
+            itemContext.context.check.namedParameters()
+          }
+          (this.boundParams as any)[paramsOrIndexOrKey] = value
+        }
       },
-      unbind: async (nbOrKey: number | string) => {
+      unbind: async (indexOrKey?: number | string) => {
         check("unbind")
-        this.boundParameters.delete(nbOrKey)
-        aps!.unbind(nbOrKey)
-      },
-      unbindAll: async () => {
-        check("unbindAll")
-        this.boundParameters.forEach(nbOrKey => aps!.unbind(nbOrKey))
-        this.boundParameters.clear()
-      },
-      bindAll: async (params: SqlParameters) => {
-        check("bindAll")
-        this.boundParameters.forEach(nbOrKey => aps!.unbind(nbOrKey))
-        this.boundParameters = paramNamesOf(params)
-        if (Array.isArray(params))
-          params.forEach((val, index) => aps!.bind(index + 1, val))
-        else
-          Object.entries(params).forEach(([key, val]) => aps!.bind(key, val))
+        if (indexOrKey === undefined)
+          this.boundParams = undefined
+        else {
+          if (typeof indexOrKey === "string") {
+            itemContext.context.check.namedParameters()
+          }
+          (this.boundParams as any)[indexOrKey] = undefined
+        }
       },
       close: async () => {
         if (!aps)
@@ -161,10 +162,25 @@ class PsItem {
   }
 }
 
-function paramNamesOf(params?: SqlParameters): Set<number | string> {
-  if (!params)
-    return new Set()
-  if (Array.isArray(params))
-    return new Set(Object.keys(params).map(nb => parseInt(nb, 10)))
-  return new Set(Object.keys(params))
+function mergeParameters(
+  params1: SqlParameters | undefined,
+  params2: SqlParameters | undefined
+): SqlParameters | undefined {
+  if (!params1)
+    return params2
+  if (!params2)
+    return params1
+  const isArr = Array.isArray(params1)
+  if (isArr !== Array.isArray(params2))
+    throw new Error("Cannot merge named parameters with positioned parameters")
+  if (isArr) {
+    const result = [...(params1 as any[])]
+    const p2 = params2 as any[]
+    p2.forEach((val, index) => result[index] = val)
+    return result
+  }
+  return {
+    ...params1,
+    ...params2
+  }
 }

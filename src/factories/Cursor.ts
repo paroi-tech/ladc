@@ -8,6 +8,7 @@ export class CursorProvider {
   }
 
   async open(sql: string, params?: SqlParameters): Promise<AsyncIterableIterator<any>> {
+    this.context.check.parameters(params)
     const { pool } = this.context
     const cn = await pool.grab()
     const inst = new CursorItem(

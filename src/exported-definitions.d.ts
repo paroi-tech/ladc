@@ -1,4 +1,4 @@
-import { AdapterConnection, LadcAdapter } from "./adapter-definitions"
+import { AConnection, LadcAdapter } from "./adapter-definitions"
 
 export interface LadcModifier {
   /**
@@ -17,7 +17,7 @@ export interface LadcOptions {
   /**
    * This callback will be executed for each new `MainConnection` when it has a new underlying connection created by the pool. It is a right place to update the underlying connection with `PRAGMA` orders.
    */
-  initConnection?(cn: AdapterConnection): void | Promise<void>
+  initConnection?(cn: AConnection): void | Promise<void>
   /**
    * The configuration of the connection pool.
    */
@@ -33,7 +33,7 @@ export interface LadcOptions {
 }
 
 export interface DebugEventContext {
-  connection: AdapterConnection
+  connection: AConnection
   method: string
   args: any[]
   inTransaction: boolean
@@ -54,7 +54,7 @@ export interface DebugEvent {
 
 export interface PoolMonitoring {
   event: "open" | "close" | "grab" | "release" | "abandon"
-  cn: AdapterConnection
+  cn: AConnection
   id?: number
 }
 
@@ -67,14 +67,14 @@ export interface PoolOptions {
   keepOneConnection?: boolean
 }
 
-export type SqlParameters = unknown[] | { [key: string]: unknown }
+export type SqlParameters = any[] | { [key: string]: any }
 
 export interface ResultRow {
   [columnName: string]: unknown
 }
 
 export interface Connection {
-  prepare<R extends ResultRow = ResultRow>(sql: string, params?: SqlParameters): Promise<PreparedStatement<R>>
+  prepare<R extends ResultRow = ResultRow>(sql: string): Promise<PreparedStatement<R>>
   exec(sql: string, params?: SqlParameters): Promise<ExecResult>
 
   all<R extends ResultRow = ResultRow>(sql: string, params?: SqlParameters): Promise<R[]>
@@ -116,20 +116,17 @@ export interface ExecResult {
 }
 
 export interface PreparedStatement<R extends ResultRow = ResultRow> {
-  bind(nbOrKey: number | string, value: unknown): void
-  unbind(nbOrKey: number | string): void
-  /**
-   * Unbind all previous parameters, then bind all new parameters
-   */
-  bindAll(params: SqlParameters): void
-  unbindAll(): void
+  bind(params: SqlParameters): void
+  bind(indexOrKey: number | string, value: unknown): void
+  unbind(): void
+  unbind(indexOrKey: number | string): void
 
   exec(params?: SqlParameters): Promise<ExecResult>
 
   all(params?: SqlParameters): Promise<R[]>
   singleRow(params?: SqlParameters): Promise<R | undefined>
-  singleValue<V>(params?: SqlParameters): Promise<V | null | undefined>
-  cursor<R extends ResultRow = ResultRow>(params?: SqlParameters): Promise<AsyncIterableIterator<R>>
+  singleValue<V = unknown>(params?: SqlParameters): Promise<V | null | undefined>
+  cursor(params?: SqlParameters): Promise<AsyncIterableIterator<R>>
 
   close(): Promise<void>
 }

@@ -1,6 +1,7 @@
+import { AdapterCapabilities } from "./adapter-definitions"
 import createPool from "./createPool"
-import { LadcOptions, MainConnection } from "./exported-definitions"
-import makeMainConnection from "./factories/MainConnection"
+import { LadcOptions, MainConnection, SqlParameters } from "./exported-definitions"
+import makeMainConnection, { Context } from "./factories/MainConnection"
 
 export default function ladc(options: LadcOptions): MainConnection {
   const provider = async () => {
@@ -9,12 +10,35 @@ export default function ladc(options: LadcOptions): MainConnection {
       await options.initConnection(cn)
     return cn
   }
+  const capabilities = options.adapter.capabilities || {}
   return makeMainConnection({
     options,
     pool: createPool(provider, options),
-    capabilities: options.adapter.capabilities || {}
+    capabilities,
+    check: makeCheckers(capabilities)
   })
 }
 
 export * from "./adapter-definitions"
 export * from "./exported-definitions"
+
+function makeCheckers(capabilities: AdapterCapabilities): Context["check"] {
+  return {
+    cursors() {
+      if (!capabilities.cursors)
+        throw new Error(`Cursors are not available with this adapter.`)
+    },
+    namedParameters() {
+      if (!capabilities.namedParameters)
+        throw new Error(`Named parameters are not available with this adapter.`)
+    },
+    preparedStatements() {
+      if (!capabilities.preparedStatements)
+        throw new Error(`Prepared statements are not available with this adapter.`)
+    },
+    parameters(params: SqlParameters | undefined) {
+      if (params && !Array.isArray(params) && !capabilities.namedParameters)
+        throw new Error(`Named parameters are not available with this adapter.`)
+    }
+  }
+}

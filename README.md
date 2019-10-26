@@ -81,10 +81,10 @@ Members that are specific to a `MainConnection`:
 
 ### Members of a `PreparedStatement`
 
-* `ps.bind(nbOrKey, value)` binds a value to the specified parameter number;
-* `ps.unbind(nbOrKey)` unbinds a value to the specified parameter number;
-* `ps.bindAll(params)` binds a value to the specified parameter number;
-* `ps.unbindAll()` unbinds all the bound values;
+* `ps.bind(params)` binds values to the specified parameters;
+* `ps.bind(indexOrKey, value)` binds a value to the specified parameter;
+* `ps.unbind()` unbinds all the bound values;
+* `ps.unbind(indexOrKey)` unbinds the value from the specified parameter;
 * `ps.exec(params?)` executes the query and returns a promise of an `ExecResult`;
 * `ps.all(params?)` executes the select query and returns a promise of an array of rows;
 * `ps.singleRow(params?)` fetches with `cn.all(sql)` and returns the single row;

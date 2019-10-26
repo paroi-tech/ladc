@@ -1,7 +1,7 @@
-import { AdapterExecResult } from "../adapter-definitions"
+import { AExecResult } from "../adapter-definitions"
 import { ExecResult } from "../exported-definitions"
 
-export function toExecResult(result: AdapterExecResult): ExecResult {
+export function toExecResult(result: AExecResult): ExecResult {
   const obj: ExecResult = {
     get affectedRows() {
       return result.affectedRows
