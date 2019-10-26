@@ -5,26 +5,28 @@
   "main": "ladc-sql-bricks-modifier.min.js",
   "types": "ladc-sql-bricks-modifier.d.ts",
   "peerDependencies": {
-    "ladc": "0.20",
+    "ladc": "0.21",
     "sql-bricks": "2"
   },
   "devDependencies": {
     "@types/sql-bricks": "2",
-    "ladc": "^0.20.2",
-    "npm-run-all": "^4.1.5",
-    "rimraf": "^2.6.2",
-    "rollup": "^0.67.4",
-    "sql-bricks": "^2.0.4",
-    "tslint": "^5.11.0",
-    "typescript": "^3.2.2",
-    "uglify-es": "^3.3.9"
+    "ladc": "0.21",
+    "npm-run-all": "4",
+    "rimraf": "3",
+    "rollup": "1",
+    "sql-bricks": "2",
+    "terser": "4",
+    "tslint": "5",
+    "typescript": "3"
   },
   "scripts": {
-    "_clear": "rimraf build/compiled/*",
-    "_tsc": "tsc",
-    "_make-bundle": "node build/make-bundle",
-    "build": "run-s _clear _tsc _make-bundle",
-    "watch": "tsc --watch"
+    "build": "run-s clear tsc make-bundle",
+    "tsc": "tsc",
+    "tsc:watch": "tsc --watch",
+    "make-bundle": "node build/make-bundle",
+    "clear": "rimraf build/compiled/*",
+    "lint": "tslint -p tsconfig.json -t verbose",
+    "prepublishOnly": "npm run build"
   },
   "engines": {
     "node": ">=8"

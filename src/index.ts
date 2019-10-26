@@ -11,16 +11,16 @@ export default function sqlBricksModifier(options: SBModifierOptions = {}): Ladc
 const methodNames = ["prepare", "exec", "all", "singleRow", "singleValue", "cursor"]
 
 function modifyConnection(parent: TransactionConnection | MainConnection, options: SBModifierOptions) {
-  let modified = Object.create(parent)
+  const modified = Object.create(parent)
 
-  for (let method of methodNames) {
-    modified[method] = (sql: string | SqlBricksQuery, params?) => {
+  for (const method of methodNames) {
+    modified[method] = (sql: string | SqlBricksQuery, params?: any[]) => {
       if (typeof sql === "string")
-        return parent[method](sql, params)
+        return (parent as any)[method](sql, params)
       if (options.trace)
         options.trace(method, sql)
-      let { text, values } = sql.toParams(options.toParamsOptions as any)
-      return parent[method](text, values)
+      const { text, values } = sql.toParams(options.toParamsOptions as any)
+      return (parent as any)[method](text, values)
     }
   }
 
