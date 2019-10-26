@@ -1,9 +1,11 @@
-import { BasicExecResult, BasicMainConnection, BasicPreparedStatement, SqlParameters } from "ladc"
+import { AdapterConnection, AdapterExecResult, AdapterPreparedStatement, SqlParameters } from "ladc"
 import { Client, ClientConfig, QueryResult } from "pg"
+const Cursor = require("pg-cursor")
 import { LadcPgOptions } from "./exported-definitions"
+import { promisifyCursor } from "./promisifyCursor"
 
 export async function createPgConnection(config: string | ClientConfig): Promise<Client> {
-  let client = new Client(config)
+  const client = new Client(config)
   client.connect()
   return client
 }
@@ -11,24 +13,22 @@ export async function createPgConnection(config: string | ClientConfig): Promise
 const insertRegexp = /^\s*insert\s+into\s+([^\s\(]+)\s*(?:\([^)]+\))?\s*values\s*\([\s\S]*\)\s*$/i
 
 function addReturningToInsert(sql: string, options: LadcPgOptions) {
-  let matches = insertRegexp.exec(sql)
+  const matches = insertRegexp.exec(sql)
   if (!matches)
     return { sql }
-  let insertTable = matches[1]
-  let idColumnName = options.autoincMapping && options.autoincMapping[insertTable]
+  const insertTable = matches[1]
+  const idColumnName = options.autoincMapping && options.autoincMapping[insertTable]
   if (idColumnName)
     sql = `${sql} returning ${idColumnName}`
-  else if (options.useReturningAll)
-    sql = `${sql} returning *`
   return { sql, insertTable, idColumnName }
 }
 
-export function toBasicMainConnection(client: Client, options: LadcPgOptions): BasicMainConnection {
+export function toAdapterConnection(client: Client, options: LadcPgOptions): AdapterConnection {
   return {
-    prepare: async (sql: string, params?: SqlParameters) => makeBasicPreparedStatement(options, client, sql, params),
+    prepare: async (sql: string, params?: unknown[]) => makeAdapterPreparedStatement(options, client, sql, params),
     exec: async (sql: string, params?: SqlParameters) => {
-      let { sql: text, insertTable, idColumnName } = addReturningToInsert(sql, options)
-      return toBasicExecResult(
+      const { sql: text, insertTable, idColumnName } = addReturningToInsert(sql, options)
+      return toAdapterExecResult(
         await client.query({
           text,
           values: toPositionalParameters(params)
@@ -41,14 +41,7 @@ export function toBasicMainConnection(client: Client, options: LadcPgOptions): B
       text: sql,
       values: toPositionalParameters(params)
     })),
-    cursor: async (sql: string, params?: SqlParameters) => {
-      if (!options.inMemoryCursor)
-        throw new Error("Cursor is not available. Maybe use the option 'inMemoryCursor'.")
-      return makeInMemoryCursor(toRows(await client.query({
-        text: sql,
-        values: toPositionalParameters(params)
-      })))
-    },
+    cursor: async (sql: string, params?: SqlParameters) => createAdapterCursor({ client, sql, params }),
     script: async (sql: string) => {
       await client.query(sql)
     },
@@ -58,7 +51,7 @@ export function toBasicMainConnection(client: Client, options: LadcPgOptions): B
   }
 }
 
-function toPositionalParameters(params?: SqlParameters): Array<unknown> | undefined {
+function toPositionalParameters(params?: SqlParameters): unknown[] | undefined {
   if (params === undefined || Array.isArray(params))
     return params
   throw new Error("Named parameters are not implemented")
@@ -68,16 +61,17 @@ function toRows(result: QueryResult): any[] {
   return result.rows
 }
 
-function toBasicExecResult(result: QueryResult, insertTable?: string, optIdCol?: string): BasicExecResult {
+function toAdapterExecResult(result: QueryResult, insertTable?: string, optIdCol?: string): AdapterExecResult {
   return {
     affectedRows: result.rowCount,
-    getInsertedId: (idColumnName?: string) => {
+    getInsertedId: (options?: { columnName?: string }) => {
       if (result.rows.length !== 1) {
         if (result.rows.length === 0)
           throw new Error(`Cannot get the inserted ID, please append 'returning your_column_id' to your query`)
         throw new Error(`Cannot get the inserted ID, there must be one result row (${result.rows.length})`)
       }
-      let row = result.rows[0]
+      const idColumnName = options && options.columnName
+      const row = result.rows[0]
       let col: string | undefined
       if (idColumnName) {
         if (!row.hasOwnProperty(idColumnName))
@@ -110,24 +104,26 @@ function toBasicExecResult(result: QueryResult, insertTable?: string, optIdCol?:
 
 let psSequence = 0
 
-function makeBasicPreparedStatement(options: LadcPgOptions, client: Client, sql: string, initialParams?: SqlParameters): BasicPreparedStatement<any> {
-  let psName = `ladc-ps-${++psSequence}`
+function makeAdapterPreparedStatement(options: LadcPgOptions, client: Client, sql: string, initialParams?: unknown[]): AdapterPreparedStatement<any> {
+  const psName = `ladc-ps-${++psSequence}`
   let boundParams = initialParams
-  let obj: BasicPreparedStatement<any> = {
-    bind: async (key: number | string, value: any) => {
-      if (typeof key === "string")
-        throw new Error("Named parameters are not implemented")
+  const obj: AdapterPreparedStatement<any> = {
+    bind: async (num: number | string, value: any) => {
+      if (typeof num === "string")
+        throw new Error("Named parameters are not available")
       if (!boundParams)
         boundParams = []
-      boundParams[key - 1] = value
+      boundParams[num - 1] = value
     },
-    unbind: async (key: number | string) => {
+    unbind: async (num: number | string) => {
+      if (typeof num === "string")
+        throw new Error("Named parameters are not available")
       if (boundParams)
-        boundParams[key] = undefined
+        boundParams[num] = undefined
     },
     exec: async (params?: SqlParameters) => {
-      let { sql: text, insertTable, idColumnName } = addReturningToInsert(sql, options)
-      return toBasicExecResult(await client.query({
+      const { sql: text, insertTable, idColumnName } = addReturningToInsert(sql, options)
+      return toAdapterExecResult(await client.query({
         name: psName,
         text,
         values: toPositionalParameters(mergeParams(boundParams, params))
@@ -140,15 +136,7 @@ function makeBasicPreparedStatement(options: LadcPgOptions, client: Client, sql:
         values: toPositionalParameters(mergeParams(boundParams, params))
       }))
     },
-    cursor: async (params?: SqlParameters) => {
-      if (!options.inMemoryCursor)
-        throw new Error("Cursor is not available. Maybe use the option 'inMemoryCursor'.")
-      return makeInMemoryCursor(toRows(await client.query({
-        name: psName,
-        text: sql,
-        values: toPositionalParameters(mergeParams(boundParams, params))
-      })))
-    },
+    cursor: async (params?: SqlParameters) => createAdapterCursor({ client, sql, params, psName }),
     close: async () => { }
   }
   return obj
@@ -159,12 +147,12 @@ function mergeParams(params1: SqlParameters | undefined, params2: SqlParameters 
     return params2
   if (!params2)
     return params1
-  let isArr = Array.isArray(params1)
+  const isArr = Array.isArray(params1)
   if (isArr !== Array.isArray(params2))
     throw new Error("Cannot merge named parameters with positioned parameters")
   if (isArr) {
-    let result = [...(params1 as string[])]
-    let p2 = params2 as string[]
+    const result = [...(params1 as string[])]
+    const p2 = params2 as string[]
     p2.forEach((val, index) => result[index] = val)
     return result
   }
@@ -174,26 +162,66 @@ function mergeParams(params1: SqlParameters | undefined, params2: SqlParameters 
   }
 }
 
-function makeInMemoryCursor(rows?: any[]): AsyncIterableIterator<any> {
-  let currentIndex = -1
-  let obj: AsyncIterableIterator<any> = {
+async function createAdapterCursor({ client, sql, params, psName }: {
+  client: Client
+  sql: string
+  params?: SqlParameters
+  psName?: string
+}): Promise<AsyncIterableIterator<any>> {
+  const cursorObj = new Cursor(sql, toPositionalParameters(params))
+  if (psName)
+    cursorObj.name = psName
+  const innerCursor = promisifyCursor(client.query(cursorObj))
+
+  let done = false
+  const closeCursor = async () => {
+    done = true
+    await innerCursor.close()
+  }
+  const obj: AsyncIterableIterator<any> = {
     [Symbol.asyncIterator]: () => obj,
     next: async () => {
-      if (!rows)
-        return { done: true, value: undefined }
-      let value = rows[++currentIndex]
+      if (done)
+        return { done, value: undefined }
+      const value = await innerCursor.read(1)
       if (!value)
-        rows = undefined
-      return { done: !rows, value }
+        await closeCursor()
+      return { done, value }
     },
     return: async () => {
-      rows = undefined
-      return { done: true, value: undefined }
+      if (!done)
+        await closeCursor()
+      return { done, value: undefined }
     },
     throw: async err => {
-      rows = undefined
+      if (!done)
+        await closeCursor()
       throw err
     }
   }
   return obj
 }
+
+// function makeInMemoryCursor(rows?: any[]): AsyncIterableIterator<any> {
+//   let currentIndex = -1
+//   const obj: AsyncIterableIterator<any> = {
+//     [Symbol.asyncIterator]: () => obj,
+//     next: async () => {
+//       if (!rows)
+//         return { done: true, value: undefined }
+//       const value = rows[++currentIndex]
+//       if (!value)
+//         rows = undefined
+//       return { done: !rows, value }
+//     },
+//     return: async () => {
+//       rows = undefined
+//       return { done: true, value: undefined }
+//     },
+//     throw: async err => {
+//       rows = undefined
+//       throw err
+//     }
+//   }
+//   return obj
+// }

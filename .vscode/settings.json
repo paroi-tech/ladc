@@ -1,20 +1,21 @@
 {
-  "editor.tabSize": 2,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true
+  },
+  "editor.formatOnSave": true,
   "editor.insertSpaces": true,
+  "editor.rulers": [
+    120
+  ],
+  "editor.tabSize": 2,
   "editor.wordWrapColumn": 132,
   "editor.wordWrap": "wordWrapColumn",
-  "editor.rulers": [120],
+  "files.encoding": "utf8",
   "files.trimTrailingWhitespace": true,
-  "files.associations": {
-    "*.monk": "html"
-  },
-  "typescript.tsdk": "./node_modules/typescript/lib",
-  "search.exclude": {
-    "node_modules": true,
-    "package-lock.json": true,
-    "tsproject/compiled": true,
-    "ladc-pg-adapter.min.js": true,
-    "ladc-pg-adapter.d.ts": true
-  },
-  "typescript.locale": "en"
+  "search.useIgnoreFiles": true,
+  "tslint.configFile": "tslint.json",
+  "typescript.locale": "en",
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.preferences.quoteStyle": "double",
+  "typescript.tsdk": "./node_modules/typescript/lib"
 }
