@@ -1,5 +1,5 @@
 import { SqlParameters } from "ladc"
-import sqlite3 from "sqlite3"
+import * as sqlite3 from "sqlite3"
 import { Sqlite3ConnectionOptions } from "./exported-definitions"
 
 export interface Database {
@@ -27,25 +27,25 @@ export async function createSqlite3Connection(options: Sqlite3ConnectionOptions)
   const maxAttempts = options.maxAttempts || 3
   let curAttempt = 1
   let delayAfterError = 50
-  let firstError
-  let db = await new Promise<Database>((resolve, reject) => {
-    let db
-    let cb = err => {
+  let firstError: unknown
+  const db = await new Promise<sqlite3.Database>((resolve, reject) => {
+    let innerDb: sqlite3.Database | undefined
+    const cb = (err: unknown) => {
       if (err) {
         if (curAttempt >= maxAttempts)
-          reject(err)
+          reject(firstError || err)
         else {
           if (!firstError)
             firstError = err
-          setTimeout(() => {
-            db = create()
-          }, delayAfterError)
+          setTimeout(
+            () => { innerDb = create() },
+            delayAfterError
+          ).unref()
           ++curAttempt
           delayAfterError *= 2
         }
-      } else {
-        resolve(db)
-      }
+      } else
+        resolve(innerDb)
     }
     const create = () => {
       if (options.mode !== undefined)
@@ -53,7 +53,7 @@ export async function createSqlite3Connection(options: Sqlite3ConnectionOptions)
       else
         return new sqlite3.Database(options.fileName, cb)
     }
-    db = create()
+    innerDb = create()
   })
   if (curAttempt > 1 && options.logWarning)
     options.logWarning(`SQLite connexion was successfully opened after ${curAttempt} attempts, first error was: ${firstError}`)
@@ -62,11 +62,11 @@ export async function createSqlite3Connection(options: Sqlite3ConnectionOptions)
   return promisifyDatabase(db)
 }
 
-function promisifyDatabase(db): Database {
+function promisifyDatabase(db: sqlite3.Database): Database {
   return {
     run: (sql: string, params = []) => {
       return new Promise((resolve, reject) => {
-        db.run(sql, params, function (err) {
+        db.run(sql, params, function (this: RunResult, err: any) {
           if (err)
             reject(err)
           else
@@ -76,7 +76,7 @@ function promisifyDatabase(db): Database {
     },
     all: (sql: string, params = []) => {
       return new Promise((resolve, reject) => {
-        db.all(sql, params, (err, rows) => {
+        db.all(sql, params, (err: any, rows: unknown[]) => {
           if (err)
             reject(err)
           else
@@ -86,7 +86,7 @@ function promisifyDatabase(db): Database {
     },
     exec: (sql: string) => {
       return new Promise((resolve, reject) => {
-        db.exec(sql, err => {
+        db.exec(sql, (err: any) => {
           if (err)
             reject(err)
           else
@@ -95,9 +95,9 @@ function promisifyDatabase(db): Database {
       })
     },
     prepare: (sql: string, params = []) => {
-      let st
+      let st: sqlite3.Statement
       return new Promise((resolve, reject) => {
-        st = db.prepare(sql, params, function (err) {
+        st = db.prepare(sql, params, (err: any) => {
           if (err)
             reject(err)
           else
@@ -107,7 +107,7 @@ function promisifyDatabase(db): Database {
     },
     close: () => {
       return new Promise((resolve, reject) => {
-        db.close(err => {
+        db.close((err: any) => {
           if (err)
             reject(err)
           else
@@ -118,11 +118,11 @@ function promisifyDatabase(db): Database {
   }
 }
 
-function promisifyStatement(st): Statement {
+function promisifyStatement(st: sqlite3.Statement): Statement {
   return {
     bind: (...params: any[]) => {
       return new Promise((resolve, reject) => {
-        st.bind(...params, function (err) {
+        st.bind(...params, function (err: any) {
           if (err)
             reject(err)
           else
@@ -132,7 +132,7 @@ function promisifyStatement(st): Statement {
     },
     run: (params = []) => {
       return new Promise((resolve, reject) => {
-        st.run(params, function (err) {
+        st.run(params, function (this: RunResult, err: any) {
           if (err)
             reject(err)
           else
@@ -142,7 +142,7 @@ function promisifyStatement(st): Statement {
     },
     all: (params = []) => {
       return new Promise((resolve, reject) => {
-        st.all(params, (err, rows) => {
+        st.all(params, (err: any, rows: unknown[]) => {
           if (err)
             reject(err)
           else
@@ -152,7 +152,7 @@ function promisifyStatement(st): Statement {
     },
     get: (params = []) => {
       return new Promise((resolve, reject) => {
-        st.get(params, function (err, row) {
+        st.get(params, (err: any, row: unknown[]) => {
           if (err)
             reject(err)
           else
@@ -162,7 +162,7 @@ function promisifyStatement(st): Statement {
     },
     finalize: () => {
       return new Promise((resolve, reject) => {
-        st.finalize(err => {
+        st.finalize((err: any) => {
           if (err)
             reject(err)
           else

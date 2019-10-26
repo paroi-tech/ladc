@@ -12,13 +12,25 @@
     "arrow-parens": false,
     "curly": false,
     "eofline": false,
-    "indent": [true, "spaces", 2],
+    "indent": [
+      true,
+      "spaces",
+      2
+    ],
     "interface-name": false,
-    "member-access": [true, "no-public"],
     "max-classes-per-file": false,
     "max-line-length": false,
-    "no-empty": false,
+    "member-access": [
+      true,
+      "no-public"
+    ],
+    "no-conditional-assignment": false,
     "no-consecutive-blank-lines": false,
+    "no-empty": [
+      true,
+      "allow-empty-catch",
+      "allow-empty-functions"
+    ],
     "no-shadowed-variable": false,
     "no-string-literal": false,
     "no-var-requires": false,
@@ -26,11 +38,33 @@
     "object-literal-sort-keys": false,
     "object-literal-key-quotes": false,
     "only-arrow-functions": false,
-    "prefer-const": false,
-    "quotemark": [true, "double"],
-    "space-before-function-paren": [true, {"anonymous": "always", "named": "never", "asyncArrow": "always"}],
-    "semicolon": [true, "never"],
-    "trailing-comma": [true, {"singleline": "never"}],
-    "variable-name": [true, "allow-leading-underscore"]
+    "prefer-const": true,
+    "quotemark": [
+      true,
+      "double"
+    ],
+    "semicolon": [
+      true,
+      "never"
+    ],
+    "space-before-function-paren": [
+      true,
+      {
+        "anonymous": "always",
+        "named": "never",
+        "asyncArrow": "always"
+      }
+    ],
+    "trailing-comma": [
+      true,
+      {
+        "singleline": "never"
+      }
+    ],
+    "variable-name": [
+      true,
+      "allow-leading-underscore",
+      "allow-pascal-case"
+    ]
   }
 }

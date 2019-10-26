@@ -12,7 +12,7 @@ npm install ladc @ladc/sqlite3-adapter
 
 How to create a connection:
 
-```
+```ts
 import ladc from "ladc"
 import sqlite3Adapter from "@ladc/sqlite3-adapter"
 

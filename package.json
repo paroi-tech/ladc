@@ -1,30 +1,33 @@
 {
   "name": "@ladc/sqlite3-adapter",
-  "version": "0.20.1",
+  "version": "0.21.0",
   "description": "The LADC adapter to the driver \"sqlite3\" (SQLite).",
   "main": "ladc-sqlite3-adapter.min.js",
   "types": "ladc-sqlite3-adapter.d.ts",
   "dependencies": {
-    "sqlite3": "^4.0.4"
+    "@types/sqlite3": "^3.1.5",
+    "sqlite3": "^4.1.0"
   },
   "peerDependencies": {
-    "ladc": "0.20"
+    "ladc": "0.21"
   },
   "devDependencies": {
-    "ladc": "^0.20.1",
-    "npm-run-all": "^4.1.5",
-    "rimraf": "^2.6.2",
-    "rollup": "^0.67.4",
-    "tslint": "^5.11.0",
-    "typescript": "^3.2.2",
-    "uglify-es": "^3.3.9"
+    "ladc": "0.21",
+    "npm-run-all": "4",
+    "rimraf": "3",
+    "rollup": "1",
+    "terser": "4",
+    "tslint": "5",
+    "typescript": "3"
   },
   "scripts": {
-    "_clear": "rimraf build/compiled/*",
-    "_tsc": "tsc",
-    "_make-bundle": "node build/make-bundle",
-    "build": "run-s _clear _tsc _make-bundle",
-    "watch": "tsc --watch"
+    "build": "run-s clear tsc make-bundle",
+    "tsc": "tsc",
+    "tsc:watch": "tsc --watch",
+    "make-bundle": "node build/make-bundle",
+    "clear": "rimraf build/compiled/*",
+    "lint": "tslint -p tsconfig.json -t verbose",
+    "prepublishOnly": "npm run build"
   },
   "engines": {
     "node": ">=8"

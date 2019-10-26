@@ -1,12 +1,12 @@
-import { BasicExecResult, BasicMainConnection, BasicPreparedStatement, SqlParameters } from "ladc"
+import { AdapterConnection, AdapterExecResult, AdapterPreparedStatement, SqlParameters } from "ladc"
 import { Database, RunResult, Statement } from "./promisifySqlite3"
 
-export function toBasicMainConnection(db: Database): BasicMainConnection {
+export function toAdapterConnection(db: Database): AdapterConnection {
   return {
-    prepare: async (sql: string, params?: SqlParameters) => toBasicPreparedStatement(await db.prepare(sql, params), params),
-    exec: async (sql: string, params?: SqlParameters) => toBasicExecResult(await db.run(sql, params)),
+    prepare: async (sql: string, params?: SqlParameters) => toAdapterPreparedStatement(await db.prepare(sql, params), params),
+    exec: async (sql: string, params?: SqlParameters) => toAdapterExecResult(await db.run(sql, params)),
     all: (sql: string, params?: SqlParameters) => db.all(sql, params),
-    cursor: (sql: string, params?: SqlParameters) => createBasicCursor(db, sql, params),
+    cursor: (sql: string, params?: SqlParameters) => createAdapterCursor(db, sql, params),
     script: async (sql: string) => {
       await db.exec(sql)
     },
@@ -16,31 +16,31 @@ export function toBasicMainConnection(db: Database): BasicMainConnection {
   }
 }
 
-function toBasicExecResult(st: RunResult): BasicExecResult {
+function toAdapterExecResult(st: RunResult): AdapterExecResult {
   return {
     affectedRows: st.changes,
     getInsertedId: () => st.lastID
   }
 }
 
-function toBasicPreparedStatement(st: Statement, initialParams?: SqlParameters): BasicPreparedStatement<any> {
+function toAdapterPreparedStatement(st: Statement, initialParams?: SqlParameters): AdapterPreparedStatement<any> {
   let boundParams = initialParams
   return {
     bind: async (key: number | string, value: any) => {
       if (!boundParams)
         boundParams = typeof key === "number" ? [] : {}
       if (typeof key === "number")
-        boundParams[key - 1] = value
+        (boundParams as any)[key - 1] = value
       else
-        boundParams[key] = value
+        (boundParams as any)[key] = value
     },
     unbind: async (key: number | string) => {
       if (boundParams)
-        boundParams[key] = undefined
+        (boundParams as any)[key] = undefined
     },
-    exec: async (params?: SqlParameters) => toBasicExecResult(await st.run(mergeParams(boundParams, params))),
+    exec: async (params?: SqlParameters) => toAdapterExecResult(await st.run(mergeParams(boundParams, params))),
     all: (params?: SqlParameters) => st.all(mergeParams(boundParams, params)),
-    cursor: async (params?: SqlParameters) => statementToBasicCursor(st, params),
+    cursor: async (params?: SqlParameters) => statementToAdapterCursor(st, params),
     close: () => st.finalize()
   }
 }
@@ -50,12 +50,12 @@ function mergeParams(params1: SqlParameters | undefined, params2: SqlParameters 
     return params2
   if (!params2)
     return params1
-  let isArr = Array.isArray(params1)
+  const isArr = Array.isArray(params1)
   if (isArr !== Array.isArray(params2))
     throw new Error("Cannot merge named parameters with positioned parameters")
   if (isArr) {
-    let result = [...(params1 as string[])]
-    let p2 = params2 as string[]
+    const result = [...(params1 as string[])]
+    const p2 = params2 as string[]
     p2.forEach((val, index) => result[index] = val)
     return result
   }
@@ -65,16 +65,16 @@ function mergeParams(params1: SqlParameters | undefined, params2: SqlParameters 
   }
 }
 
-function statementToBasicCursor(st: Statement, params?: SqlParameters): AsyncIterableIterator<any> {
+function statementToAdapterCursor(st: Statement, params?: SqlParameters): AsyncIterableIterator<any> {
   let done = false
-  let obj: AsyncIterableIterator<any> = {
+  const obj: AsyncIterableIterator<any> = {
     [Symbol.asyncIterator]: () => obj,
     next: async () => {
       if (done)
         return { done, value: undefined }
-      let copy = params
+      const copy = params
       params = undefined
-      let value = await st.get(copy)
+      const value = await st.get(copy)
       if (!value)
         done = true
       return { done, value }
@@ -91,19 +91,19 @@ function statementToBasicCursor(st: Statement, params?: SqlParameters): AsyncIte
   return obj
 }
 
-async function createBasicCursor(db: Database, sql: string, params?: SqlParameters): Promise<AsyncIterableIterator<any>> {
-  let st = await db.prepare(sql, params)
+async function createAdapterCursor(db: Database, sql: string, params?: SqlParameters): Promise<AsyncIterableIterator<any>> {
+  const st = await db.prepare(sql, params)
   let done = false
   const closeCursor = async () => {
     done = true
     await st.finalize()
   }
-  let obj: AsyncIterableIterator<any> = {
+  const obj: AsyncIterableIterator<any> = {
     [Symbol.asyncIterator]: () => obj,
     next: async () => {
       if (done)
         return { done, value: undefined }
-      let value = await st.get()
+      const value = await st.get()
       if (!value)
         await closeCursor()
       return { done, value }

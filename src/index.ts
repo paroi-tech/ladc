@@ -1,6 +1,6 @@
 import { LadcAdapter } from "ladc"
-import sqlite3 from "sqlite3"
-import { toBasicMainConnection } from "./BasicMainConnection"
+import * as sqlite3 from "sqlite3"
+import { toAdapterConnection } from "./AdapterConnection"
 import { Sqlite3ConnectionOptions } from "./exported-definitions"
 import { createSqlite3Connection } from "./promisifySqlite3"
 
@@ -9,8 +9,13 @@ export default function sqlite3Adapter(options: Sqlite3ConnectionOptions): LadcA
     sqlite3.verbose()
   return {
     createConnection: async () => {
-      let db = await createSqlite3Connection(options)
-      return toBasicMainConnection(db)
+      const db = await createSqlite3Connection(options)
+      return toAdapterConnection(db)
+    },
+    capabilities: {
+      cursors: true,
+      namedParameters: true,
+      preparedStatements: true,
     }
   }
 }
