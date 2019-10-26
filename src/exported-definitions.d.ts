@@ -1,8 +1,4 @@
-import { BasicMainConnection } from "./driver-definitions"
-
-export interface LadcAdapter {
-  createConnection: () => Promise<BasicMainConnection>
-}
+import { AdapterConnection, LadcAdapter } from "./adapter-definitions"
 
 export interface LadcModifier {
   /**
@@ -21,7 +17,7 @@ export interface LadcOptions {
   /**
    * This callback will be executed for each new `MainConnection` when it has a new underlying connection created by the pool. It is a right place to update the underlying connection with `PRAGMA` orders.
    */
-  initConnection?(cn: BasicMainConnection): void | Promise<void>
+  initConnection?(cn: AdapterConnection): void | Promise<void>
   /**
    * The configuration of the connection pool.
    */
@@ -37,7 +33,7 @@ export interface LadcOptions {
 }
 
 export interface DebugEventContext {
-  connection: BasicMainConnection
+  connection: AdapterConnection
   method: string
   args: any[]
   inTransaction: boolean
@@ -58,7 +54,7 @@ export interface DebugEvent {
 
 export interface PoolMonitoring {
   event: "open" | "close" | "grab" | "release" | "abandon"
-  cn: BasicMainConnection
+  cn: AdapterConnection
   id?: number
 }
 
@@ -103,22 +99,19 @@ export interface TransactionConnection extends Connection {
 export interface ExecResult {
   /**
    * When the ID is `undefined`, an exception is thrown.
-   *
-   * @param idColumnName For PostgreSQL, give here the column name of the autoincremented primary key
+   * @param options (optional) is specific for the underlying adapter.
    */
-  getInsertedId(idColumnName?: string): unknown
+  getInsertedId(options?: unknown): unknown
   /**
    * When the ID is `undefined`, an exception is thrown.
-   *
-   * @param idColumnName For PostgreSQL, give here the column name of the autoincremented primary key
+   * @param options (optional) is specific for the underlying adapter.
    */
-  getInsertedIdAsString(idColumnName?: string): string
+  getInsertedIdAsString(options?: unknown): string
   /**
    * When the ID is `undefined`, an exception is thrown.
-   *
-   * @param idColumnName For PostgreSQL, give here the column name of the autoincremented primary key
+   * @param options (optional) is specific for the underlying adapter.
    */
-  getInsertedIdAsNumber(idColumnName?: string): number
+  getInsertedIdAsNumber(options?: unknown): number
   readonly affectedRows: number
 }
 

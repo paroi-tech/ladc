@@ -1,3 +1,4 @@
+import { SqlParameters } from "../exported-definitions"
 import { Context } from "./MainConnection"
 
 export class CursorProvider {
@@ -6,10 +7,10 @@ export class CursorProvider {
   constructor(private context: Context) {
   }
 
-  async open(sql, params): Promise<AsyncIterableIterator<any>> {
-    let { pool } = this.context
-    let cn = await pool.grab()
-    let inst = new CursorItem(
+  async open(sql: string, params?: SqlParameters): Promise<AsyncIterableIterator<any>> {
+    const { pool } = this.context
+    const cn = await pool.grab()
+    const inst = new CursorItem(
       {
         context: this.context,
         end: (item: CursorItem) => {
@@ -36,8 +37,8 @@ interface CursorItemContext {
 export class CursorItem {
   cursor: AsyncIterableIterator<any>
 
-  constructor(itemContext: CursorItemContext, basic: AsyncIterableIterator<any>) {
-    this.cursor = this.toCursor(itemContext, basic)
+  constructor(itemContext: CursorItemContext, ac: AsyncIterableIterator<any>) {
+    this.cursor = this.toCursor(itemContext, ac)
   }
 
   async close(): Promise<void> {
@@ -45,35 +46,35 @@ export class CursorItem {
       await this.cursor.return()
   }
 
-  private toCursor(itemContext: CursorItemContext, basic: AsyncIterableIterator<any> | undefined) {
-    let obj: AsyncIterableIterator<any> = {
+  private toCursor(itemContext: CursorItemContext, ac: AsyncIterableIterator<any> | undefined) {
+    const obj: AsyncIterableIterator<any> = {
       [Symbol.asyncIterator]: () => obj,
       next: async () => {
-        if (!basic)
+        if (!ac)
           return { done: true, value: undefined }
-        let result = await basic.next()
+        const result = await ac.next()
         if (result.done) {
-          basic = undefined
+          ac = undefined
           itemContext.end(this)
         }
         return result
       },
       return: async () => {
-        if (!basic)
+        if (!ac)
           return { done: true, value: undefined }
         itemContext.end(this)
-        let returnCb = basic.return
-        basic = undefined
+        const returnCb = ac.return
+        ac = undefined
         if (returnCb)
           return await returnCb()
         return { done: true, value: undefined }
       },
       throw: async err => {
-        if (!basic)
+        if (!ac)
           throw err
         itemContext.end(this)
-        let throwCb = basic.return
-        basic = undefined
+        const throwCb = ac.return
+        ac = undefined
         if (throwCb)
           await throwCb(err)
         throw err

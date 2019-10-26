@@ -1,23 +1,23 @@
-import { BasicMainConnection } from "./driver-definitions"
+import { AdapterConnection } from "./adapter-definitions"
 import { DebugEvent, LadcOptions } from "./exported-definitions"
 
 export interface Pool {
   /**
    * @param exclusive Default value is `false`.
    */
-  grab(exclusive?: boolean): Promise<BasicMainConnection>
-  release(db: BasicMainConnection): void
-  abandon(db: BasicMainConnection): void
+  grab(exclusive?: boolean): Promise<AdapterConnection>
+  release(db: AdapterConnection): void
+  abandon(db: AdapterConnection): void
   close(): Promise<void>
 }
 
 interface PoolItem {
-  db: BasicMainConnection
+  db: AdapterConnection
   releaseTime: number
 }
 
-export default function createPool(provider: () => Promise<BasicMainConnection>, options: LadcOptions): Pool {
-  let poolOptions = options.poolOptions || {}
+export default function createPool(provider: () => Promise<AdapterConnection>, options: LadcOptions): Pool {
+  const poolOptions = options.poolOptions || {}
   const connectionTtl = poolOptions.connectionTtl || 60
   const logMonitoring = poolOptions.logMonitoring || (() => { })
   const keepOneConnection = !!poolOptions.keepOneConnection
@@ -30,12 +30,12 @@ export default function createPool(provider: () => Promise<BasicMainConnection>,
 
   let closed = false
   let available: PoolItem[] = []
-  let nonExclusiveDb: BasicMainConnection | undefined
+  let nonExclusiveDb: AdapterConnection | undefined
   let nonExclusiveCount = 0
   let cleaning: any | undefined
 
   let counter = 0
-  let identifiers = new WeakMap<BasicMainConnection, number>()
+  const identifiers = new WeakMap<AdapterConnection, number>()
 
   return {
     grab: async (exclusive = false) => {
@@ -47,13 +47,13 @@ export default function createPool(provider: () => Promise<BasicMainConnection>,
         return nonExclusiveDb
       }
 
-      let item = available.pop()
-      let db: BasicMainConnection
+      const item = available.pop()
+      let db: AdapterConnection
       if (item)
         db = item.db
       else {
         db = await provider()
-        let id = ++counter
+        const id = ++counter
         if (logDebug)
           db = debugWrapAsyncMethods(db, id, logDebug)
         identifiers.set(db, id)
@@ -68,7 +68,7 @@ export default function createPool(provider: () => Promise<BasicMainConnection>,
       logMonitoring({ event: "grab", cn: db, id: identifiers.get(db) || -123 })
       return db
     },
-    release: (db: BasicMainConnection) => {
+    release: (db: AdapterConnection) => {
       logMonitoring({ event: "release", cn: db, id: identifiers.get(db) })
       if (db === nonExclusiveDb) {
         if (--nonExclusiveCount === 0) {
@@ -82,7 +82,7 @@ export default function createPool(provider: () => Promise<BasicMainConnection>,
       else
         startCleaning()
     },
-    abandon: (db: BasicMainConnection) => {
+    abandon: (db: AdapterConnection) => {
       logMonitoring({ event: "abandon", cn: db, id: identifiers.get(db) })
       if (db === nonExclusiveDb) {
         --nonExclusiveCount
@@ -94,7 +94,7 @@ export default function createPool(provider: () => Promise<BasicMainConnection>,
       if (closed)
         throw new Error(`Invalid call to "close", the pool is already closed`)
       closed = true
-      let closeAll = available.map(item => {
+      const closeAll = available.map(item => {
         logMonitoring({ event: "close", cn: item.db, id: identifiers.get(item.db) })
         return item.db.close()
       })
@@ -122,17 +122,17 @@ export default function createPool(provider: () => Promise<BasicMainConnection>,
   }
 
   function cleanOldConnections(force = false) {
-    let olderThanTime = Date.now() - 1000 * connectionTtl
+    const olderThanTime = Date.now() - 1000 * connectionTtl
     let index: number
-    let lastIndex = available.length - 1
+    const lastIndex = available.length - 1
     for (index = 0; index <= lastIndex; ++index) {
       if (!force) {
-        let tooOld = available[index].releaseTime > olderThanTime
-        let keepThisOne = keepOneConnection && !nonExclusiveDb && index === lastIndex
+        const tooOld = available[index].releaseTime > olderThanTime
+        const keepThisOne = keepOneConnection && !nonExclusiveDb && index === lastIndex
         if (tooOld || keepThisOne)
           break
       }
-      let db = available[index].db
+      const db = available[index].db
       logMonitoring({ event: "close", cn: db, id: identifiers.get(db) })
       db.close().catch(err => logError(err))
     }
@@ -140,10 +140,10 @@ export default function createPool(provider: () => Promise<BasicMainConnection>,
       available = available.slice(index)
   }
 
-  function debugWrapProvider(provider: () => Promise<BasicMainConnection>, logDebug: (debug: DebugEvent) => void): () => Promise<BasicMainConnection> {
+  function debugWrapProvider(provider: () => Promise<AdapterConnection>, logDebug: (debug: DebugEvent) => void): () => Promise<AdapterConnection> {
     return async () => {
       try {
-        let result = await provider()
+        const result = await provider()
         logDebug({ result })
         return result
       } catch (error) {
@@ -153,15 +153,15 @@ export default function createPool(provider: () => Promise<BasicMainConnection>,
     }
   }
 
-  function debugWrapAsyncMethods(db: BasicMainConnection, idInPool: number, logDebug: (debug: DebugEvent) => void): BasicMainConnection {
-    let inTransactions = new WeakSet<any>()
-    let wrap: any = {}
-    for (let name of Object.keys(db)) {
-      wrap[name] = async (...args) => {
+  function debugWrapAsyncMethods(db: AdapterConnection, idInPool: number, logDebug: (debug: DebugEvent) => void): AdapterConnection {
+    const inTransactions = new WeakSet<any>()
+    const wrap: any = {}
+    for (const name of Object.keys(db)) {
+      wrap[name] = async (...args: any[]) => {
         if (name === "exec" && args.length === 1 && args[0] === "begin")
           inTransactions.add(wrap)
         try {
-          let result = await db[name](...args)
+          const result = await (db as any)[name](...args)
           logDebug({
             callingContext: {
               connection: db,

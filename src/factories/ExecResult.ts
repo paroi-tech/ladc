@@ -1,20 +1,19 @@
-import { BasicExecResult } from "../driver-definitions"
+import { AdapterExecResult } from "../adapter-definitions"
 import { ExecResult } from "../exported-definitions"
-import { Context } from "./MainConnection"
 
-export function toExecResult(context: Context, result: BasicExecResult): ExecResult {
-  let obj: ExecResult = {
+export function toExecResult(result: AdapterExecResult): ExecResult {
+  const obj: ExecResult = {
     get affectedRows() {
       return result.affectedRows
     },
-    getInsertedId: (idColumnName?: string) => {
-      let id = result.getInsertedId(idColumnName)
+    getInsertedId(options?: unknown) {
+      const id = result.getInsertedId(options)
       if (id === undefined)
         throw new Error(`Missing inserted ID`)
       return id
     },
-    getInsertedIdAsString: (idColumnName?: string): string => {
-      let val = obj.getInsertedId(idColumnName)
+    getInsertedIdAsString(options?: unknown): string {
+      const val = obj.getInsertedId(options)
       switch (typeof val) {
         case "string":
           return val as string
@@ -24,8 +23,8 @@ export function toExecResult(context: Context, result: BasicExecResult): ExecRes
           throw new Error(`Unexpected inserted ID type: ${typeof val}`)
       }
     },
-    getInsertedIdAsNumber: (idColumnName?: string): number => {
-      let val = obj.getInsertedId(idColumnName)
+    getInsertedIdAsNumber(options?: unknown): number {
+      const val = obj.getInsertedId(options)
       switch (typeof val) {
         case "string":
           return parseInt(val as string, 10)

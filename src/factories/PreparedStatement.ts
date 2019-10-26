@@ -1,4 +1,4 @@
-import { BasicMainConnection, BasicPreparedStatement } from "../driver-definitions"
+import { AdapterConnection, AdapterPreparedStatement } from "../adapter-definitions"
 import { PreparedStatement, SqlParameters } from "../exported-definitions"
 import { toSingleRow, toSingleValue } from "../helpers"
 import { CursorItem } from "./Cursor"
@@ -6,7 +6,7 @@ import { toExecResult } from "./ExecResult"
 import { Context } from "./MainConnection"
 
 export interface PsProviderContext {
-  exclusiveCn?: BasicMainConnection
+  exclusiveCn?: AdapterConnection
   context: Context
   canCreateCursor(): boolean
 }
@@ -18,7 +18,7 @@ export class PsProvider {
   }
 
   async prepare(sql: string, params?: SqlParameters): Promise<PreparedStatement<any>> {
-    let item = await PsItem.create(await this.createPsContext(), sql, params)
+    const item = await PsItem.create(await this.createPsContext(), sql, params)
     this.items.add(item)
     return item.ps
   }
@@ -28,7 +28,7 @@ export class PsProvider {
   }
 
   hasCursor() {
-    for (let item of this.items) {
+    for (const item of this.items) {
       if (item.hasCursor())
         return true
     }
@@ -36,7 +36,7 @@ export class PsProvider {
   }
 
   private async createPsContext(): Promise<PsItemContext> {
-    let { exclusiveCn } = this.ppContext
+    const { exclusiveCn } = this.ppContext
     if (exclusiveCn) {
       return {
         context: this.ppContext.context,
@@ -47,8 +47,8 @@ export class PsProvider {
         canCreateCursor: () => this.ppContext.canCreateCursor()
       }
     }
-    let { pool } = this.ppContext.context
-    let cn = await pool.grab()
+    const { pool } = this.ppContext.context
+    const cn = await pool.grab()
     return {
       context: this.ppContext.context,
       cn,
@@ -63,44 +63,46 @@ export class PsProvider {
 
 interface PsItemContext {
   context: Context
-  cn: BasicMainConnection
+  cn: AdapterConnection
   end: (item: PsItem) => void
   canCreateCursor(): boolean
 }
 
 class PsItem {
   static async create(psContext: PsItemContext, sql: string, params?: SqlParameters): Promise<PsItem> {
-    let basic = await psContext.cn.prepare(sql, params)
-    return new PsItem(psContext, basic, params)
+    const aps = await psContext.cn.prepare(sql, params)
+    return new PsItem(psContext, aps, params)
   }
 
   ps: PreparedStatement<any>
   private cursorItem?: CursorItem
   private boundParameters: Set<number | string>
 
-  constructor(itemContext: PsItemContext, basic: BasicPreparedStatement, initialParams?: SqlParameters) {
+  constructor(itemContext: PsItemContext, aps: AdapterPreparedStatement, initialParams?: SqlParameters) {
     this.boundParameters = paramNamesOf(initialParams)
-    this.ps = this.toPs(itemContext, basic)
+    this.ps = this.toPs(itemContext, aps)
   }
 
   hasCursor() {
     return !!this.cursorItem
   }
 
-  private toPs(itemContext: PsItemContext, basic: BasicPreparedStatement | undefined) {
+  private toPs(itemContext: PsItemContext, aps: AdapterPreparedStatement | undefined) {
     let obj: PreparedStatement<any> = {
       exec: async (params?: SqlParameters) => {
         check("exec")
-        return toExecResult(itemContext.context, await basic!.exec(params))
+        return toExecResult(await aps!.exec(params))
       },
       all: async (params?: SqlParameters) => {
         check("all")
-        return await basic!.all(params)
+        return await aps!.all(params)
       },
       singleRow: async (params?: SqlParameters) => toSingleRow(await obj.all(params)),
       singleValue: async (params?: SqlParameters) => toSingleValue(await obj.singleRow(params)),
       cursor: async (params?: SqlParameters) => {
         check("cursor")
+        if (!itemContext.context.capabilities.cursors)
+          throw new Error(`Cursors are not available with this adapter`)
         if (!itemContext.canCreateCursor())
           throw new Error("Only one cursor is allowed by underlying transaction")
         this.cursorItem = new CursorItem({
@@ -108,38 +110,38 @@ class PsItem {
           end: () => {
             this.cursorItem = undefined
           }
-        }, await basic!.cursor(params))
+        }, await aps!.cursor(params))
         return this.cursorItem.cursor
       },
       bind: async (nbOrKey: number | string, value: any) => {
         check("bind")
         this.boundParameters.add(nbOrKey)
-        basic!.bind(nbOrKey, value)
+        aps!.bind(nbOrKey, value)
       },
       unbind: async (nbOrKey: number | string) => {
         check("unbind")
         this.boundParameters.delete(nbOrKey)
-        basic!.unbind(nbOrKey)
+        aps!.unbind(nbOrKey)
       },
       unbindAll: async () => {
         check("unbindAll")
-        this.boundParameters.forEach(nbOrKey => basic!.unbind(nbOrKey))
+        this.boundParameters.forEach(nbOrKey => aps!.unbind(nbOrKey))
         this.boundParameters.clear()
       },
       bindAll: async (params: SqlParameters) => {
         check("bindAll")
-        this.boundParameters.forEach(nbOrKey => basic!.unbind(nbOrKey))
+        this.boundParameters.forEach(nbOrKey => aps!.unbind(nbOrKey))
         this.boundParameters = paramNamesOf(params)
         if (Array.isArray(params))
-          params.forEach((val, index) => basic!.bind(index + 1, val))
+          params.forEach((val, index) => aps!.bind(index + 1, val))
         else
-          Object.entries(params).forEach(([key, val]) => basic!.bind(key, val))
+          Object.entries(params).forEach(([key, val]) => aps!.bind(key, val))
       },
       close: async () => {
-        if (!basic)
+        if (!aps)
           throw new Error(`Prepared statement is already closed`)
-        let copy = basic
-        basic = undefined
+        const copy = aps
+        aps = undefined
         if (this.cursorItem)
           await this.cursorItem.close()
         await copy.close()
@@ -153,7 +155,7 @@ class PsItem {
     return obj
 
     function check(method: string) {
-      if (!basic)
+      if (!aps)
         throw new Error(`Invalid call to '${method}', the prepared statement is closed`)
     }
   }

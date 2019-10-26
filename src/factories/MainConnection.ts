@@ -1,3 +1,4 @@
+import { AdapterCapabilities } from "../adapter-definitions"
 import { Pool } from "../createPool"
 import { LadcOptions, MainConnection, SqlParameters } from "../exported-definitions"
 import { toSingleRow, toSingleValue } from "../helpers"
@@ -9,21 +10,24 @@ import { TxProvider } from "./TransactionConnection"
 export interface Context {
   pool: Pool
   options: LadcOptions
+  capabilities: AdapterCapabilities
 }
 
 export default function makeMainConnection(context: Context): MainConnection {
-  let { pool } = context
-  let psProvider = new PsProvider({
+  const { pool } = context
+  const psProvider = new PsProvider({
     context,
     canCreateCursor: () => true
   })
-  let txProvider = new TxProvider(context)
-  let cursorProvider = new CursorProvider(context)
+  const txProvider = new TxProvider(context)
+  const cursorProvider = new CursorProvider(context)
 
   let closed = false
 
   let obj: MainConnection = {
     async prepare(sql: string, params?: SqlParameters) {
+      if (!context.capabilities.preparedStatements)
+        throw new Error(`Prepared statements are not available with this adapter`)
       if (closed)
         throw new Error(`Invalid call to 'prepare', the connection is closed`)
       return await psProvider.prepare(sql, params)
@@ -31,15 +35,15 @@ export default function makeMainConnection(context: Context): MainConnection {
     async exec(sql: string, params?: SqlParameters) {
       if (closed)
         throw new Error(`Invalid call to 'exec', the connection is closed`)
-      let cn = await pool.grab()
+      const cn = await pool.grab()
       try {
-        let res = await cn.exec(sql, params)
-        return toExecResult(context, res)
+        const res = await cn.exec(sql, params)
+        return toExecResult(res)
       } finally {
         pool.release(cn)
       }
     },
-    all: cnBasicCallback("all"),
+    all: cnAdapterCallback("all"),
     async singleRow(sql: string, params?: SqlParameters) {
       return toSingleRow(await this.all(sql, params))
     },
@@ -47,11 +51,13 @@ export default function makeMainConnection(context: Context): MainConnection {
       return toSingleValue(await this.singleRow(sql, params))
     },
     async cursor(sql: string, params?: SqlParameters) {
+      if (!context.capabilities.cursors)
+        throw new Error(`Cursors are not available with this adapter`)
       if (closed)
         throw new Error(`Invalid call to 'cursor', the connection is closed`)
       return await cursorProvider.open(sql, params)
     },
-    script: cnBasicCallback("script"),
+    script: cnAdapterCallback("script"),
 
     beginTransaction: async () => {
       if (closed)
@@ -76,13 +82,13 @@ export default function makeMainConnection(context: Context): MainConnection {
 
   return obj
 
-  function cnBasicCallback(method: string) {
-    return async (...args) => {
+  function cnAdapterCallback(method: string) {
+    return async (...args: any[]) => {
       if (closed)
         throw new Error(`Invalid call to '${method}', the connection is closed`)
-      let cn = await pool.grab()
+      const cn = await pool.grab()
       try {
-        return await cn[method](...args)
+        return await (cn as any)[method](...args)
       } finally {
         pool.release(cn)
       }

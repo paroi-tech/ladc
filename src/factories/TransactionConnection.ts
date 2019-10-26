@@ -1,4 +1,4 @@
-import { BasicMainConnection } from "../driver-definitions"
+import { AdapterConnection } from "../adapter-definitions"
 import { SqlParameters, TransactionConnection } from "../exported-definitions"
 import { toSingleRow, toSingleValue } from "../helpers"
 import { CursorItem } from "./Cursor"
@@ -13,7 +13,7 @@ export class TxProvider {
   }
 
   async create(): Promise<TransactionConnection> {
-    let item = await TxItem.create({
+    const item = await TxItem.create({
       context: this.context,
       end: (item: TxItem) => {
         this.items.delete(item)
@@ -35,17 +35,17 @@ interface TxItemContext {
 
 class TxItem {
   static async create(txContext: TxItemContext): Promise<TxItem> {
-    let basic: BasicMainConnection = await txContext.context.pool.grab(true)
-    await basic.exec("begin")
-    return new TxItem(txContext, basic)
+    const acn: AdapterConnection = await txContext.context.pool.grab(true)
+    await acn.exec("begin")
+    return new TxItem(txContext, acn)
   }
 
   tx: TransactionConnection
   private psProvider?: PsProvider
   private cursorItem?: CursorItem
 
-  constructor(itemContext: TxItemContext, basic: BasicMainConnection) {
-    this.tx = this.toTx(itemContext, basic)
+  constructor(itemContext: TxItemContext, acn: AdapterConnection) {
+    this.tx = this.toTx(itemContext, acn)
   }
 
   hasCursor() {
@@ -57,38 +57,42 @@ class TxItem {
   }
 
   private async closeDependencies() {
-    let promises: Array<Promise<void>> = []
+    const promises: Array<Promise<void>> = []
     if (this.cursorItem)
       promises.push(this.cursorItem.close())
     if (this.psProvider)
       promises.push(this.psProvider.closeAll())
-    await promises
+    await Promise.all(promises)
   }
 
-  private toTx(itemContext: TxItemContext, basic: BasicMainConnection | undefined): TransactionConnection {
+  private toTx(itemContext: TxItemContext, acn: AdapterConnection | undefined): TransactionConnection {
     let obj: TransactionConnection = {
       prepare: async (sql: string, params?: SqlParameters) => {
-        if (!basic)
+        if (!itemContext.context.capabilities.preparedStatements)
+          throw new Error(`Prepared statements are not available with this adapter`)
+        if (!acn)
           throw new Error(`Invalid call to 'prepare', the connection is closed`)
         if (!this.psProvider) {
           this.psProvider = new PsProvider({
             context: itemContext.context,
-            exclusiveCn: basic,
+            exclusiveCn: acn,
             canCreateCursor: () => this.canCreateCursor()
           })
         }
         return await this.psProvider.prepare(sql, params)
       },
       async exec(sql: string, params?: SqlParameters) {
-        if (!basic)
+        if (!acn)
           throw new Error(`Invalid call to 'exec', not in a transaction`)
-        return toExecResult(itemContext.context, await basic.exec(sql, params))
+        return toExecResult(await acn.exec(sql, params))
       },
-      all: cnBasicCallback("all"),
+      all: cnAdapterCallback("all"),
       singleRow: async (sql: string, params?: SqlParameters) => toSingleRow(await obj.all(sql, params)),
       singleValue: async (sql: string, params?: SqlParameters) => toSingleValue(await obj.singleRow(sql, params)),
       cursor: async (sql: string, params?: SqlParameters) => {
-        if (!basic)
+        if (!itemContext.context.capabilities.cursors)
+          throw new Error(`Cursors are not available with this adapter`)
+        if (!acn)
           throw new Error(`Invalid call to 'cursor', not in a transaction`)
         if (!this.canCreateCursor())
           throw new Error("Only one cursor is allowed by underlying transaction")
@@ -97,13 +101,13 @@ class TxItem {
           end: () => {
             this.cursorItem = undefined
           }
-        }, await basic.cursor(sql, params))
+        }, await acn.cursor(sql, params))
         return this.cursorItem.cursor
       },
-      script: cnBasicCallback("script"),
+      script: cnAdapterCallback("script"),
 
       get inTransaction() {
-        return !!basic
+        return !!acn
       },
       commit: () => endOfTransaction("commit", this),
       rollback: () => endOfTransaction("rollback", this)
@@ -115,10 +119,10 @@ class TxItem {
     return obj
 
     async function endOfTransaction(method: "commit" | "rollback", item: TxItem) {
-      if (!basic)
+      if (!acn)
         throw new Error(`Invalid call to '${method}', not in a transaction`)
-      let copy = basic
-      basic = undefined
+      const copy = acn
+      acn = undefined
       itemContext.end(item)
       try {
         await item.closeDependencies()
@@ -130,11 +134,11 @@ class TxItem {
       }
     }
 
-    function cnBasicCallback(method: string) {
-      return (...args) => {
-        if (!basic)
+    function cnAdapterCallback(method: string) {
+      return (...args: any[]) => {
+        if (!acn)
           throw new Error(`Invalid call to '${method}', not in a transaction`)
-        return basic[method](...args)
+        return (acn as any)[method](...args)
       }
     }
   }
