@@ -105,8 +105,8 @@ Common methods between `MainConnection` and `TransactionConnection`:
 * `tx.prepare(sql)` returns a promise of a `PreparedStatement`;
 * `tx.exec(sql, params?)` executes the query and returns a promise of an `ExecResult`;
 * `tx.all(sql, params?)` executes the select query and returns a promise of an array of rows;
-* `tx.singleRow(sql, params?)` fetches with `cn.all` and returns the single row;
-* `tx.singleValue(sql, params?)` fetches with `cn.all` and returns the single value of the single row;
+* `tx.singleRow(sql, params?)` fetches with `tx.all` and returns the single row;
+* `tx.singleValue(sql, params?)` fetches with `tx.all` and returns the single value of the single row;
 * `tx.cursor(sql, params?)` opens a cursor and returns a promise of a `AsyncIterableIterator`.
 
 Members that are specific to a `TransactionConnection`:
