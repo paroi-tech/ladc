@@ -98,7 +98,11 @@ function toAExecResult(result: QueryResult, insertTable?: string, optIdCol?: str
 
 let psSequence = 0
 
-function makeAPreparedStatement(options: LadcPgOptions, client: Client, sql: string): APreparedStatement<any> {
+async function makeAPreparedStatement(
+  options: LadcPgOptions,
+  client: Client,
+  sql: string
+): Promise<APreparedStatement<any>> {
   const psName = `ladc-ps-${++psSequence}`
   const obj: APreparedStatement<any> = {
     exec: async (params?: unknown[]) => {

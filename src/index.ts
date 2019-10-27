@@ -12,6 +12,7 @@ export default function pgAdapter(options: LadcPgOptions): LadcAdapter {
       cursors: true,
       namedParameters: false,
       preparedStatements: true,
+      script: true
     }
   }
 }
