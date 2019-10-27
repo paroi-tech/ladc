@@ -26,6 +26,12 @@ Or, install for PostgreSQL (using the connector [pg](https://github.com/brianc/n
 npm install ladc @ladc/pg-adapter
 ```
 
+Or with MariabDB / MySQL (using the connector [mysql2](https://github.com/sidorares/node-mysql2)):
+
+```
+npm install ladc @ladc/mysql2-adapter
+```
+
 ## Usage
 
 How to create a connection (here with SQLite):
