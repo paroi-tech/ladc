@@ -12,11 +12,11 @@ npm install ladc @ladc/pg-adapter
 
 How to create a connection:
 
-```
+```ts
 import ladc from "ladc"
 import pgAdapter from "@ladc/pg-adapter"
 
-let cn = ladc({
+const cn = ladc({
   adapter: pgAdapter({
     pgConfig: {
       host: "-my-server-",
@@ -47,6 +47,6 @@ pgAdapter({
 Or, it is still possible to manually write the `returning` statement then to get it:
 
 ```js
-let result = await cn.exec("insert into message(message) values ('Hi there!') returning message_id") // Postgres only
-let newId = result.getInsertedId("message_id")
+const result = await cn.exec("insert into message(message) values ('Hi there!') returning message_id") // Postgres only
+const newId = result.getInsertedId("message_id")
 ```
