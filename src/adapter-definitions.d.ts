@@ -2,7 +2,7 @@ import { SqlParameters, ResultRow } from "./exported-definitions"
 
 export interface LadcAdapter {
   createConnection: () => Promise<AConnection>
-  capabilities?: AdapterCapabilities
+  capabilities: AdapterCapabilities
 }
 
 export interface AdapterCapabilities {

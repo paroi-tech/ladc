@@ -10,12 +10,11 @@ export default function ladc(options: LadcOptions): MainConnection {
       await options.initConnection(cn)
     return cn
   }
-  const capabilities = options.adapter.capabilities || {}
   return makeMainConnection({
     options,
     pool: createPool(provider, options),
-    capabilities,
-    check: makeCheckers(capabilities)
+    capabilities: options.adapter.capabilities,
+    check: makeCheckers(options.adapter.capabilities)
   })
 }
 
