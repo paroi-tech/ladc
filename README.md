@@ -65,7 +65,7 @@ async function example(cn) {
 
 Common methods between `MainConnection` and `TransactionConnection`:
 
-* `cn.prepare(sql, params)` returns a promise of a `PreparedStatement`;
+* `cn.prepare(sql)` returns a promise of a `PreparedStatement`;
 * `cn.exec(sql, params)` executes the query and returns a promise of an `ExecResult`;
 * `cn.all(sql, params)` executes the select query and returns a promise of an array of rows;
 * `cn.singleRow(sql, params)` fetches with `cn.all(sql)` and returns the single row;
@@ -102,7 +102,7 @@ Members that are specific to a `MainConnection`:
 
 Common methods between `MainConnection` and `TransactionConnection`:
 
-* `tx.prepare(sql, params)` returns a promise of a `PreparedStatement`;
+* `tx.prepare(sql)` returns a promise of a `PreparedStatement`;
 * `tx.exec(sql, params)` executes the query and returns a promise of an `ExecResult`;
 * `tx.all(sql, params)` executes the select query and returns a promise of an array of rows;
 * `tx.singleRow(sql, params)` fetches with `cn.all(sql)` and returns the single row;
