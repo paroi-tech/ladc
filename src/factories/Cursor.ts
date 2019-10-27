@@ -84,3 +84,27 @@ export class CursorItem {
     return obj
   }
 }
+
+// function makeInMemoryACursor(rows?: any[]): AsyncIterableIterator<any> {
+//   let currentIndex = -1
+//   const obj: AsyncIterableIterator<any> = {
+//     [Symbol.asyncIterator]: () => obj,
+//     next: async () => {
+//       if (!rows)
+//         return { done: true, value: undefined }
+//       const value = rows[++currentIndex]
+//       if (!value)
+//         rows = undefined
+//       return { done: !rows, value }
+//     },
+//     return: async () => {
+//       rows = undefined
+//       return { done: true, value: undefined }
+//     },
+//     throw: async err => {
+//       rows = undefined
+//       throw err
+//     }
+//   }
+//   return obj
+// }
