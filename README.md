@@ -1,6 +1,6 @@
 # @ladc/mysql2-adapter
 
-The [LADC](https://github.com/paleo/ladc) adapter for the driver [mysql2](https://github.com/brianc/node-postgres) (MySQL).
+The [LADC](https://github.com/paleo/ladc) adapter for the driver [mysql2](https://github.com/sidorares/node-mysql2) (MySQL).
 
 ## Install
 
@@ -12,7 +12,7 @@ npm install ladc @ladc/mysql2-adapter
 
 How to create a connection:
 
-```
+```js
 import ladc from "ladc"
 import mysql2Adapter from "@ladc/mysql2-adapter"
 
@@ -47,6 +47,6 @@ mysql2Adapter({
 Or, it is still possible to manually write the `returning` statement then to get it:
 
 ```js
-let result = await cn.exec("insert into message(message) values ('Hi there!') returning message_id") // Postgres only
-let newId = result.getInsertedId("message_id")
+const result = await cn.exec("insert into message(message) values ('Hi there!')")
+const newId = result.getInsertedId()
 ```
