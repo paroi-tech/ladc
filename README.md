@@ -34,7 +34,7 @@ How to create a connection (here with SQLite):
 import ladc from "ladc"
 import sqlite3Adapter from "@ladc/sqlite3-adapter"
 
-let cn = ladc({
+const cn = ladc({
   adapter: sqlite3Adapter({ fileName: `${__dirname}/mydb.sqlite` }),
   initConnection: async cn => {
     await cn.exec("PRAGMA foreign_keys = ON")
@@ -46,9 +46,9 @@ Then, use the connection:
 
 ```ts
 async function example(cn) {
-  let result = await cn.exec("insert into test (message) values ('Hello, World!')")
-  let newId = result.getInsertedIdAsString()
-  let row = await cn.singleRow("select message, ts from test where test_id = $1", [newId])
+  const result = await cn.exec("insert into test (message) values ('Hello, World!')")
+  const newId = result.getInsertedIdAsString()
+  const row = await cn.singleRow("select message, ts from test where test_id = $1", [newId])
   console.log(`Inserted row ${newId}:`, row)
 }
 ```
