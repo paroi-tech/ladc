@@ -16,7 +16,7 @@ How to create a connection:
 import ladc from "ladc"
 import mysql2Adapter from "@ladc/mysql2-adapter"
 
-let cn = ladc({
+const cn = ladc({
   adapter: mysql2Adapter({
     mysqlConfig: {
       host: "-my-server-",
@@ -26,27 +26,4 @@ let cn = ladc({
     }
   })
 })
-```
-
-# Get the MySQL autoincrement inserted identifier
-
-Set the option `autoincMapping` to map the autoincremented column name of each table that has one:
-
-```js
-const autoincMapping = {
-  "category": "category_id",
-  "post": "post_id",
-}
-
-mysql2Adapter({
-  mysqlConfig: { /* credentials */ },
-  autoincMapping
-})
-```
-
-Or, it is still possible to manually write the `returning` statement then to get it:
-
-```js
-const result = await cn.exec("insert into message(message) values ('Hi there!')")
-const newId = result.getInsertedId()
 ```

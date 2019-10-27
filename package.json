@@ -1,6 +1,6 @@
 {
   "name": "@ladc/mysql2-adapter",
-  "version": "0.22.2",
+  "version": "0.22.3",
   "description": "The LADC adapter for the driver \"mysql2\" (MySQL).",
   "main": "ladc-mysql2-adapter.min.js",
   "types": "ladc-mysql2-adapter.d.ts",
