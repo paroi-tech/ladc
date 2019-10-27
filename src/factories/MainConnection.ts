@@ -1,4 +1,4 @@
-import { AdapterCapabilities } from "../adapter-definitions"
+import { AConnection, ACreateConnectionOptions, AdapterCapabilities } from "../adapter-definitions"
 import { Pool } from "../createPool"
 import { LadcOptions, MainConnection, SqlParameters } from "../exported-definitions"
 import { toSingleRow, toSingleValue } from "../helpers"
@@ -9,6 +9,7 @@ import { TxProvider } from "./TransactionConnection"
 
 export interface Context {
   pool: Pool
+  provider: (createOptions?: ACreateConnectionOptions) => Promise<AConnection>
   options: LadcOptions
   capabilities: AdapterCapabilities
   check: {
@@ -73,13 +74,23 @@ export default function makeMainConnection(context: Context): MainConnection {
       return await cursorProvider.open(sql, params)
     },
     async script(sql: string) {
+      context.check.script()
       if (closed)
         throw new Error(`Invalid call to 'script', the connection is closed`)
-      const cn = await pool.grab()
-      try {
-        return await cn.script(sql)
-      } finally {
-        pool.release(cn)
+      if (context.capabilities.script === "onASeparateConnection") {
+        const cn = await context.provider({ enableScript: true })
+        try {
+          return await cn.script(sql)
+        } finally {
+          await cn.close()
+        }
+      } else {
+        const cn = await pool.grab()
+        try {
+          return await cn.script(sql)
+        } finally {
+          pool.release(cn)
+        }
       }
     },
 

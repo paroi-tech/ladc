@@ -110,6 +110,9 @@ class TxItem {
         return this.cursorItem.cursor
       },
       async script(sql: string) {
+        itemContext.context.check.script()
+        if (itemContext.context.capabilities.script === "onASeparateConnection")
+          throw new Error(`Scripts are available only on the main connection with this adapter.`)
         if (!acn)
           throw new Error(`Invalid call to 'script', not in a transaction`)
         return acn.script(sql)

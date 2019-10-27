@@ -10,7 +10,7 @@ export function toSingleRow(rows: any[]) {
 export function toSingleValue(row: any) {
   if (row === undefined)
     return
-  let columns = Object.keys(row)
+  const columns = Object.keys(row)
   if (columns.length !== 1)
     throw new Error(`Cannot fetch one value, column count: ${columns.length}`)
   return row[columns[0]]

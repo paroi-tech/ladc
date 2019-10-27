@@ -1,14 +1,19 @@
-import { SqlParameters, ResultRow } from "./exported-definitions"
+import { ResultRow, SqlParameters } from "./exported-definitions";
 
 export interface LadcAdapter {
-  createConnection: () => Promise<AConnection>
+  createConnection: (createOptions?: ACreateConnectionOptions) => Promise<AConnection>
   capabilities: AdapterCapabilities
+}
+
+export interface ACreateConnectionOptions {
+  enableScript?: boolean
 }
 
 export interface AdapterCapabilities {
   namedParameters?: boolean
   preparedStatements?: boolean
   cursors?: boolean
+  script?: boolean | "onASeparateConnection"
 }
 
 export interface AConnection {
