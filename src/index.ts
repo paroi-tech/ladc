@@ -16,6 +16,7 @@ export default function sqlite3Adapter(options: Sqlite3ConnectionOptions): LadcA
       cursors: true,
       namedParameters: true,
       preparedStatements: true,
+      script: true
     }
   }
 }

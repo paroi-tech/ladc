@@ -3,7 +3,7 @@ import { Database, RunResult, Statement } from "./promisifySqlite3"
 
 export function toAConnection(db: Database): AConnection {
   return {
-    prepare: async (sql: string, params?: SqlParameters) => toAPreparedStatement(await db.prepare(sql, params), params),
+    prepare: async (sql: string) => toAPreparedStatement(await db.prepare(sql)),
     exec: async (sql: string, params?: SqlParameters) => toAExecResult(await db.run(sql, params)),
     all: (sql: string, params?: SqlParameters) => db.all(sql, params),
     cursor: (sql: string, params?: SqlParameters) => createACursor(db, sql, params),
@@ -23,7 +23,7 @@ function toAExecResult(st: RunResult): AExecResult {
   }
 }
 
-function toAPreparedStatement(st: Statement, initialParams?: SqlParameters): APreparedStatement<any> {
+function toAPreparedStatement(st: Statement): APreparedStatement<any> {
   return {
     exec: async (params?: SqlParameters) => toAExecResult(await st.run(params)),
     all: (params?: SqlParameters) => st.all(params),
