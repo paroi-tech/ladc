@@ -1,0 +1,5 @@
+.npmrc
+node_modules
+/build/compiled
+/ladc-mysql2-adapter.d.ts
+/ladc-mysql2-adapter.min.js
