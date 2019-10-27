@@ -66,11 +66,11 @@ async function example(cn) {
 Common methods between `MainConnection` and `TransactionConnection`:
 
 * `cn.prepare(sql)` returns a promise of a `PreparedStatement`;
-* `cn.exec(sql, params)` executes the query and returns a promise of an `ExecResult`;
-* `cn.all(sql, params)` executes the select query and returns a promise of an array of rows;
-* `cn.singleRow(sql, params)` fetches with `cn.all(sql)` and returns the single row;
-* `cn.singleValue(sql, params)` fetches with `cn.all(sql)` and returns the single value of the single row;
-* `cn.cursor(sql, params)` opens a cursor and returns a promise of a `AsyncIterableIterator`.
+* `cn.exec(sql, params?)` executes the query and returns a promise of an `ExecResult`;
+* `cn.all(sql, params?)` executes the select query and returns a promise of an array of rows;
+* `cn.singleRow(sql, params?)` fetches with `cn.all(sql)` and returns the single row;
+* `cn.singleValue(sql, params?)` fetches with `cn.all(sql)` and returns the single value of the single row;
+* `cn.cursor(sql, params?)` opens a cursor and returns a promise of a `AsyncIterableIterator`.
 
 Members that are specific to a `MainConnection`:
 
@@ -103,11 +103,11 @@ Members that are specific to a `MainConnection`:
 Common methods between `MainConnection` and `TransactionConnection`:
 
 * `tx.prepare(sql)` returns a promise of a `PreparedStatement`;
-* `tx.exec(sql, params)` executes the query and returns a promise of an `ExecResult`;
-* `tx.all(sql, params)` executes the select query and returns a promise of an array of rows;
-* `tx.singleRow(sql, params)` fetches with `cn.all(sql)` and returns the single row;
-* `tx.singleValue(sql, params)` fetches with `cn.all(sql)` and returns the single value of the single row;
-* `tx.cursor(sql, params)` opens a cursor and returns a promise of a `AsyncIterableIterator`.
+* `tx.exec(sql, params?)` executes the query and returns a promise of an `ExecResult`;
+* `tx.all(sql, params?)` executes the select query and returns a promise of an array of rows;
+* `tx.singleRow(sql, params?)` fetches with `cn.all(sql)` and returns the single row;
+* `tx.singleValue(sql, params?)` fetches with `cn.all(sql)` and returns the single value of the single row;
+* `tx.cursor(sql, params?)` opens a cursor and returns a promise of a `AsyncIterableIterator`.
 
 Members that are specific to a `TransactionConnection`:
 
