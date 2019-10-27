@@ -1,4 +1,4 @@
-import { AdapterConnection, AdapterExecResult, AdapterPreparedStatement, SqlParameters } from "ladc"
+import { AConnection, AExecResult, APreparedStatement } from "ladc"
 import { Client, ClientConfig, QueryResult } from "pg"
 const Cursor = require("pg-cursor")
 import { LadcPgOptions } from "./exported-definitions"
@@ -23,25 +23,25 @@ function addReturningToInsert(sql: string, options: LadcPgOptions) {
   return { sql, insertTable, idColumnName }
 }
 
-export function toAdapterConnection(client: Client, options: LadcPgOptions): AdapterConnection {
+export function toAConnection(client: Client, options: LadcPgOptions): AConnection {
   return {
-    prepare: async (sql: string, params?: unknown[]) => makeAdapterPreparedStatement(options, client, sql, params),
-    exec: async (sql: string, params?: SqlParameters) => {
+    prepare: async (sql: string) => makeAPreparedStatement(options, client, sql),
+    exec: async (sql: string, params?: unknown[]) => {
       const { sql: text, insertTable, idColumnName } = addReturningToInsert(sql, options)
-      return toAdapterExecResult(
+      return toAExecResult(
         await client.query({
           text,
-          values: toPositionalParameters(params)
+          values: params
         }),
         insertTable,
         idColumnName
       )
     },
-    all: async (sql: string, params?: SqlParameters) => toRows(await client.query({
+    all: async (sql: string, params?: unknown[]) => toRows(await client.query({
       text: sql,
-      values: toPositionalParameters(params)
+      values: params
     })),
-    cursor: async (sql: string, params?: SqlParameters) => createAdapterCursor({ client, sql, params }),
+    cursor: async (sql: string, params?: unknown[]) => createACursor({ client, sql, params }),
     script: async (sql: string) => {
       await client.query(sql)
     },
@@ -51,17 +51,11 @@ export function toAdapterConnection(client: Client, options: LadcPgOptions): Ada
   }
 }
 
-function toPositionalParameters(params?: SqlParameters): unknown[] | undefined {
-  if (params === undefined || Array.isArray(params))
-    return params
-  throw new Error("Named parameters are not implemented")
-}
-
 function toRows(result: QueryResult): any[] {
   return result.rows
 }
 
-function toAdapterExecResult(result: QueryResult, insertTable?: string, optIdCol?: string): AdapterExecResult {
+function toAExecResult(result: QueryResult, insertTable?: string, optIdCol?: string): AExecResult {
   return {
     affectedRows: result.rowCount,
     getInsertedId: (options?: { columnName?: string }) => {
@@ -104,71 +98,37 @@ function toAdapterExecResult(result: QueryResult, insertTable?: string, optIdCol
 
 let psSequence = 0
 
-function makeAdapterPreparedStatement(options: LadcPgOptions, client: Client, sql: string, initialParams?: unknown[]): AdapterPreparedStatement<any> {
+function makeAPreparedStatement(options: LadcPgOptions, client: Client, sql: string): APreparedStatement<any> {
   const psName = `ladc-ps-${++psSequence}`
-  let boundParams = initialParams
-  const obj: AdapterPreparedStatement<any> = {
-    bind: async (num: number | string, value: any) => {
-      if (typeof num === "string")
-        throw new Error("Named parameters are not available")
-      if (!boundParams)
-        boundParams = []
-      boundParams[num - 1] = value
-    },
-    unbind: async (num: number | string) => {
-      if (typeof num === "string")
-        throw new Error("Named parameters are not available")
-      if (boundParams)
-        boundParams[num] = undefined
-    },
-    exec: async (params?: SqlParameters) => {
+  const obj: APreparedStatement<any> = {
+    exec: async (params?: unknown[]) => {
       const { sql: text, insertTable, idColumnName } = addReturningToInsert(sql, options)
-      return toAdapterExecResult(await client.query({
+      return toAExecResult(await client.query({
         name: psName,
         text,
-        values: toPositionalParameters(mergeParams(boundParams, params))
+        values: params
       }), insertTable, idColumnName)
     },
-    all: async (params?: SqlParameters) => {
+    all: async (params?: unknown[]) => {
       return toRows(await client.query({
         name: psName,
         text: sql,
-        values: toPositionalParameters(mergeParams(boundParams, params))
+        values: params
       }))
     },
-    cursor: async (params?: SqlParameters) => createAdapterCursor({ client, sql, params, psName }),
+    cursor: async (params?: unknown[]) => createACursor({ client, sql, params, psName }),
     close: async () => { }
   }
   return obj
 }
 
-function mergeParams(params1: SqlParameters | undefined, params2: SqlParameters | undefined): SqlParameters | undefined {
-  if (!params1)
-    return params2
-  if (!params2)
-    return params1
-  const isArr = Array.isArray(params1)
-  if (isArr !== Array.isArray(params2))
-    throw new Error("Cannot merge named parameters with positioned parameters")
-  if (isArr) {
-    const result = [...(params1 as string[])]
-    const p2 = params2 as string[]
-    p2.forEach((val, index) => result[index] = val)
-    return result
-  }
-  return {
-    ...params1,
-    ...params2
-  }
-}
-
-async function createAdapterCursor({ client, sql, params, psName }: {
+async function createACursor({ client, sql, params, psName }: {
   client: Client
   sql: string
-  params?: SqlParameters
+  params?: unknown[]
   psName?: string
 }): Promise<AsyncIterableIterator<any>> {
-  const cursorObj = new Cursor(sql, toPositionalParameters(params))
+  const cursorObj = new Cursor(sql, params)
   if (psName)
     cursorObj.name = psName
   const innerCursor = promisifyCursor(client.query(cursorObj))
@@ -201,27 +161,3 @@ async function createAdapterCursor({ client, sql, params, psName }: {
   }
   return obj
 }
-
-// function makeInMemoryCursor(rows?: any[]): AsyncIterableIterator<any> {
-//   let currentIndex = -1
-//   const obj: AsyncIterableIterator<any> = {
-//     [Symbol.asyncIterator]: () => obj,
-//     next: async () => {
-//       if (!rows)
-//         return { done: true, value: undefined }
-//       const value = rows[++currentIndex]
-//       if (!value)
-//         rows = undefined
-//       return { done: !rows, value }
-//     },
-//     return: async () => {
-//       rows = undefined
-//       return { done: true, value: undefined }
-//     },
-//     throw: async err => {
-//       rows = undefined
-//       throw err
-//     }
-//   }
-//   return obj
-// }

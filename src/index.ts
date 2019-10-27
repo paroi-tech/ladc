@@ -1,12 +1,12 @@
 import { LadcAdapter } from "ladc"
-import { createPgConnection, toAdapterConnection } from "./AdapterConnection"
+import { createPgConnection, toAConnection } from "./AConnection"
 import { LadcPgOptions } from "./exported-definitions"
 
 export default function pgAdapter(options: LadcPgOptions): LadcAdapter {
   return {
     createConnection: async () => {
       const db = await createPgConnection(options.pgConfig)
-      return toAdapterConnection(db, options)
+      return toAConnection(db, options)
     },
     capabilities: {
       cursors: true,
