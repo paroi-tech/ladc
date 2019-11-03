@@ -1,11 +1,19 @@
 # @ladc/mysql2-adapter
 
-The [LADC](https://github.com/paleo/ladc) adapter for the driver [mysql2](https://github.com/sidorares/node-mysql2) (MySQL).
+[![Build Status](https://travis-ci.com/paleo/mysql2-adapter.svg?branch=master)](https://travis-ci.com/paleo/mysql2-adapter)
+[![Dependencies Status](https://david-dm.org/paleo/mysql2-adapter/status.svg)](https://david-dm.org/paleo/mysql2-adapter)
+[![npm](https://img.shields.io/npm/dm/@ladc/mysql2-adapter)](https://www.npmjs.com/package/@ladc/mysql2-adapter)
+![Type definitions](https://img.shields.io/npm/types/@ladc/mysql2-adapter)
+![GitHub](https://img.shields.io/github/license/paleo/mysql2-adapter)
+
+[LADC](https://github.com/paleo/ladc) is a common API on top of relational database (SQL) connectors. It can connect to Postgresql, MariaDB / MySQL, SQLite. The API is inspired from PDO and JDBC. It’s named LADC for “a Layer Above Database Connectors”.
+
+This package is a plugin for LADC. It is an adapter for MySQL and MariaDB, using the connector [mysql2](https://github.com/sidorares/node-mysql2).
 
 ## Install
 
 ```
-npm install ladc @ladc/mysql2-adapter
+npm install @ladc/mysql2-adapter ladc
 ```
 
 ## Usage
@@ -27,3 +35,9 @@ const cn = ladc({
   })
 })
 ```
+
+## Contribute
+
+With VS Code, our recommanded plugin is:
+
+* **TSLint** from Microsoft (`ms-vscode.vscode-typescript-tslint-plugin`)

@@ -1,7 +1,7 @@
 {
   "name": "@ladc/mysql2-adapter",
-  "version": "0.22.3",
-  "description": "The LADC adapter for the driver \"mysql2\" (MySQL).",
+  "version": "0.22.4",
+  "description": "Connect to MySQL and MariaDB with the LADC API.",
   "main": "ladc-mysql2-adapter.min.js",
   "types": "ladc-mysql2-adapter.d.ts",
   "dependencies": {
@@ -40,14 +40,9 @@
   },
   "license": "CC0-1.0",
   "keywords": [
-    "mysql2",
     "mysql",
     "mariadb",
-    "ladc",
-    "adapter",
-    "node.js",
-    "pool",
     "connection",
-    "transaction"
+    "ladc"
   ]
 }
