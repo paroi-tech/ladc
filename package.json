@@ -1,7 +1,7 @@
 {
   "name": "ladc",
-  "version": "0.22.2",
-  "description": "LADC provides a common API inspired from PDO and JDBC.",
+  "version": "0.22.3",
+  "description": "LADC is a common API on top of relational database (SQL) connectors. It can connect to Postgresql, MariaDB, MySQL, SQLite.",
   "main": "ladc.min.js",
   "types": "ladc.d.ts",
   "devDependencies": {
@@ -33,14 +33,9 @@
   },
   "license": "CC0-1.0",
   "keywords": [
-    "node.js",
-    "sql",
-    "connector",
-    "relational",
-    "database",
-    "pool",
-    "transaction",
-    "jdbc",
-    "pdo"
+    "sqlite",
+    "postgresql",
+    "mariadb",
+    "mysql"
   ]
 }
