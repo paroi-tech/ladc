@@ -1,13 +1,13 @@
 {
   "name": "ladc",
-  "version": "0.22.4",
+  "version": "0.22.5",
   "description": "LADC is a common API on top of relational database (SQL) connectors. It connects to Postgresql, MariaDB, MySQL, SQLite.",
   "main": "ladc.min.js",
   "types": "ladc.d.ts",
   "devDependencies": {
     "npm-run-all": "4",
     "rimraf": "3",
-    "rollup": "1",
+    "rollup": "^1.26.3",
     "terser": "4",
     "tslint": "5",
     "typescript": "3"
