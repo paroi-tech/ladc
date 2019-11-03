@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.com/paleo/pg-adapter.svg?branch=master)](https://travis-ci.com/paleo/pg-adapter)
 [![Dependencies Status](https://david-dm.org/paleo/pg-adapter/status.svg)](https://david-dm.org/paleo/pg-adapter)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/af6b0c42452d449086625891b86f478c)](https://www.codacy.com/manual/paleo/ladc-pg-adapter?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=paleo/ladc-pg-adapter&amp;utm_campaign=Badge_Grade)
 [![npm](https://img.shields.io/npm/dm/@ladc/pg-adapter)](https://www.npmjs.com/package/@ladc/pg-adapter)
 ![Type definitions](https://img.shields.io/npm/types/@ladc/pg-adapter)
 [![GitHub](https://img.shields.io/github/license/paleo/pg-adapter)](https://github.com/paleo/ladc-pg-adapter)
