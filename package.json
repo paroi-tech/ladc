@@ -1,6 +1,6 @@
 {
   "name": "@ladc/sql-bricks-modifier",
-  "version": "0.22.3",
+  "version": "0.22.4",
   "description": "Use the query builder 'SQL Bricks' with the LADC API.",
   "main": "ladc-sql-bricks-modifier.min.js",
   "types": "ladc-sql-bricks-modifier.d.ts",
@@ -10,10 +10,10 @@
   },
   "devDependencies": {
     "@types/sql-bricks": "2",
-    "ladc": "^0.22.2",
+    "ladc": "^0.22.4",
     "npm-run-all": "4",
     "rimraf": "3",
-    "rollup": "1",
+    "rollup": "^1.26.3",
     "sql-bricks": "2",
     "terser": "4",
     "tslint": "5",
