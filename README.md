@@ -4,7 +4,7 @@
 [![Dependencies Status](https://david-dm.org/paleo/pg-adapter/status.svg)](https://david-dm.org/paleo/pg-adapter)
 [![npm](https://img.shields.io/npm/dm/@ladc/pg-adapter)](https://www.npmjs.com/package/@ladc/pg-adapter)
 ![Type definitions](https://img.shields.io/npm/types/@ladc/pg-adapter)
-![GitHub](https://img.shields.io/github/license/paleo/pg-adapter)
+[![GitHub](https://img.shields.io/github/license/paleo/pg-adapter)](https://github.com/paleo/ladc-pg-adapter)
 
 [LADC](https://github.com/paleo/ladc) is a common API on top of relational database (SQL) connectors. It can connect to Postgresql, MariaDB / MySQL, SQLite. The API is inspired from PDO and JDBC. It’s named LADC for “a Layer Above Database Connectors”.
 
