@@ -1,10 +1,18 @@
 # @ladc/sql-bricks-modifier
 
-This package integrates the query builder [SQL Bricks](https://github.com/CSNW/sql-bricks) to [LADC](https://github.com/paleo/ladc).
+[![Build Status](https://travis-ci.com/paleo/sql-bricks-modifier.svg?branch=master)](https://travis-ci.com/paleo/sql-bricks-modifier)
+[![Dependencies Status](https://david-dm.org/paleo/sql-bricks-modifier/status.svg)](https://david-dm.org/paleo/sql-bricks-modifier)
+[![npm](https://img.shields.io/npm/dm/@ladc/sql-bricks-modifier)](https://www.npmjs.com/package/@ladc/sql-bricks-modifier)
+![Type definitions](https://img.shields.io/npm/types/@ladc/sql-bricks-modifier)
+![GitHub](https://img.shields.io/github/license/paleo/sql-bricks-modifier)
+
+[LADC](https://github.com/paleo/ladc) is a common API on top of relational database (SQL) connectors. It can connect to Postgresql, MariaDB / MySQL, SQLite. The API is inspired from PDO and JDBC. It’s named LADC for “a Layer Above Database Connectors”.
+
+This package is a plugin for LADC. It integrates the query builder [SQL Bricks](https://github.com/CSNW/sql-bricks) to LADC.
 
 ## Additional API
 
-This package overloads the following methods to the LADC objects `MainConnection` and `TransactionConnection`:
+This package overloads the following methods of the LADC objects `MainConnection` and `TransactionConnection`:
 
 * `prepare(sqlBricksQuery)`
 * `exec(sqlBricksQuery)`
@@ -45,3 +53,9 @@ async function test(cn) {
   console.log(rows)
 }
 ```
+
+## Contribute
+
+With VS Code, our recommanded plugin is:
+
+* **TSLint** from Microsoft (`ms-vscode.vscode-typescript-tslint-plugin`)

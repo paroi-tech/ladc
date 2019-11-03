@@ -1,7 +1,7 @@
 {
   "name": "@ladc/sql-bricks-modifier",
-  "version": "0.22.2",
-  "description": "This package integrates the query builder SQL Bricks to LADC.",
+  "version": "0.22.3",
+  "description": "Use the query builder 'SQL Bricks' with the LADC API.",
   "main": "ladc-sql-bricks-modifier.min.js",
   "types": "ladc-sql-bricks-modifier.d.ts",
   "peerDependencies": {
@@ -40,11 +40,9 @@
   },
   "license": "CC0-1.0",
   "keywords": [
-    "ladc",
-    "sqlbricks",
     "sql",
-    "bricks",
     "query",
-    "builder"
+    "builder",
+    "ladc"
   ]
 }
