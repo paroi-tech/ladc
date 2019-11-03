@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.com/paleo/ladc.svg?branch=master)](https://travis-ci.com/paleo/ladc)
 [![Dependencies Status](https://david-dm.org/paleo/ladc/status.svg)](https://david-dm.org/paleo/ladc)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/fcc70f036fb14a1abf1fc22a61ae81c1)](https://www.codacy.com/manual/paleo/ladc?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=paleo/ladc&amp;utm_campaign=Badge_Grade)
 [![npm](https://img.shields.io/npm/dm/ladc)](https://www.npmjs.com/package/ladc)
 ![Type definitions](https://img.shields.io/npm/types/ladc)
 [![GitHub](https://img.shields.io/github/license/paleo/ladc)](https://github.com/paleo/ladc)
