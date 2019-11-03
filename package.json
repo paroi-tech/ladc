@@ -1,6 +1,6 @@
 {
   "name": "@ladc/sqlite3-adapter",
-  "version": "0.22.3",
+  "version": "0.22.4",
   "description": "Connect to SQLite with the LADC API.",
   "main": "ladc-sqlite3-adapter.min.js",
   "types": "ladc-sqlite3-adapter.d.ts",
@@ -12,10 +12,10 @@
     "ladc": "0.22"
   },
   "devDependencies": {
-    "ladc": "^0.22.2",
+    "ladc": "^0.22.5",
     "npm-run-all": "4",
     "rimraf": "3",
-    "rollup": "1",
+    "rollup": "^1.26.3",
     "terser": "4",
     "tslint": "5",
     "typescript": "3"
