@@ -1,6 +1,6 @@
 {
   "name": "ladc",
-  "version": "0.22.3",
+  "version": "0.22.4",
   "description": "LADC is a common API on top of relational database (SQL) connectors. It can connect to Postgresql, MariaDB, MySQL, SQLite.",
   "main": "ladc.min.js",
   "types": "ladc.d.ts",
