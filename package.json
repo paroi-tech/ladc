@@ -1,6 +1,6 @@
 {
   "name": "@ladc/mysql2-adapter",
-  "version": "0.22.4",
+  "version": "0.22.5",
   "description": "Connect to MySQL and MariaDB with the LADC API.",
   "main": "ladc-mysql2-adapter.min.js",
   "types": "ladc-mysql2-adapter.d.ts",
@@ -11,10 +11,10 @@
     "ladc": "0.22"
   },
   "devDependencies": {
-    "ladc": "^0.22.2",
+    "ladc": "^0.22.5",
     "npm-run-all": "4",
     "rimraf": "3",
-    "rollup": "1",
+    "rollup": "^1.26.3",
     "terser": "4",
     "tslint": "5",
     "typescript": "3"

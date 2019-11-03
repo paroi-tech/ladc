@@ -5,7 +5,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/732365855c7e452a893b389fa40262c1)](https://www.codacy.com/manual/paleo/ladc-mysql2-adapter?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=paleo/ladc-mysql2-adapter&amp;utm_campaign=Badge_Grade)
 [![npm](https://img.shields.io/npm/dm/@ladc/mysql2-adapter)](https://www.npmjs.com/package/@ladc/mysql2-adapter)
 ![Type definitions](https://img.shields.io/npm/types/@ladc/mysql2-adapter)
-[![GitHub](https://img.shields.io/github/license/paleo/mysql2-adapter)](https://github.com/paleo/ladc-mysql2-adapter)
+[![GitHub](https://img.shields.io/github/license/paleo/ladc-mysql2-adapter)](https://github.com/paleo/ladc-mysql2-adapter)
 
 [LADC](https://github.com/paleo/ladc) is a common API on top of relational database (SQL) connectors. It can connect to Postgresql, MariaDB / MySQL, SQLite. The API is inspired from PDO and JDBC. It’s named LADC for “a Layer Above Database Connectors”.
 
