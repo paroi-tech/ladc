@@ -1,7 +1,7 @@
 {
   "name": "@ladc/sqlite3-adapter",
-  "version": "0.22.2",
-  "description": "The LADC adapter to the driver \"sqlite3\" (SQLite).",
+  "version": "0.22.3",
+  "description": "Connect to SQLite with the LADC API.",
   "main": "ladc-sqlite3-adapter.min.js",
   "types": "ladc-sqlite3-adapter.d.ts",
   "dependencies": {
@@ -42,11 +42,7 @@
   "license": "CC0-1.0",
   "keywords": [
     "sqlite",
-    "ladc",
-    "adapter",
-    "node.js",
-    "pool",
     "connection",
-    "transaction"
+    "ladc"
   ]
 }
