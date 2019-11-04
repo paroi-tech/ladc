@@ -1,11 +1,11 @@
 {
   "name": "@ladc/mysql2-adapter",
-  "version": "0.22.6",
+  "version": "0.22.7",
   "description": "Connect to MySQL and MariaDB with the LADC API.",
   "main": "ladc-mysql2-adapter.min.js",
   "types": "ladc-mysql2-adapter.d.ts",
   "dependencies": {
-    "mysql2": "^1.7.0"
+    "mysql2": "^2.0.0"
   },
   "peerDependencies": {
     "ladc": "0.22"

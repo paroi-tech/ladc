@@ -27,7 +27,7 @@ import mysql2Adapter from "@ladc/mysql2-adapter"
 
 const cn = ladc({
   adapter: mysql2Adapter({
-    mysqlConfig: {
+    mysql2Config: {
       host: "-my-server-",
       database: "-my-database-",
       user: "-my-user-",
