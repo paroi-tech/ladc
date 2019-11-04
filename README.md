@@ -22,7 +22,7 @@ This package overloads the following methods of the LADC objects `MainConnection
 * `singleValue(sqlBricksSelectStatement)`
 * `cursor(sqlBricksSelectStatement)`
 
-## Usage
+## How to use SQL Bricks with LADC (example with SQLite)
 
 Install with LADC and a connector (here is an example with SQLite):
 
@@ -54,6 +54,32 @@ async function test(cn) {
   console.log(rows)
 }
 ```
+
+## How to use SQL Bricks with LADC: The case of MySQL
+
+MySQL requires a specific `placeholder` option for SQL Bricks:
+
+```js
+import ladc from "ladc"
+import mysql2Adapter from "@ladc/mysql2-adapter"
+import sqlBricksModifier from "@ladc/sql-bricks-modifier"
+
+const cn = ladc({
+  adapter: mysql2Adapter({
+    mysql2Config: {
+      host: "-my-server-",
+      database: "-my-database-",
+      user: "-my-user-",
+      password: "-my-password-"
+    }
+  }),
+  modifier: sqlBricksModifier({
+    toParamsOptions: { placeholder: "?" } // ← Specific to MySQL
+  }),
+})
+```
+
+Now, the API can be used as usual.
 
 ## Contribute
 
