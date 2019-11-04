@@ -17,7 +17,7 @@ This package is a plugin for LADC. It is an adapter for MySQL and MariaDB, using
 npm install @ladc/mysql2-adapter ladc
 ```
 
-## Usage
+## Use a MySQL connection with LADC
 
 How to create a connection:
 
@@ -35,6 +35,41 @@ const cn = ladc({
     }
   })
 })
+```
+
+# Use a MySQL connection with LADC and SQL Bricks
+
+Add the dependencies for SQL Bricks:
+
+```sh
+npm install sql-bricks @ladc/sql-bricks-modifier
+```
+
+In your code, MySQL requires to set a specific `placeholder` option in SQL Bricks:
+
+```js
+import ladc from "ladc"
+import mysql2Adapter from "@ladc/mysql2-adapter"
+import sqlBricksModifier from "@ladc/sql-bricks-modifier"
+
+const cn = ladc({
+  adapter: mysql2Adapter({ fileName: `${__dirname}/mydb.sqlite` }),
+  modifier: sqlBricksModifier({
+    toParamsOptions: { placeholder: "?" } // ← Specific to MySQL
+  }),
+})
+```
+
+Now, use it:
+
+```js
+import { select } from "sql-bricks"
+
+async function test(cn) {
+  const q = select("col1, col2").from("table1")
+  const rows = await cn.all(q)
+  console.log(rows)
+}
 ```
 
 ## Contribute
