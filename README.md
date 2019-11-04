@@ -53,7 +53,14 @@ import mysql2Adapter from "@ladc/mysql2-adapter"
 import sqlBricksModifier from "@ladc/sql-bricks-modifier"
 
 const cn = ladc({
-  adapter: mysql2Adapter({ fileName: `${__dirname}/mydb.sqlite` }),
+  adapter: mysql2Adapter({
+    mysql2Config: {
+      host: "-my-server-",
+      database: "-my-database-",
+      user: "-my-user-",
+      password: "-my-password-"
+    }
+  }),
   modifier: sqlBricksModifier({
     toParamsOptions: { placeholder: "?" } // ← Specific to MySQL
   }),
