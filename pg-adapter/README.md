@@ -1,8 +1,8 @@
 # @ladc/pg-adapter
 
-[![Build Status](https://travis-ci.com/paleo/ladc.svg?branch=master)](https://travis-ci.com/paleo/ladc)
 <!-- [![Dependencies Status](https://david-dm.org/paleo/ladc-pg-adapter/status.svg)](https://david-dm.org/paleo/ladc-pg-adapter)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/af6b0c42452d449086625891b86f478c)](https://www.codacy.com/manual/paleo/ladc-pg-adapter?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=paleo/ladc-pg-adapter&amp;utm_campaign=Badge_Grade) -->
+[![Build Status](https://travis-ci.com/paleo/ladc.svg?branch=master)](https://travis-ci.com/paleo/ladc)
 [![npm](https://img.shields.io/npm/dm/@ladc/pg-adapter)](https://www.npmjs.com/package/@ladc/pg-adapter)
 ![Type definitions](https://img.shields.io/npm/types/@ladc/pg-adapter)
 [![GitHub](https://img.shields.io/github/license/paleo/ladc)](https://github.com/paleo/ladc)

@@ -1,8 +1,8 @@
 # @ladc/mysql2-adapter
 
-[![Build Status](https://travis-ci.com/paleo/ladc.svg?branch=master)](https://travis-ci.com/paleo/ladc)
 <!-- [![Dependencies Status](https://david-dm.org/paleo/ladc-mysql2-adapter/status.svg)](https://david-dm.org/paleo/ladc-mysql2-adapter)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/732365855c7e452a893b389fa40262c1)](https://www.codacy.com/manual/paleo/ladc-mysql2-adapter?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=paleo/ladc-mysql2-adapter&amp;utm_campaign=Badge_Grade) -->
+[![Build Status](https://travis-ci.com/paleo/ladc.svg?branch=master)](https://travis-ci.com/paleo/ladc)
 [![npm](https://img.shields.io/npm/dm/@ladc/mysql2-adapter)](https://www.npmjs.com/package/@ladc/mysql2-adapter)
 ![Type definitions](https://img.shields.io/npm/types/@ladc/mysql2-adapter)
 [![GitHub](https://img.shields.io/github/license/paleo/ladc)](https://github.com/paleo/ladc)

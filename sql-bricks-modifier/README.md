@@ -1,8 +1,8 @@
 # @ladc/sql-bricks-modifier
 
-[![Build Status](https://travis-ci.com/paleo/ladc.svg?branch=master)](https://travis-ci.com/paleo/ladc)
 <!-- [![Dependencies Status](https://david-dm.org/paleo/ladc-sql-bricks-modifier/status.svg)](https://david-dm.org/paleo/ladc-sql-bricks-modifier)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/395c5ccd121545f4860c1bd05740de7e)](https://www.codacy.com/manual/paleo/ladc-sql-bricks-modifier?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=paleo/ladc-sql-bricks-modifier&amp;utm_campaign=Badge_Grade) -->
+[![Build Status](https://travis-ci.com/paleo/ladc.svg?branch=master)](https://travis-ci.com/paleo/ladc)
 [![npm](https://img.shields.io/npm/dm/@ladc/sql-bricks-modifier)](https://www.npmjs.com/package/@ladc/sql-bricks-modifier)
 ![Type definitions](https://img.shields.io/npm/types/@ladc/sql-bricks-modifier)
 [![GitHub](https://img.shields.io/github/license/paleo/ladc)](https://github.com/paleo/ladc)
