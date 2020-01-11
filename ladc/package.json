@@ -1,6 +1,6 @@
 {
   "name": "ladc",
-  "version": "0.22.5",
+  "version": "0.22.6",
   "description": "LADC is a common API on top of relational database (SQL) connectors. It connects to Postgresql, MariaDB, MySQL, SQLite.",
   "main": "ladc.min.js",
   "types": "ladc.d.ts",
@@ -28,6 +28,7 @@
     "type": "git",
     "url": "git+https://github.com/paleo/ladc.git"
   },
+  "homepage": "https://github.com/paleo/ladc/tree/master/ladc",
   "author": {
     "name": "Paleo"
   },

@@ -1,6 +1,6 @@
 {
   "name": "@ladc/mysql2-adapter",
-  "version": "0.22.7",
+  "version": "0.22.8",
   "description": "Connect to MySQL and MariaDB with the LADC API.",
   "main": "ladc-mysql2-adapter.min.js",
   "types": "ladc-mysql2-adapter.d.ts",
@@ -33,8 +33,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/paleo/ladc-mysql2-adapter.git"
+    "url": "git+https://github.com/paleo/ladc.git"
   },
+  "homepage": "https://github.com/paleo/ladc/tree/master/mysql2-adapter",
   "author": {
     "name": "Paleo"
   },

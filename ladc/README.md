@@ -45,9 +45,9 @@ npm install ladc
 
 Then you'll need an adapter for the DBMS of your choice. Here are the available adapters:
 
-* [@ladc/pg-adapter](https://github.com/paleo/ladc-pg-adapter) for **Postgresql**, using the _pg_ connector;
-* [@ladc/mysql2-adapter](https://github.com/paleo/ladc-mysql2-adapter) for **MariaDB** and **MySQL**, using the _mysql2_ connector;
-* [@ladc/sqlite3-adapter](https://github.com/paleo/ladc-sqlite3-adapter) for **SQLite**, using the _sqlite3_ connector.
+* [@ladc/pg-adapter](https://github.com/paleo/ladc/tree/master/pg-adapter) for **Postgresql**, using the _pg_ connector;
+* [@ladc/mysql2-adapter](https://github.com/paleo/ladc/tree/master/mysql2-adapter) for **MariaDB** and **MySQL**, using the _mysql2_ connector;
+* [@ladc/sqlite3-adapter](https://github.com/paleo/ladc/tree/master/sqlite3-adapter) for **SQLite**, using the _sqlite3_ connector.
 
 Let's pick the SQLite's one:
 
@@ -168,7 +168,7 @@ Notice:
 
 ## How to Integrate a Query Builder
 
-LADC will integrate well with the query builder [SQL Bricks](https://csnw.github.io/sql-bricks/), using the package [@ladc/sql-bricks-modifier](https://github.com/paleo/ladc-sql-bricks-modifier).
+LADC will integrate well with the query builder [SQL Bricks](https://csnw.github.io/sql-bricks/), using the package [@ladc/sql-bricks-modifier](https://github.com/paleo/ladc/sql-bricks-modifier).
 
 Add the dependencies:
 
