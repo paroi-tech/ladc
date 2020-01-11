@@ -1,0 +1,5 @@
+.npmrc
+node_modules
+/build/compiled
+/ladc-pg-adapter.d.ts
+/ladc-pg-adapter.min.js
