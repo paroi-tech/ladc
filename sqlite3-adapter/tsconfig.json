@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es2018",
+    "moduleResolution": "node",
+    "strict": true,
+    "outDir": "build/compiled",
+    "declaration": true,
+    "lib": [
+      "es2018"
+    ]
+  },
+  "include": [
+    "src"
+  ]
+}

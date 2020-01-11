@@ -1,0 +1,5 @@
+.npmrc
+node_modules
+/build/compiled
+/ladc-sqlite3-adapter.d.ts
+/ladc-sqlite3-adapter.min.js
