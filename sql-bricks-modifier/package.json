@@ -1,0 +1,48 @@
+{
+  "name": "@ladc/sql-bricks-modifier",
+  "version": "0.22.4",
+  "description": "Use the query builder 'SQL Bricks' with the LADC API.",
+  "main": "ladc-sql-bricks-modifier.min.js",
+  "types": "ladc-sql-bricks-modifier.d.ts",
+  "peerDependencies": {
+    "ladc": "0.22",
+    "sql-bricks": "2"
+  },
+  "devDependencies": {
+    "@types/sql-bricks": "2",
+    "ladc": "^0.22.5",
+    "npm-run-all": "4",
+    "rimraf": "3",
+    "rollup": "^1.26.3",
+    "sql-bricks": "2",
+    "terser": "4",
+    "tslint": "5",
+    "typescript": "3"
+  },
+  "scripts": {
+    "build": "run-s clear tsc make-bundle",
+    "tsc": "tsc",
+    "tsc:watch": "tsc --watch",
+    "make-bundle": "node build/make-bundle",
+    "clear": "rimraf build/compiled/*",
+    "lint": "tslint -p tsconfig.json -t verbose",
+    "prepublishOnly": "npm run build"
+  },
+  "engines": {
+    "node": ">=8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paleo/ladc-sql-bricks-modifier.git"
+  },
+  "author": {
+    "name": "Paleo"
+  },
+  "license": "CC0-1.0",
+  "keywords": [
+    "sql",
+    "query",
+    "builder",
+    "ladc"
+  ]
+}

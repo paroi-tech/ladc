@@ -1,0 +1,5 @@
+.npmrc
+node_modules
+/build/compiled
+/ladc-sql-bricks-modifier.d.ts
+/ladc-sql-bricks-modifier.min.js
