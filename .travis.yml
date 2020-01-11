@@ -10,6 +10,6 @@ env:
   - SUB_PROJECT=ladc
   - SUB_PROJECT=mysql2-adapter
   - SUB_PROJECT=pg-adapter
-  - SUB_PROJECT=sqlite-adapter
+  - SUB_PROJECT=sqlite3-adapter
   - SUB_PROJECT=sql-bricks-modifier
-script: cd $SUB_PROJECT && npm i && npm run build
+script: cd $SUB_PROJECT && npm i && npm run prepublishOnly

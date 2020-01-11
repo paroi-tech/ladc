@@ -13,11 +13,11 @@
     "ladc": "^0.22.5",
     "npm-run-all": "4",
     "rimraf": "3",
-    "rollup": "^1.26.3",
+    "rollup": "^1.29.0",
     "sql-bricks": "2",
-    "terser": "4",
-    "tslint": "5",
-    "typescript": "3"
+    "terser": "^4.6.2",
+    "tslint": "^5.20.1",
+    "typescript": "^3.7.4"
   },
   "scripts": {
     "build": "run-s clear tsc make-bundle",
@@ -26,7 +26,7 @@
     "make-bundle": "node build/make-bundle",
     "clear": "rimraf build/compiled/*",
     "lint": "tslint -p tsconfig.json -t verbose",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run lint && npm run build"
   },
   "engines": {
     "node": ">=8"
