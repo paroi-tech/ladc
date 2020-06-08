@@ -18,5 +18,5 @@
   "typescript.locale": "en",
   "typescript.preferences.importModuleSpecifier": "relative",
   "typescript.preferences.quoteStyle": "double",
-  "typescript.tsdk": "./node_modules/typescript/lib"
+  "typescript.tsdk": "./ladc/ladc/node_modules/typescript/lib"
 }

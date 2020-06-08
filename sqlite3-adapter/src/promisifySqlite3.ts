@@ -24,7 +24,7 @@ export interface RunResult {
 }
 
 export async function createSqlite3Connection(options: Sqlite3ConnectionOptions): Promise<Database> {
-  const maxAttempts = options.maxAttempts || 3
+  const maxAttempts = options.maxAttempts ?? 3
   let curAttempt = 1
   let delayAfterError = 50
   let firstError: unknown
@@ -33,7 +33,7 @@ export async function createSqlite3Connection(options: Sqlite3ConnectionOptions)
     const cb = (err: unknown) => {
       if (err) {
         if (curAttempt >= maxAttempts)
-          reject(firstError || err)
+          reject(firstError ?? err)
         else {
           if (!firstError)
             firstError = err

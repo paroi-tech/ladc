@@ -1,4 +1,4 @@
-import { AConnection, ACreateConnectionOptions, AdapterCapabilities } from "../adapter-definitions"
+import { AConnection, ACreateConnectionOptions, AdapterCapabilities, AdapterHooks } from "../adapter-definitions"
 import { Pool } from "../createPool"
 import { LadcOptions, MainConnection, SqlParameters } from "../exported-definitions"
 import { toSingleRow, toSingleValue } from "../helpers"
@@ -12,6 +12,7 @@ export interface Context {
   provider: (createOptions?: ACreateConnectionOptions) => Promise<AConnection>
   options: LadcOptions
   capabilities: AdapterCapabilities
+  hooks: AdapterHooks
   check: {
     [K in keyof AdapterCapabilities]-?: () => void
   } & {

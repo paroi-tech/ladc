@@ -17,12 +17,12 @@ interface PoolItem {
 }
 
 export default function createPool(provider: () => Promise<AConnection>, options: LadcOptions): Pool {
-  const poolOptions = options.poolOptions || {}
-  const connectionTtl = poolOptions.connectionTtl || 60
-  const logMonitoring = poolOptions.logMonitoring || (() => { })
+  const poolOptions = options.poolOptions ?? {}
+  const connectionTtl = poolOptions.connectionTtl ?? 60
+  const logMonitoring = poolOptions.logMonitoring ?? (() => { })
   const keepOneConnection = !!poolOptions.keepOneConnection
   // tslint:disable-next-line:no-console
-  const logError = options.logError || (err => console.error(err))
+  const logError = options.logError ?? (err => console.error(err))
   const logDebug = options.logDebug
 
   if (logDebug)

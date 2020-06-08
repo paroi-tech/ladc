@@ -36,7 +36,10 @@ interface TxItemContext {
 class TxItem {
   static async create(txContext: TxItemContext): Promise<TxItem> {
     const acn: AConnection = await txContext.context.pool.grab(true)
-    await acn.exec("begin")
+    if (txContext.context.hooks.beginTransaction)
+      await txContext.context.hooks.beginTransaction(acn)
+    else
+      await acn.exec("begin")
     return new TxItem(txContext, acn)
   }
 
@@ -57,7 +60,7 @@ class TxItem {
   }
 
   private async closeDependencies() {
-    const promises: Array<Promise<void>> = []
+    const promises: Promise<void>[] = []
     if (this.cursorItem)
       promises.push(this.cursorItem.close())
     if (this.psProvider)

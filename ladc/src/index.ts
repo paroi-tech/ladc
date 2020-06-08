@@ -15,6 +15,7 @@ export default function ladc(options: LadcOptions): MainConnection {
     pool: createPool(provider, options),
     provider,
     capabilities: options.adapter.capabilities,
+    hooks: options.adapter.hooks ?? {},
     check: makeCheckers(options.adapter.capabilities)
   })
 }

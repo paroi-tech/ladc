@@ -3,6 +3,11 @@ import { ResultRow, SqlParameters } from "./exported-definitions";
 export interface LadcAdapter {
   createConnection: (createOptions?: ACreateConnectionOptions) => Promise<AConnection>
   capabilities: AdapterCapabilities
+  hooks?: AdapterHooks
+}
+
+export interface AdapterHooks {
+  beginTransaction?(cn: AConnection): Promise<void>
 }
 
 export interface ACreateConnectionOptions {

@@ -1,4 +1,4 @@
-import { ACreateConnectionOptions, LadcAdapter } from "ladc"
+import { AConnection, ACreateConnectionOptions, LadcAdapter } from "ladc"
 import { createMysqlConnection, toAConnection } from "./AConnection"
 import { LadcMysql2Options } from "./exported-definitions"
 
@@ -13,6 +13,11 @@ export default function mysql2Adapter(options: LadcMysql2Options): LadcAdapter {
       namedParameters: false,
       preparedStatements: true,
       script: "onASeparateConnection"
+    },
+    hooks: {
+      async beginTransaction(cn: AConnection): Promise<void> {
+        await cn.exec("start transaction")
+      }
     }
   }
 }
