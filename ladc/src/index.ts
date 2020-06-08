@@ -20,8 +20,8 @@ export default function ladc(options: LadcOptions): MainConnection {
   })
 }
 
-export * from "./adapter-definitions"
-export * from "./exported-definitions"
+export type { AConnection, ACreateConnectionOptions, AdapterCapabilities, AdapterHooks, AExecResult, APreparedStatement, LadcAdapter } from "./adapter-definitions"
+export type { Connection, DebugEvent, DebugEventContext, ExecResult, LadcModifier, LadcOptions, MainConnection, PoolMonitoring, PoolOptions, PreparedStatement, ResultRow, SqlParameters, TransactionConnection } from "./exported-definitions"
 
 function makeCheckers(capabilities: AdapterCapabilities): Context["check"] {
   return {

@@ -5,22 +5,22 @@
   "main": "ladc-pg-adapter.min.js",
   "types": "ladc-pg-adapter.d.ts",
   "dependencies": {
-    "@types/pg": "^7.14.1",
-    "pg": "^7.17.1",
-    "pg-cursor": "^2.1.3"
+    "@types/pg": "^7.14.3",
+    "pg": "^8.2.1",
+    "pg-cursor": "^2.2.1"
   },
   "peerDependencies": {
     "ladc": "0.22"
   },
   "devDependencies": {
-    "@types/node": "^12.12.24",
-    "ladc": "^0.22.5",
+    "@types/node": "^12.12.44",
+    "ladc": "^0.22.7",
     "npm-run-all": "4",
-    "rimraf": "3",
-    "rollup": "^1.29.0",
-    "terser": "^4.6.2",
-    "tslint": "^5.20.1",
-    "typescript": "^3.7.4"
+    "rimraf": "^3.0.2",
+    "rollup": "^2.15.0",
+    "terser": "^4.7.0",
+    "tslint": "^6.1.2",
+    "typescript": "^3.9.5"
   },
   "scripts": {
     "build": "run-s clear tsc make-bundle",
@@ -36,9 +36,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/paleo/ladc.git"
+    "url": "git+https://github.com/paroi-tech/ladc.git"
   },
-  "homepage": "https://github.com/paleo/ladc/tree/master/pg-adapter",
+  "homepage": "https://github.com/paroi-tech/ladc/tree/master/pg-adapter",
   "author": {
     "name": "Paleo"
   },

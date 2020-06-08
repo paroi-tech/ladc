@@ -9,15 +9,16 @@
     "sql-bricks": "2"
   },
   "devDependencies": {
+    "@types/node": "^12.12.44",
     "@types/sql-bricks": "2",
-    "ladc": "^0.22.5",
+    "ladc": "^0.22.7",
     "npm-run-all": "4",
-    "rimraf": "3",
-    "rollup": "^1.29.0",
-    "sql-bricks": "2",
-    "terser": "^4.6.2",
-    "tslint": "^5.20.1",
-    "typescript": "^3.7.4"
+    "rimraf": "^3.0.2",
+    "rollup": "^2.15.0",
+    "sql-bricks": "^2.0.5",
+    "terser": "^4.7.0",
+    "tslint": "^6.1.2",
+    "typescript": "^3.9.5"
   },
   "scripts": {
     "build": "run-s clear tsc make-bundle",
@@ -33,9 +34,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/paleo/ladc.git"
+    "url": "git+https://github.com/paroi-tech/ladc.git"
   },
-  "homepage": "https://github.com/paleo/ladc/tree/master/sql-bricks-modifier",
+  "homepage": "https://github.com/paroi-tech/ladc/tree/master/sql-bricks-modifier",
   "author": {
     "name": "Paleo"
   },

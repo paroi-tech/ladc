@@ -5,12 +5,13 @@
   "main": "ladc.min.js",
   "types": "ladc.d.ts",
   "devDependencies": {
+    "@types/node": "^12.12.44",
     "npm-run-all": "4",
-    "rimraf": "^3.0.1",
-    "rollup": "^1.31.0",
-    "terser": "^4.6.3",
-    "tslint": "^6.0.0",
-    "typescript": "^3.7.5"
+    "rimraf": "^3.0.2",
+    "rollup": "^2.15.0",
+    "terser": "^4.7.0",
+    "tslint": "^6.1.2",
+    "typescript": "^3.9.5"
   },
   "scripts": {
     "build": "run-s clear tsc make-bundle",
@@ -26,9 +27,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/paleo/ladc.git"
+    "url": "git+https://github.com/paroi-tech/ladc.git"
   },
-  "homepage": "https://github.com/paleo/ladc/tree/master/ladc",
+  "homepage": "https://github.com/paroi-tech/ladc/tree/master/ladc",
   "author": {
     "name": "Paleo"
   },

@@ -21,4 +21,5 @@ export default function sqlite3Adapter(options: Sqlite3ConnectionOptions): LadcA
   }
 }
 
-export * from "./exported-definitions"
+export type { Sqlite3ConnectionOptions } from "./exported-definitions"
+
