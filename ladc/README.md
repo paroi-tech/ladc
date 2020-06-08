@@ -2,7 +2,9 @@
 
 [![Build Status](https://travis-ci.com/paroi-tech/ladc.svg?branch=master)](https://travis-ci.com/paroi-tech/ladc)
 [![Dependencies Status](https://david-dm.org/paroi-tech/ladc/status.svg)](https://david-dm.org/paroi-tech/ladc)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/fcc70f036fb14a1abf1fc22a61ae81c1)](https://www.codacy.com/manual/paroi-tech/ladc?utm_source=github.com&utm_medium=referral&utm_content=paroi-tech/ladc&utm_campaign=Badge_Grade)
+
+<!-- [![Codacy Badge](https://api.codacy.com/project/badge/Grade/fcc70f036fb14a1abf1fc22a61ae81c1)](https://www.codacy.com/manual/paroi-tech/ladc?utm_source=github.com&utm_medium=referral&utm_content=paroi-tech/ladc&utm_campaign=Badge_Grade) -->
+
 [![npm](https://img.shields.io/npm/dm/ladc)](https://www.npmjs.com/package/ladc)
 ![Type definitions](https://img.shields.io/npm/types/ladc)
 [![GitHub](https://img.shields.io/github/license/paroi-tech/ladc)](https://github.com/paroi-tech/ladc)
