@@ -1,6 +1,6 @@
 {
   "name": "@ladc/pg-adapter",
-  "version": "0.22.5",
+  "version": "0.22.6",
   "description": "Connect to Postgresql with the LADC API.",
   "main": "ladc-pg-adapter.min.js",
   "types": "ladc-pg-adapter.d.ts",
