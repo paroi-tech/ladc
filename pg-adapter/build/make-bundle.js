@@ -17,11 +17,9 @@ async function build() {
     input: path.join(compiledPath, "index.js")
   })
   const { output } = await bundle.generate({
-    format: "cjs",
+    format: "commonjs",
+    exports: "named",
     sourcemap: false,
-    output: {
-      exports: "named"
-    }
   })
 
   const minified = terser.minify({

@@ -1,7 +1,7 @@
 const { promisify } = require("util")
 const fs = require("fs")
 const path = require("path")
-const rollup = require("rollup")
+const { rollup } = require("rollup")
 const terser = require("terser")
 
 const readFile = promisify(fs.readFile)
@@ -13,15 +13,14 @@ const compiledPath = path.join(__dirname, "compiled")
 const distNpmPath = path.join(__dirname, "..")
 
 async function build() {
-  const bundle = await rollup.rollup({
-    input: path.join(compiledPath, "index.js")
+  const bundle = await rollup({
+    input: path.join(compiledPath, "index.js"),
+
   })
   const { output } = await bundle.generate({
-    format: "cjs",
+    format: "commonjs",
+    exports: "named",
     sourcemap: false,
-    output: {
-      exports: "named"
-    }
   })
 
   const minified = terser.minify({
