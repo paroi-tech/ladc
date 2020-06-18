@@ -9,15 +9,9 @@
 ![Type definitions](https://img.shields.io/npm/types/ladc)
 [![GitHub](https://img.shields.io/github/license/paroi-tech/ladc)](https://github.com/paroi-tech/ladc)
 
-LADC is a common API on top of relational database (SQL) connectors. It can connect to Postgresql, MariaDB / MySQL, SQLite. The API is inspired from PDO and JDBC. It’s named LADC for “a Layer Above Database Connectors”.
+LADC is a common API on top of relational database (SQL) connectors. It can connect to Postgresql, MariaDB, MySQL, SQLite. The API is inspired from PDO and JDBC. It’s named LADC for “a Layer Above Database Connectors”.
 
-## Why a Common API Above DBMS connectors?
-
-_Above_ connectors? Unlike PDO and JDBC, the purpose is not to replace DBMS drivers. This project is designed to remain a lightweight layer on top of the rock solid drivers we currently use in Node.js.
-
-Why a common API? It brings to our programs an improved compatibility with various DBMS. It is also easier to learn.
-
-## Let’s Stop Talking! Show Me Some Code!
+## A sample of code
 
 Here is an example of code that uses a LADC connection:
 
