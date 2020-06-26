@@ -1,4 +1,4 @@
-import * as sqlite3 from "sqlite3"
+import * as sqlite3 from "sqlite3";
 
 export interface Sqlite3ConnectionOptions {
   fileName: string
@@ -9,5 +9,5 @@ export interface Sqlite3ConnectionOptions {
    * Default value is `3`
    */
   maxAttempts?: number
-  logWarning?: (error: string) => {}
+  logWarning?: (error: string) => void
 }

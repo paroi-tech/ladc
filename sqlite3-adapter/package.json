@@ -1,6 +1,6 @@
 {
   "name": "@ladc/sqlite3-adapter",
-  "version": "0.22.7",
+  "version": "0.22.8",
   "description": "Connect to SQLite with the LADC API.",
   "main": "ladc-sqlite3-adapter.min.js",
   "types": "ladc-sqlite3-adapter.d.ts",
