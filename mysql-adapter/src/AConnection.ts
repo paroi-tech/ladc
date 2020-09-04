@@ -1,27 +1,27 @@
 import { AConnection, ACreateConnectionOptions, AExecResult, APreparedStatement } from "ladc"
-const { createConnection } = require("mysql2/promise")
+import { createPromisifiedConnection, PromisifiedConnection, UnderlyingExecResult } from "./promisifyMysql"
 
-export async function createMysqlConnection(
-  mysql2Config: any,
+export function createMysqlConnection(
+  mysqlConfig: any,
   createOptions?: ACreateConnectionOptions
-): Promise<any> {
+): Promise<PromisifiedConnection> {
   if (createOptions && createOptions.enableScript) {
-    mysql2Config = {
-      ...mysql2Config,
+    mysqlConfig = {
+      ...mysqlConfig,
       multipleStatements: true
     }
   }
-  return await createConnection(mysql2Config)
+  return createPromisifiedConnection(mysqlConfig)
 }
 
-export function toAConnection(mc: any): AConnection { // , options: LadcMysql2Options
+export function toAConnection(mc: PromisifiedConnection): AConnection { // , options: LadcMysqlOptions
   return {
-    prepare: async (sql: string) => makeAPreparedStatement(mc, sql),
+    prepare: async (sql: string) => Promise.resolve(makeAPreparedStatement(mc, sql)),
     exec: async (sql: string, params?: unknown[]) => {
-      const [result] = await mc.execute(sql, params)
+      const result = await mc.exec(sql, params)
       return toAExecResult(result)
     },
-    all: async (sql: string, params?: unknown[]) => toRows(await mc.query(sql, params)),
+    all: async (sql: string, params?: unknown[]) => await mc.query(sql, params),
     cursor: (sql: string, params?: unknown[]) => createACursor({ mc, sql, params }),
     script: async (sql: string) => {
       await mc.query(sql)
@@ -32,30 +32,25 @@ export function toAConnection(mc: any): AConnection { // , options: LadcMysql2Op
   }
 }
 
-function toRows([rows]: any): any[] {
-  // console.log(">> result", result)
-  return rows
-}
-
-function toAExecResult(result: any): AExecResult {
+function toAExecResult(result: UnderlyingExecResult): AExecResult {
+  if (result.affectedRows === undefined)
+    throw new Error("Missing affected rows")
   return {
     affectedRows: result.affectedRows,
     getInsertedId: () => result.insertId
   }
 }
 
-async function makeAPreparedStatement(mc: any, sql: string): Promise<APreparedStatement<any>> {
-  const statement = await mc.prepare(sql)
+function makeAPreparedStatement(mc: PromisifiedConnection, sql: string): APreparedStatement<any> {
   const obj: APreparedStatement<any> = {
     exec: async (params?: unknown[]) => {
-      const [result] = await statement.execute(params)
+      const result = await mc.exec(sql, params)
       return toAExecResult(result)
     },
-    all: async (params?: unknown[]) => toRows(await statement.execute(params)),
-    cursor: (params?: unknown[]) => createACursor({ mc, sql, params, statement }),
+    all: async (params?: unknown[]) => await mc.query(sql, params),
+    cursor: async (params?: unknown[]) => createACursor({ mc, sql, params }),
     close: async () => {
-      statement.close()
-      return Promise.resolve()
+      // Nothing to do.
     }
   }
   return obj
@@ -63,7 +58,7 @@ async function makeAPreparedStatement(mc: any, sql: string): Promise<APreparedSt
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function createACursor({ mc, sql, params, statement }: {
-  mc: any
+  mc: PromisifiedConnection
   sql: string
   params: unknown[] | undefined
   statement?: any

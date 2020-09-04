@@ -104,7 +104,7 @@ class PsItem {
         itemContext.context.check.parameters(params)
         check("cursor")
         if (!itemContext.context.capabilities.cursors)
-          throw new Error(`Cursors are not available with this adapter`)
+          throw new Error("Cursors are not available with this adapter")
         if (!itemContext.canCreateCursor())
           throw new Error("Only one cursor is allowed by underlying transaction")
         this.cursorItem = new CursorItem({
@@ -126,6 +126,7 @@ class PsItem {
           }
           (this.boundParams as any)[paramsOrIndexOrKey] = value
         }
+        return Promise.resolve()
       },
       unbind: async (indexOrKey?: number | string) => {
         check("unbind")
@@ -137,10 +138,11 @@ class PsItem {
           }
           (this.boundParams as any)[indexOrKey] = undefined
         }
+        return Promise.resolve()
       },
       close: async () => {
         if (!aps)
-          throw new Error(`Prepared statement is already closed`)
+          throw new Error("Prepared statement is already closed")
         const copy = aps
         aps = undefined
         if (this.cursorItem)

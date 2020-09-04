@@ -35,13 +35,13 @@ export default function makeMainConnection(context: Context): MainConnection {
     async prepare(sql: string) {
       context.check.preparedStatements()
       if (closed)
-        throw new Error(`Invalid call to 'prepare', the connection is closed`)
+        throw new Error("Invalid call to 'prepare', the connection is closed")
       return await psProvider.prepare(sql)
     },
     async exec(sql: string, params?: SqlParameters) {
       context.check.parameters(params)
       if (closed)
-        throw new Error(`Invalid call to 'exec', the connection is closed`)
+        throw new Error("Invalid call to 'exec', the connection is closed")
       const cn = await pool.grab()
       try {
         const res = await cn.exec(sql, params)
@@ -53,7 +53,7 @@ export default function makeMainConnection(context: Context): MainConnection {
     async all(sql: string, params?: SqlParameters) {
       context.check.parameters(params)
       if (closed)
-        throw new Error(`Invalid call to 'all', the connection is closed`)
+        throw new Error("Invalid call to 'all', the connection is closed")
       const cn = await pool.grab()
       try {
         return await cn.all(sql, params)
@@ -71,13 +71,13 @@ export default function makeMainConnection(context: Context): MainConnection {
       context.check.cursors()
       context.check.parameters(params)
       if (closed)
-        throw new Error(`Invalid call to 'cursor', the connection is closed`)
+        throw new Error("Invalid call to 'cursor', the connection is closed")
       return await cursorProvider.open(sql, params)
     },
     async script(sql: string) {
       context.check.script()
       if (closed)
-        throw new Error(`Invalid call to 'script', the connection is closed`)
+        throw new Error("Invalid call to 'script', the connection is closed")
       if (context.capabilities.script === "onASeparateConnection") {
         const cn = await context.provider({ enableScript: true })
         try {
@@ -97,12 +97,12 @@ export default function makeMainConnection(context: Context): MainConnection {
 
     beginTransaction: async () => {
       if (closed)
-        throw new Error(`Invalid call to 'beginTransaction', the connection is closed`)
+        throw new Error("Invalid call to 'beginTransaction', the connection is closed")
       return await txProvider.create()
     },
     close: async () => {
       if (closed)
-        throw new Error(`Invalid call to 'close', the connection is already closed`)
+        throw new Error("Invalid call to 'close', the connection is already closed")
       closed = true
       await Promise.all([
         psProvider.closeAll(),

@@ -69,11 +69,31 @@ class TxItem {
   }
 
   private toTx(itemContext: TxItemContext, acn: AConnection | undefined): TransactionConnection {
+    const endOfTransaction = async (method: "commit" | "rollback", item: TxItem) => {
+      if (!acn)
+        throw new Error(`Invalid call to '${method}', not in a transaction`)
+      const copy = acn
+      acn = undefined
+      itemContext.end(item)
+      try {
+        await item.closeDependencies()
+        const hook = itemContext.context.hooks[method]
+        if (hook)
+          await hook(copy)
+        else
+          await copy.exec(method)
+        itemContext.context.pool.release(copy)
+      } catch (err) {
+        itemContext.context.pool.abandon(copy)
+        throw err
+      }
+    }
+
     let obj: TransactionConnection = {
       prepare: async (sql: string) => {
         itemContext.context.check.preparedStatements()
         if (!acn)
-          throw new Error(`Invalid call to 'prepare', the connection is closed`)
+          throw new Error("Invalid call to 'prepare', the connection is closed")
         if (!this.psProvider) {
           this.psProvider = new PsProvider({
             context: itemContext.context,
@@ -86,13 +106,13 @@ class TxItem {
       async exec(sql: string, params?: SqlParameters) {
         itemContext.context.check.parameters(params)
         if (!acn)
-          throw new Error(`Invalid call to 'exec', not in a transaction`)
+          throw new Error("Invalid call to 'exec', not in a transaction")
         return toExecResult(await acn.exec(sql, params))
       },
       async all(sql: string, params?: SqlParameters) {
         itemContext.context.check.parameters(params)
         if (!acn)
-          throw new Error(`Invalid call to 'all', not in a transaction`)
+          throw new Error("Invalid call to 'all', not in a transaction")
         return acn.all(sql, params)
       },
       singleRow: async (sql: string, params?: SqlParameters) => toSingleRow(await obj.all(sql, params)),
@@ -101,7 +121,7 @@ class TxItem {
         itemContext.context.check.cursors()
         itemContext.context.check.parameters(params)
         if (!acn)
-          throw new Error(`Invalid call to 'cursor', not in a transaction`)
+          throw new Error("Invalid call to 'cursor', not in a transaction")
         if (!this.canCreateCursor())
           throw new Error("Only one cursor is allowed by underlying transaction")
         this.cursorItem = new CursorItem({
@@ -115,9 +135,9 @@ class TxItem {
       async script(sql: string) {
         itemContext.context.check.script()
         if (itemContext.context.capabilities.script === "onASeparateConnection")
-          throw new Error(`Scripts are available only on the main connection with this adapter.`)
+          throw new Error("Scripts are available only on the main connection with this adapter.")
         if (!acn)
-          throw new Error(`Invalid call to 'script', not in a transaction`)
+          throw new Error("Invalid call to 'script', not in a transaction")
         return acn.script(sql)
       },
       get inTransaction() {
@@ -131,21 +151,5 @@ class TxItem {
       obj = itemContext.context.options.modifier.modifyConnection(obj)
 
     return obj
-
-    async function endOfTransaction(method: "commit" | "rollback", item: TxItem) {
-      if (!acn)
-        throw new Error(`Invalid call to '${method}', not in a transaction`)
-      const copy = acn
-      acn = undefined
-      itemContext.end(item)
-      try {
-        await item.closeDependencies()
-        await copy.exec(method)
-        itemContext.context.pool.release(copy)
-      } catch (err) {
-        itemContext.context.pool.abandon(copy)
-        throw err
-      }
-    }
   }
 }

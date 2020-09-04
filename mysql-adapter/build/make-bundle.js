@@ -7,7 +7,7 @@ const { minify } = require("terser")
 const readFile = promisify(fs.readFile)
 const writeFile = promisify(fs.writeFile)
 
-const bundleName = "ladc-mysql2-adapter"
+const bundleName = "ladc-mysql-adapter"
 const srcPath = path.join(__dirname, "..", "src")
 const compiledPath = path.join(__dirname, "compiled")
 const distNpmPath = path.join(__dirname, "..")
@@ -23,13 +23,16 @@ async function build() {
     sourcemap: false,
   })
 
-  const minified = await minify(output[0].code, { sourceMap: false })
-  if (minified.error)
-    throw minified.error
-  if (!minified.code)
+  if (!output[0].code)
     throw new Error("Missing code")
 
-  await writeFile(path.join(distNpmPath, `${bundleName}.min.js`), minified.code)
+  // const minified = await minify(output[0].code, { sourceMap: false })
+  // if (minified.error)
+  //   throw minified.error
+  // if (!minified.code)
+  //   throw new Error("Missing code")
+
+  await writeFile(path.join(distNpmPath, `${bundleName}.js`), output[0].code)
   await writeFile(path.join(distNpmPath, `${bundleName}.d.ts`), await makeDefinitionsCode())
 }
 

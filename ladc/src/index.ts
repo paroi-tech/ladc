@@ -27,23 +27,23 @@ function makeCheckers(capabilities: AdapterCapabilities): Context["check"] {
   return {
     cursors() {
       if (!capabilities.cursors)
-        throw new Error(`Cursors are not available with this adapter.`)
+        throw new Error("Cursors are not available with this adapter.")
     },
     namedParameters() {
       if (!capabilities.namedParameters)
-        throw new Error(`Named parameters are not available with this adapter.`)
+        throw new Error("Named parameters are not available with this adapter.")
     },
     preparedStatements() {
       if (!capabilities.preparedStatements)
-        throw new Error(`Prepared statements are not available with this adapter.`)
+        throw new Error("Prepared statements are not available with this adapter.")
     },
     script() {
       if (!capabilities.script)
-        throw new Error(`Scripts are not available with this adapter.`)
+        throw new Error("Scripts are not available with this adapter.")
     },
     parameters(params: SqlParameters | undefined) {
       if (params && !Array.isArray(params) && !capabilities.namedParameters)
-        throw new Error(`Named parameters are not available with this adapter.`)
+        throw new Error("Named parameters are not available with this adapter.")
     }
   }
 }

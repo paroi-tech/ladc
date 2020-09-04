@@ -2,7 +2,7 @@ const { promisify } = require("util")
 const fs = require("fs")
 const path = require("path")
 const rollup = require("rollup")
-const terser = require("terser")
+const { minify } = require("terser")
 
 const readFile = promisify(fs.readFile)
 const writeFile = promisify(fs.writeFile)
@@ -22,11 +22,11 @@ async function build() {
     sourcemap: false,
   })
 
-  const minified = terser.minify({
-    bundle: output[0].code
-  })
+  const minified = await minify(output[0].code, { sourceMap: false })
   if (minified.error)
     throw minified.error
+  if (!minified.code)
+    throw new Error("Missing code")
 
   await writeFile(path.join(distNpmPath, `${bundleName}.min.js`), minified.code)
   await writeFile(path.join(distNpmPath, `${bundleName}.d.ts`), await makeDefinitionsCode())

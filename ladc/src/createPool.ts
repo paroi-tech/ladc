@@ -19,9 +19,11 @@ interface PoolItem {
 export default function createPool(provider: () => Promise<AConnection>, options: LadcOptions): Pool {
   const poolOptions = options.poolOptions ?? {}
   const connectionTtl = poolOptions.connectionTtl ?? 60
-  const logMonitoring = poolOptions.logMonitoring ?? (() => { })
+  const logMonitoring = poolOptions.logMonitoring ?? (() => {
+    // Nothing to do.
+  })
   const keepOneConnection = !!poolOptions.keepOneConnection
-  // tslint:disable-next-line:no-console
+  // eslint-disable-next-line no-console
   const logError = options.logError ?? (err => console.error(err))
   const logDebug = options.logDebug
 
@@ -40,7 +42,7 @@ export default function createPool(provider: () => Promise<AConnection>, options
   return {
     grab: async (exclusive = false) => {
       if (closed)
-        throw new Error(`Invalid call to "grab", the pool is closed`)
+        throw new Error("Invalid call to \"grab\", the pool is closed")
 
       if (!exclusive && nonExclusiveDb) {
         ++nonExclusiveCount
@@ -92,7 +94,7 @@ export default function createPool(provider: () => Promise<AConnection>, options
     },
     close: async () => {
       if (closed)
-        throw new Error(`Invalid call to "close", the pool is already closed`)
+        throw new Error("Invalid call to \"close\", the pool is already closed")
       closed = true
       const closeAll = available.map(item => {
         logMonitoring({ event: "close", cn: item.db, id: identifiers.get(item.db) })

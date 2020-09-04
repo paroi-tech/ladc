@@ -1,13 +1,14 @@
 language: node_js
 node_js:
-  - 8
   - 10
   - 12
+  - 14
 cache:
   directories:
     - "node_modules"
 env:
   - SUB_PROJECT=ladc
+  - SUB_PROJECT=mysql-adapter
   - SUB_PROJECT=mysql2-adapter
   - SUB_PROJECT=pg-adapter
   - SUB_PROJECT=sqlite3-adapter

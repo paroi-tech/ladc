@@ -1,16 +1,17 @@
 {
-  "name": "@ladc/mysql2-adapter",
-  "version": "0.22.13",
-  "description": "Connect to MySQL and MariaDB with the LADC API ('mysql2' connector).",
-  "main": "ladc-mysql2-adapter.min.js",
-  "types": "ladc-mysql2-adapter.d.ts",
+  "name": "@ladc/mysql-adapter",
+  "version": "0.22.14",
+  "description": "Connect to MySQL and MariaDB with the LADC API ('mysql' connector).",
+  "main": "ladc-mysql-adapter.js",
+  "types": "ladc-mysql-adapter.d.ts",
   "dependencies": {
-    "mysql2": "^2.1.0"
+    "mysql": "^2.18.1"
   },
   "peerDependencies": {
     "ladc": "^0.22.12"
   },
   "devDependencies": {
+    "@types/mysql": "^2.15.15",
     "@types/node": "^12.12.55",
     "@typescript-eslint/eslint-plugin": "~3.10.1",
     "@typescript-eslint/parser": "~3.10.1",
@@ -35,7 +36,7 @@
     "type": "git",
     "url": "git+https://github.com/paroi-tech/ladc.git"
   },
-  "homepage": "https://github.com/paroi-tech/ladc/tree/master/mysql2-adapter",
+  "homepage": "https://github.com/paroi-tech/ladc/tree/master/mysql-adapter",
   "author": {
     "name": "Paleo"
   },

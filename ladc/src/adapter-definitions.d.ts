@@ -1,4 +1,4 @@
-import { ResultRow, SqlParameters } from "./exported-definitions";
+import { ResultRow, SqlParameters } from "./exported-definitions"
 
 export interface LadcAdapter {
   createConnection: (createOptions?: ACreateConnectionOptions) => Promise<AConnection>
@@ -8,6 +8,8 @@ export interface LadcAdapter {
 
 export interface AdapterHooks {
   beginTransaction?(cn: AConnection): Promise<void>
+  commit?(cn: AConnection): Promise<void>
+  rollback?(cn: AConnection): Promise<void>
 }
 
 export interface ACreateConnectionOptions {

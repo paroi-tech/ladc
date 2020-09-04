@@ -9,7 +9,7 @@ export function toExecResult(result: AExecResult): ExecResult {
     getInsertedId(options?: unknown) {
       const id = result.getInsertedId(options)
       if (id === undefined)
-        throw new Error(`Missing inserted ID`)
+        throw new Error("Missing inserted ID")
       return id
     },
     getInsertedIdAsString(options?: unknown): string {
