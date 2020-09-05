@@ -1,4 +1,5 @@
 import { SqlParameters } from "../exported-definitions"
+import { formatError } from "../helpers"
 import { Context } from "./MainConnection"
 
 export class CursorProvider {
@@ -11,18 +12,22 @@ export class CursorProvider {
     this.context.check.parameters(params)
     const { pool } = this.context
     const cn = await pool.grab()
-    const inst = new CursorItem(
-      {
-        context: this.context,
-        end: (item: CursorItem) => {
-          this.items.delete(item)
-          pool.release(cn)
-        }
-      },
-      await cn.cursor(sql, params)
-    )
-    this.items.add(inst)
-    return inst.cursor
+    try {
+      const inst = new CursorItem(
+        {
+          context: this.context,
+          end: (item: CursorItem) => {
+            this.items.delete(item)
+            pool.release(cn)
+          }
+        },
+        await cn.cursor(sql, params)
+      )
+      this.items.add(inst)
+      return inst.cursor
+    } catch (err) {
+      throw formatError(err)
+    }
   }
 
   async closeAll() {

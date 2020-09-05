@@ -23,13 +23,17 @@ async function build() {
     sourcemap: false,
   })
 
-  const minified = await minify(output[0].code, { sourceMap: false })
-  if (minified.error)
-    throw minified.error
-  if (!minified.code)
+  const code = output[0].code
+  if (!code)
     throw new Error("Missing code")
 
-  await writeFile(path.join(distNpmPath, `${bundleName}.min.js`), minified.code)
+  // const minified = await minify(output[0].code, { sourceMap: false })
+  // if (minified.error)
+  //   throw minified.error
+  // if (!minified.code)
+  //   throw new Error("Missing code")
+
+  await writeFile(path.join(distNpmPath, `${bundleName}.min.js`), code)
   await writeFile(path.join(distNpmPath, `${bundleName}.d.ts`), await makeDefinitionsCode())
 }
 

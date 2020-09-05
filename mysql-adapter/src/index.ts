@@ -32,14 +32,14 @@ export default function mysqlAdapter(options: LadcMysqlOptions): LadcAdapter {
         if (mc)
           await mc.commit()
         else
-          await cn.exec("start transaction")
+          await cn.exec("commit")
       },
       async rollback(cn: AConnection): Promise<void> {
         const mc = connections.get(cn)
         if (mc)
           await mc.rollback()
         else
-          await cn.exec("start transaction")
+          await cn.exec("rollback")
       },
     }
   }

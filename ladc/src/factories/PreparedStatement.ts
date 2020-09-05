@@ -1,6 +1,6 @@
 import { AConnection, APreparedStatement } from "../adapter-definitions"
 import { PreparedStatement, SqlParameters } from "../exported-definitions"
-import { toSingleRow, toSingleValue } from "../helpers"
+import { formatError, toSingleRow, toSingleValue } from "../helpers"
 import { CursorItem } from "./Cursor"
 import { toExecResult } from "./ExecResult"
 import { Context } from "./MainConnection"
@@ -91,12 +91,20 @@ class PsItem {
       exec: async (params?: SqlParameters) => {
         itemContext.context.check.parameters(params)
         check("exec")
-        return toExecResult(await aps!.exec(mergeParameters(this.boundParams, params)))
+        try {
+          return toExecResult(await aps!.exec(mergeParameters(this.boundParams, params)))
+        } catch (err) {
+          throw formatError(err)
+        }
       },
       all: async (params?: SqlParameters) => {
         itemContext.context.check.parameters(params)
         check("all")
-        return await aps!.all(mergeParameters(this.boundParams, params))
+        try {
+          return await aps!.all(mergeParameters(this.boundParams, params))
+        } catch (err) {
+          throw formatError(err)
+        }
       },
       singleRow: async (params?: SqlParameters) => toSingleRow(await obj.all(params)),
       singleValue: async (params?: SqlParameters) => toSingleValue(await obj.singleRow(params)),
@@ -107,13 +115,18 @@ class PsItem {
           throw new Error("Cursors are not available with this adapter")
         if (!itemContext.canCreateCursor())
           throw new Error("Only one cursor is allowed by underlying transaction")
-        this.cursorItem = new CursorItem({
-          context: itemContext.context,
-          end: () => {
-            this.cursorItem = undefined
-          }
-        }, await aps!.cursor(mergeParameters(this.boundParams, params)))
-        return this.cursorItem.cursor
+        try {
+          const aCursor = await aps!.cursor(mergeParameters(this.boundParams, params))
+          this.cursorItem = new CursorItem({
+            context: itemContext.context,
+            end: () => {
+              this.cursorItem = undefined
+            }
+          }, aCursor)
+          return this.cursorItem.cursor
+        } catch (err) {
+          throw formatError(err)
+        }
       },
       bind: async (paramsOrIndexOrKey: SqlParameters | number | string, value?: any) => {
         check("bind")
@@ -147,7 +160,11 @@ class PsItem {
         aps = undefined
         if (this.cursorItem)
           await this.cursorItem.close()
-        await copy.close()
+        try {
+          await copy.close()
+        } catch (err) {
+          throw formatError(err)
+        }
         itemContext.end(this)
       }
     }

@@ -2,11 +2,15 @@ import { AConnection, ACreateConnectionOptions, LadcAdapter } from "ladc"
 import { createMysqlConnection, toAConnection } from "./AConnection"
 import { LadcMysql2Options } from "./exported-definitions"
 
+const connections = new WeakMap<AConnection, any>()
+
 export default function mysql2Adapter(options: LadcMysql2Options): LadcAdapter {
   return {
     createConnection: async (createOptions?: ACreateConnectionOptions) => {
       const mc = await createMysqlConnection(options.mysql2Config, createOptions)
-      return toAConnection(mc)
+      const cn = toAConnection(mc)
+      connections.set(cn, mc)
+      return cn
     },
     capabilities: {
       cursors: false,
@@ -16,18 +20,28 @@ export default function mysql2Adapter(options: LadcMysql2Options): LadcAdapter {
     },
     hooks: {
       async beginTransaction(cn: AConnection): Promise<void> {
-        // await cn.exec("start transaction")
-        await (cn as any).beginTransaction()
+        const mc = connections.get(cn)
+        if (mc) {
+          await mc.beginTransaction()
+          await mc.end()
+        } else
+          await cn.exec("start transaction")
       },
       async commit(cn: AConnection): Promise<void> {
-        // await cn.exec("start transaction")
-        await (cn as any).commit()
-        await (cn as any).end()
+        const mc = connections.get(cn)
+        if (mc) {
+          await mc.commit()
+          await mc.end()
+        } else
+          await cn.exec("commit")
       },
       async rollback(cn: AConnection): Promise<void> {
-        // await cn.exec("start transaction")
-        await (cn as any).rollback()
-        await (cn as any).end()
+        const mc = connections.get(cn)
+        if (mc) {
+          await mc.rollback()
+          await mc.end()
+        } else
+          await cn.exec("rollback")
       },
     }
   }

@@ -1,6 +1,6 @@
 import { AConnection } from "../adapter-definitions"
 import { SqlParameters, TransactionConnection } from "../exported-definitions"
-import { toSingleRow, toSingleValue } from "../helpers"
+import { formatError, toSingleRow, toSingleValue } from "../helpers"
 import { CursorItem } from "./Cursor"
 import { toExecResult } from "./ExecResult"
 import { Context } from "./MainConnection"
@@ -36,11 +36,15 @@ interface TxItemContext {
 class TxItem {
   static async create(txContext: TxItemContext): Promise<TxItem> {
     const acn: AConnection = await txContext.context.pool.grab(true)
-    if (txContext.context.hooks.beginTransaction)
-      await txContext.context.hooks.beginTransaction(acn)
-    else
-      await acn.exec("begin")
-    return new TxItem(txContext, acn)
+    try {
+      if (txContext.context.hooks.beginTransaction)
+        await txContext.context.hooks.beginTransaction(acn)
+      else
+        await acn.exec("begin")
+      return new TxItem(txContext, acn)
+    } catch (err) {
+      throw formatError(err)
+    }
   }
 
   tx: TransactionConnection
@@ -78,10 +82,14 @@ class TxItem {
       try {
         await item.closeDependencies()
         const hook = itemContext.context.hooks[method]
-        if (hook)
-          await hook(copy)
-        else
-          await copy.exec(method)
+        try {
+          if (hook)
+            await hook(copy)
+          else
+            await copy.exec(method)
+        } catch (err) {
+          throw formatError(err)
+        }
         itemContext.context.pool.release(copy)
       } catch (err) {
         itemContext.context.pool.abandon(copy)
@@ -107,13 +115,21 @@ class TxItem {
         itemContext.context.check.parameters(params)
         if (!acn)
           throw new Error("Invalid call to 'exec', not in a transaction")
-        return toExecResult(await acn.exec(sql, params))
+        try {
+          return toExecResult(await acn.exec(sql, params))
+        } catch (err) {
+          throw formatError(err)
+        }
       },
       async all(sql: string, params?: SqlParameters) {
         itemContext.context.check.parameters(params)
         if (!acn)
           throw new Error("Invalid call to 'all', not in a transaction")
-        return acn.all(sql, params)
+        try {
+          return acn.all(sql, params)
+        } catch (err) {
+          throw formatError(err)
+        }
       },
       singleRow: async (sql: string, params?: SqlParameters) => toSingleRow(await obj.all(sql, params)),
       singleValue: async (sql: string, params?: SqlParameters) => toSingleValue(await obj.singleRow(sql, params)),
@@ -124,13 +140,17 @@ class TxItem {
           throw new Error("Invalid call to 'cursor', not in a transaction")
         if (!this.canCreateCursor())
           throw new Error("Only one cursor is allowed by underlying transaction")
-        this.cursorItem = new CursorItem({
-          context: itemContext.context,
-          end: () => {
-            this.cursorItem = undefined
-          }
-        }, await acn.cursor(sql, params))
-        return this.cursorItem.cursor
+        try {
+          this.cursorItem = new CursorItem({
+            context: itemContext.context,
+            end: () => {
+              this.cursorItem = undefined
+            }
+          }, await acn.cursor(sql, params))
+          return this.cursorItem.cursor
+        } catch (err) {
+          throw formatError(err)
+        }
       },
       async script(sql: string) {
         itemContext.context.check.script()
@@ -138,7 +158,11 @@ class TxItem {
           throw new Error("Scripts are available only on the main connection with this adapter.")
         if (!acn)
           throw new Error("Invalid call to 'script', not in a transaction")
-        return acn.script(sql)
+        try {
+          return acn.script(sql)
+        } catch (err) {
+          throw formatError(err)
+        }
       },
       get inTransaction() {
         return !!acn

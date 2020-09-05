@@ -1,7 +1,7 @@
 import { AConnection, ACreateConnectionOptions, AdapterCapabilities, AdapterHooks } from "../adapter-definitions"
 import { Pool } from "../createPool"
 import { LadcOptions, MainConnection, SqlParameters } from "../exported-definitions"
-import { toSingleRow, toSingleValue } from "../helpers"
+import { formatError, toSingleRow, toSingleValue } from "../helpers"
 import { CursorProvider } from "./Cursor"
 import { toExecResult } from "./ExecResult"
 import { PsProvider } from "./PreparedStatement"
@@ -57,6 +57,8 @@ export default function makeMainConnection(context: Context): MainConnection {
       const cn = await pool.grab()
       try {
         return await cn.all(sql, params)
+      } catch (err) {
+        throw formatError(err)
       } finally {
         pool.release(cn)
       }
@@ -82,6 +84,8 @@ export default function makeMainConnection(context: Context): MainConnection {
         const cn = await context.provider({ enableScript: true })
         try {
           return await cn.script(sql)
+        } catch (err) {
+          throw formatError(err)
         } finally {
           await cn.close()
         }
@@ -89,6 +93,8 @@ export default function makeMainConnection(context: Context): MainConnection {
         const cn = await pool.grab()
         try {
           return await cn.script(sql)
+        } catch (err) {
+          throw formatError(err)
         } finally {
           pool.release(cn)
         }

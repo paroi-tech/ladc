@@ -15,3 +15,9 @@ export function toSingleValue(row: any) {
     throw new Error(`Cannot fetch one value, column count: ${columns.length}`)
   return row[columns[0]]
 }
+
+export function formatError(err: any) {
+  if (err instanceof Error)
+    return err
+  return new Error(err)
+}
